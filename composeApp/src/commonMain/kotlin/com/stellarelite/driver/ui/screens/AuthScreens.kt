@@ -62,7 +62,8 @@ data class DriverTrip(
     val driverSalary: Double = 0.0,
     val cashReceivedSgd: Double = 0.0,
     val cashReceivedRm: Double = 0.0,
-    val contactPhone: String = ""
+    val contactPhone: String = "",
+    val contactWechat: String = ""
 )
 
 data class DriverVehicle(

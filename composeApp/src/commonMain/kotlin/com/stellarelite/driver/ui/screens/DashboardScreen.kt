@@ -38,7 +38,8 @@ fun DashboardScreen(
             status = "confirmed",
             departureTime = "2026-07-16 15:30",
             driverSalary = 350.0,
-            contactPhone = "+60123456789"
+            contactPhone = "+60123456789",
+            contactWechat = "chen_wechat_88"
         )
     }
     val vehicles = remember {
@@ -165,6 +166,9 @@ fun DashboardScreen(
                             Column {
                                 Text(activeTrip.customerName, color = DriverColors.TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                                 Text(activeTrip.contactPhone, color = DriverColors.TextMuted, fontSize = 11.sp)
+                                if (activeTrip.contactWechat.isNotEmpty()) {
+                                    Text("微信: ${activeTrip.contactWechat}", color = DriverColors.Primary.copy(alpha = 0.7f), fontSize = 11.sp)
+                                }
                             }
                         }
                         
