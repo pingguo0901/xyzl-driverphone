@@ -1,6 +1,6 @@
 {
-  "versionCode": 1,
-  "versionName": "1.0.0",
-  "apkUrl": "/xyzl-driver.apk",
-  "changelog": "- 🚀 星域臻旅 手机司机端 首次发布\n- KMP Compose Multiplatform 构建\n- Android/iOS 双端支持"
+  "versionCode": 5,
+  "versionName": "1.0.4",
+  "apkUrl": "https://xyzl-phoneapp.vercel.app/xyzl-driver.apk",
+  "changelog": "- 🎨 全新App Icon（星域臻旅Logo，圆角）\n- 📱 启动页/进入系统/登录页图标替换为真实Logo\n- 💬 新增聊天Tab（底部最左边）\n- 🏠 工作台按钮中间凸起突出显示\n- 🔄 新增APP内自动更新系统"
 }
