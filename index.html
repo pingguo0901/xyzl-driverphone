@@ -139,14 +139,14 @@
         const data = await resp.json();
         document.getElementById('version').textContent = data.versionName || '-';
         document.getElementById('versionCode').textContent = 'Build ' + (data.versionCode || '-');
-        document.getElementById('downloadBtn').href = data.apkUrl || '/milian-debug.apk';
+        document.getElementById('downloadBtn').href = data.apkUrl || '/xyzl-driver.apk';
       } catch(e) {
-        document.getElementById('downloadBtn').href = '/milian-debug.apk';
+        document.getElementById('downloadBtn').href = '/xyzl-driver.apk';
       }
 
       const sizeEl = document.getElementById('size');
       try {
-        const resp = await fetch('/milian-debug.apk', { method: 'HEAD' });
+        const resp = await fetch('/xyzl-driver.apk', { method: 'HEAD' });
         const cl = resp.headers.get('content-length');
         if (cl) {
           sizeEl.textContent = (cl / 1024 / 1024).toFixed(1) + ' MB';
