@@ -174,6 +174,9 @@ fun DashboardScreen(
                         
                         // Action buttons
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(Color(0xFF07C160))
+                                .clickable { }.padding(horizontal = 12.dp, vertical = 8.dp)
+                            ) { Text("微信", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold) }
                             Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(DriverColors.SurfaceVariant)
                                 .clickable { }.padding(horizontal = 12.dp, vertical = 8.dp)
                             ) { Text("📞", fontSize = 14.sp) }
