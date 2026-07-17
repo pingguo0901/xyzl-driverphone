@@ -97,12 +97,13 @@ fun App(
         Box(modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp)) {
             AnimatedContent(targetState = currentTab) { tab ->
                 when (tab) {
+                    DriverTab.Chat -> ChatScreen()
+                    DriverTab.Trips -> TripsScreen()
                     DriverTab.Home -> DashboardScreen(
                         isWorking = isWorking,
                         onToggleWork = { isWorking = it },
                         user = user
                     )
-                    DriverTab.Trips -> TripsScreen()
                     DriverTab.Wallet -> WalletScreen()
                     DriverTab.Profile -> ProfileScreen(
                         user = user,
