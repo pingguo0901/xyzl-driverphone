@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.stellarelite.driver.ui.components.AppIcon
 import com.stellarelite.driver.ui.theme.DriverColors
 import kotlinx.coroutines.delay
 
@@ -125,7 +126,7 @@ fun LaunchScreen(onFinished: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("🚀", fontSize = 64.sp)
+            AppIcon(size = 120)
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 "星域臻旅",
@@ -154,14 +155,14 @@ fun LandingScreen(onEnterSystem: () -> Unit) {
             .fillMaxSize()
             .background(Color(0xFF000000))
     ) {
-        // Background cover placeholder
+        // Background cover with logo
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFF0A0A0A)),
             contentAlignment = Alignment.Center
         ) {
-            Text("🌌", fontSize = 120.sp)
+            AppIcon(size = 160)
         }
 
         // Bottom overlay
@@ -230,16 +231,10 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(60.dp))
         
         // Logo
-        Box(
-            modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape)
-                .background(DriverColors.Primary.copy(alpha = 0.1f))
-                .align(Alignment.CenterHorizontally),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("🚀", fontSize = 36.sp)
-        }
+        AppIcon(
+            size = 80,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
         
         Spacer(modifier = Modifier.height(24.dp))
         
