@@ -1,7 +1,7 @@
 {
-  "versionCode": 15,
-  "versionName": "1.0.14",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.14/xyzl-driver.apk",
-  "changelog": "- KYC 实名认证升级为 8 步流程：证件类型→证件照片→驾照类型→驾照照片→个人资料→联系资料→人脸识别→确认资料\n- 证件仅支持马来西亚身份证/新加坡护照，驾照仅支持马来西亚/新加坡",
+  "versionCode": 16,
+  "versionName": "1.0.15",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.15/xyzl-driver.apk",
+  "changelog": "- 驾照正反面标签按驾照类型区分（马来西亚驾照/新加坡驾照），与证件正反面逻辑一致",
   "buildDate": "2026-08-15"
 }

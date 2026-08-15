@@ -136,6 +136,7 @@ fun KYCFlowScreen(onBack: () -> Unit) {
                 )
                 3 -> Page3LicenseType(licenseType, onLicenseTypeSelect = { licenseType = it })
                 4 -> Page4LicenseUpload(
+                    licenseType = licenseType,
                     frontSelected = licenseFrontSelected, backSelected = licenseBackSelected,
                     onFrontClick = { showLicenseFrontPicker = true },
                     onBackClick = { showLicenseBackPicker = true }
@@ -206,10 +207,10 @@ fun KYCFlowScreen(onBack: () -> Unit) {
     }
     // 驾照正反面 picker
     if (showLicenseFrontPicker) {
-        PhotoPickerDialog("驾照正面") { showLicenseFrontPicker = false; licenseFrontSelected = true }
+        PhotoPickerDialog(if (licenseType == "新加坡驾照") "新加坡驾照正面" else "马来西亚驾照正面") { showLicenseFrontPicker = false; licenseFrontSelected = true }
     }
     if (showLicenseBackPicker) {
-        PhotoPickerDialog("驾照背面") { showLicenseBackPicker = false; licenseBackSelected = true }
+        PhotoPickerDialog(if (licenseType == "新加坡驾照") "新加坡驾照背面" else "马来西亚驾照背面") { showLicenseBackPicker = false; licenseBackSelected = true }
     }
 
     if (showSubmitDialog) {
@@ -336,13 +337,15 @@ private fun Page3LicenseType(licenseType: String, onLicenseTypeSelect: (String) 
 
 @Composable
 private fun Page4LicenseUpload(
+    licenseType: String,
     frontSelected: Boolean, backSelected: Boolean,
     onFrontClick: () -> Unit, onBackClick: () -> Unit
 ) {
+    val labelPrefix = if (licenseType == "新加坡驾照") "新加坡驾照" else "马来西亚驾照"
     Text("上传驾照照片", color = DriverColors.TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
     Spacer(Modifier.height(6.dp))
-    UploadBox("驾照正面", frontSelected, onFrontClick)
-    UploadBox("驾照背面", backSelected, onBackClick)
+    UploadBox("$labelPrefix 正面", frontSelected, onFrontClick)
+    UploadBox("$labelPrefix 背面", backSelected, onBackClick)
 }
 
 /* ========== PAGE 5: 个人资料 ========== */
