@@ -104,6 +104,17 @@ data class SalaryRecordRow(
     val pay_status: String? = null
 )
 
+// 车辆信息（vehicle_profile / vehicle_private_data）
+@Serializable
+data class VehicleRow(
+    val vehicle_id: String? = null,
+    val vehicle_brand: String? = null,
+    val vehicle_model: String? = null,
+    val vehicle_type: String? = null,
+    val vehicle_plate: String? = null,
+    val vehicle_color: String? = null
+)
+
 // 组合后的「当前任务」展示模型
 data class DriverOrder(
     val order_no: String = "",
@@ -368,5 +379,34 @@ object SupabaseClient {
             actual_paid = row?.actual_paid ?: 0.0,
             pay_status = row?.pay_status ?: ""
         )
+    }
+
+    /** 查询司机已有权限车辆（按所属公司） */
+    suspend fun getDriverVehicles(driverId: String): List<VehicleRow> {
+        val companyId = getDriverCompanyId(driverId)
+        if (companyId.isNullOrBlank()) return emptyList()
+        val resp = httpRequest(
+            "$BASE/rest/v1/vehicle_private_data?company_id=eq.$companyId&select=vehicle_id,vehicle_brand,vehicle_model,vehicle_type,vehicle_plate,vehicle_color",
+            "GET", headers()
+        )
+        return if (resp.status in 200..299) {
+            runCatching { json.decodeFromString<List<VehicleRow>>(resp.body) }.getOrElse { emptyList() }
+        } else emptyList()
+    }
+
+    /** 请求车辆使用权限（发送给所属公司） */
+    suspend fun requestVehiclePermission(driverId: String, vehicleId: String): Boolean {
+        val companyId = getDriverCompanyId(driverId)
+        if (companyId.isNullOrBlank()) return false
+        val payload = """{"driver_id":"$driverId","vehicle_id":"$vehicleId","company_id":"$companyId","status":"pending"}"""
+        val resp = httpRequest("$BASE/rest/v1/vehicle_requests", "POST", headers(), payload)
+        return resp.status in 200..299
+    }
+
+    private suspend fun getDriverCompanyId(driverId: String): String? {
+        val resp = httpRequest("$BASE/rest/v1/driver_profile?driver_id=eq.$driverId&select=company_id", "GET", headers())
+        return if (resp.status in 200..299) {
+            runCatching { json.decodeFromString<List<DriverProfileRow>>(resp.body).firstOrNull()?.company_id }.getOrNull()
+        } else null
     }
 }

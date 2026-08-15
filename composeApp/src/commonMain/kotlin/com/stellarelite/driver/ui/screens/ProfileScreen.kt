@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -19,7 +20,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.stellarelite.driver.network.SupabaseClient
+import com.stellarelite.driver.network.VehicleRow
 import com.stellarelite.driver.ui.theme.DriverColors
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(user: DriverUser?, onLogout: () -> Unit, onNavigateToLogin: () -> Unit) {
@@ -59,7 +63,7 @@ fun ProfileScreen(user: DriverUser?, onLogout: () -> Unit, onNavigateToLogin: ()
         return
     }
     if (showGarage) {
-        GarageSettingsScreen(onBack = { showGarage = false })
+        GarageSettingsScreen(user = user, onBack = { showGarage = false })
         return
     }
 
@@ -284,18 +288,121 @@ private fun SecuritySettingsScreen(onBack: () -> Unit) {
 // ─── GARAGE SETTINGS ───
 
 @Composable
-private fun GarageSettingsScreen(onBack: () -> Unit) {
-    Column(modifier = Modifier.fillMaxSize().background(DriverColors.Background).padding(16.dp)) {
-        Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+private fun GarageSettingsScreen(user: DriverUser?, onBack: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    val driverId = user?.driverId ?: user?.id ?: ""
+    var vehicles by remember { mutableStateOf<List<VehicleRow>>(emptyList()) }
+    var loading by remember { mutableStateOf(true) }
+    var requestVehicleId by remember { mutableStateOf("") }
+    var requesting by remember { mutableStateOf(false) }
+    var requestResult by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(driverId) {
+        if (driverId.isNotBlank()) {
+            vehicles = SupabaseClient.getDriverVehicles(driverId)
+        }
+        loading = false
+    }
+
+    fun sendRequest() {
+        if (requestVehicleId.isBlank() || requesting) return
+        scope.launch {
+            requesting = true
+            val ok = SupabaseClient.requestVehiclePermission(driverId, requestVehicleId.trim())
+            requesting = false
+            requestResult = if (ok) "✓ 请求已发送给所属公司" else "发送失败，请重试"
+            if (ok) requestVehicleId = ""
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize().background(DriverColors.Background)) {
+        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.size(36.dp).clip(CircleShape).clickable { onBack() },
                 contentAlignment = Alignment.Center) { Text("←", color = DriverColors.Primary, fontSize = 20.sp) }
             Spacer(modifier = Modifier.width(12.dp))
             Text("车库设置", color = DriverColors.TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Black)
         }
-        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Text("🚗", fontSize = 40.sp)
-            Spacer(modifier = Modifier.height(12.dp))
-            Text("车辆管理功能开发中", color = DriverColors.TextMuted, fontSize = 14.sp)
+
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+            // ── 已有权限车辆 ──
+            item {
+                Text("已有权限车辆", color = DriverColors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(10.dp))
+            }
+            if (loading) {
+                item { Text("加载中…", color = DriverColors.TextMuted, fontSize = 13.sp) }
+            } else if (vehicles.isEmpty()) {
+                item {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(DriverColors.Surface)
+                            .border(1.dp, DriverColors.Border, RoundedCornerShape(14.dp)).padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("🚗", fontSize = 32.sp)
+                        Spacer(Modifier.height(8.dp))
+                        Text("请向所属公司请求授权", color = DriverColors.TextMuted, fontSize = 13.sp)
+                    }
+                }
+            } else {
+                items(vehicles, key = { it.vehicle_id ?: "" }) { v ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(DriverColors.Surface)
+                            .border(1.dp, DriverColors.Border, RoundedCornerShape(14.dp)).padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(modifier = Modifier.size(42.dp).clip(CircleShape).background(DriverColors.PrimaryBg), contentAlignment = Alignment.Center
+                        ) { Text("🚗", fontSize = 20.sp) }
+                        Spacer(Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(v.vehicle_plate ?: "未登记车牌", color = DriverColors.TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Black)
+                            Text(
+                                listOfNotNull(v.vehicle_brand, v.vehicle_model).joinToString(" "),
+                                color = DriverColors.TextMuted, fontSize = 12.sp
+                            )
+                            if (!v.vehicle_type.isNullOrBlank()) Text("${v.vehicle_type}${if (!v.vehicle_color.isNullOrBlank()) " · ${v.vehicle_color}" else ""}", color = DriverColors.TextMuted, fontSize = 11.sp)
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                }
+            }
+
+            // ── 请求权限车辆 ──
+            item {
+                Spacer(Modifier.height(16.dp))
+                Text("请求权限车辆", color = DriverColors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(10.dp))
+            }
+            item {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    BasicTextField(
+                        value = requestVehicleId,
+                        onValueChange = { requestVehicleId = it },
+                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).background(DriverColors.Surface)
+                            .border(1.dp, DriverColors.Border, RoundedCornerShape(14.dp)).padding(16.dp),
+                        textStyle = TextStyle(color = DriverColors.TextPrimary, fontSize = 15.sp),
+                        cursorBrush = SolidColor(DriverColors.Primary),
+                        singleLine = true,
+                        decorationBox = { inner -> Box { if (requestVehicleId.isEmpty()) Text("输入 vehicle_id", color = DriverColors.TextDisabled, fontSize = 15.sp); inner() } }
+                    )
+                    Box(
+                        modifier = Modifier.clip(RoundedCornerShape(14.dp))
+                            .background(if (requestVehicleId.isNotBlank() && !requesting) DriverColors.Primary else DriverColors.SurfaceVariant)
+                            .clickable(enabled = requestVehicleId.isNotBlank() && !requesting) { sendRequest() }
+                            .padding(horizontal = 22.dp, vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(if (requesting) "发送中…" else "确认", color = if (requestVehicleId.isNotBlank() && !requesting) Color.Black else DriverColors.TextDisabled, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+            item {
+                requestResult?.let {
+                    Spacer(Modifier.height(8.dp))
+                    Text(it, color = if (it.startsWith("✓")) DriverColors.Primary else DriverColors.Danger, fontSize = 12.sp)
+                }
+            }
+
+            item { Spacer(Modifier.height(40.dp)) }
         }
     }
 }

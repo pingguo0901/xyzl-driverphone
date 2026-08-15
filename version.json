@@ -1,7 +1,7 @@
 {
-  "versionCode": 12,
-  "versionName": "1.0.11",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.11/xyzl-driver.apk",
-  "changelog": "- 隐私授权升级为完整 KYC 实名认证流程（上传证件→个人资料→联系资料→人脸识别→确认资料，与客户端一致）",
+  "versionCode": 13,
+  "versionName": "1.0.12",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.12/xyzl-driver.apk",
+  "changelog": "- 车库页面：显示已有权限车辆（按所属公司）\n- 新增请求权限：输入 vehicle_id 发送请求给所属公司",
   "buildDate": "2026-08-15"
 }
