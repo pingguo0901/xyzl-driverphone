@@ -30,7 +30,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(user: DriverUser?, onLogout: () -> Unit, onNavigateToLogin: () -> Unit) {
-    var showSettings by remember { mutableStateOf(false) }
     var showProfileEdit by remember { mutableStateOf(false) }
     var showSecurity by remember { mutableStateOf(false) }
     var showPrivacy by remember { mutableStateOf(false) }
@@ -38,23 +37,12 @@ fun ProfileScreen(user: DriverUser?, onLogout: () -> Unit, onNavigateToLogin: ()
     var showGarage by remember { mutableStateOf(false) }
     var language by remember { mutableStateOf("zh") }
 
-    if (showSettings) {
-        SettingsScreen(
-            language = language,
-            onBack = { showSettings = false },
-            onSecurity = { showSecurity = true; showSettings = false },
-            onPrivacy = { showPrivacy = true; showSettings = false },
-            onLanguage = { showLanguage = true; showSettings = false },
-            onLogout = onLogout
-        )
-        return
-    }
     if (showProfileEdit) {
         ProfileEditScreen(user = user, onBack = { showProfileEdit = false })
         return
     }
     if (showSecurity) {
-        SecuritySettingsScreen(user = user, onBack = { showSecurity = false; showSettings = true })
+        SecuritySettingsScreen(user = user, onBack = { showSecurity = false })
         return
     }
     if (showPrivacy) {
@@ -62,7 +50,7 @@ fun ProfileScreen(user: DriverUser?, onLogout: () -> Unit, onNavigateToLogin: ()
         return
     }
     if (showLanguage) {
-        LanguageSettingsScreen(current = language, onSelect = { language = it; showLanguage = false; showSettings = true }, onBack = { showLanguage = false; showSettings = true })
+        LanguageSettingsScreen(current = language, onSelect = { language = it; showLanguage = false }, onBack = { showLanguage = false })
         return
     }
     if (showGarage) {
@@ -77,9 +65,6 @@ fun ProfileScreen(user: DriverUser?, onLogout: () -> Unit, onNavigateToLogin: ()
                 horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("个人中心", color = DriverColors.TextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Black)
-                Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(DriverColors.Surface)
-                    .clickable { showSettings = true }, contentAlignment = Alignment.Center
-                ) { Text("⚙️", fontSize = 18.sp) }
             }
         }
 
@@ -184,40 +169,6 @@ private fun menuItem(emoji: String, title: String, subtitle: String, onClick: ()
     Spacer(modifier = Modifier.height(2.dp))
 }
 
-// ─── SETTINGS SCREEN ───
-
-@Composable
-private fun SettingsScreen(
-    language: String,
-    onBack: () -> Unit,
-    onSecurity: () -> Unit,
-    onPrivacy: () -> Unit,
-    onLanguage: () -> Unit,
-    onLogout: () -> Unit
-) {
-    Column(modifier = Modifier.fillMaxSize().background(DriverColors.Background).padding(16.dp)) {
-        Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.size(36.dp).clip(CircleShape).clickable { onBack() },
-                contentAlignment = Alignment.Center) { Text("←", color = DriverColors.Primary, fontSize = 20.sp) }
-            Spacer(modifier = Modifier.width(12.dp))
-            Text("系统设置", color = DriverColors.TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Black)
-        }
-        LazyColumn {
-            item { menuItem("🔐", "安全设置", "邮箱、密码、手机", onSecurity) }
-            item { menuItem("🛡️", "隐私授权", "KYC证件", onPrivacy) }
-            item { menuItem("🌐", "语言设置", if (language == "zh") "中文" else "English", onLanguage) }
-            item {
-                Spacer(modifier = Modifier.height(40.dp))
-                Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
-                    .background(DriverColors.Danger.copy(alpha = 0.1f))
-                    .clickable { onLogout() }.padding(14.dp),
-                    contentAlignment = Alignment.Center
-                ) { Text("退出登录", color = DriverColors.Danger, fontSize = 14.sp, fontWeight = FontWeight.Bold) }
-            }
-        }
-    }
-}
-
 // ─── PROFILE EDIT ───
 
 @Composable
@@ -266,6 +217,10 @@ private fun ProfileEditScreen(user: DriverUser?, onBack: () -> Unit) {
 
 @Composable
 private fun SecuritySettingsScreen(user: DriverUser?, onBack: () -> Unit) {
+    var name by remember { mutableStateOf(user?.realName ?: user?.username ?: "") }
+    var whatsapp by remember { mutableStateOf(user?.phone ?: "") }
+    var wechat by remember { mutableStateOf(user?.wechat ?: "") }
+    var email by remember { mutableStateOf(user?.email ?: "") }
     var oldPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -285,12 +240,12 @@ private fun SecuritySettingsScreen(user: DriverUser?, onBack: () -> Unit) {
             ) { Text("👤", fontSize = 36.sp) }
             Spacer(Modifier.height(16.dp))
 
-            // 资料信息
-            infoRow("名称", user?.realName ?: user?.username ?: "未设置")
+            // 资料信息（除 ID 外均可编辑）
+            editField("名称", name) { name = it }
             infoRow("ID", user?.driverId ?: user?.id ?: "")
-            infoRow("WhatsApp", user?.phone ?: "未绑定")
-            infoRow("微信", user?.wechat ?: "未绑定")
-            infoRow("邮箱", user?.email ?: "")
+            editField("WhatsApp", whatsapp) { whatsapp = it }
+            editField("微信", wechat) { wechat = it }
+            editField("邮箱", email) { email = it }
 
             // 更改密码
             Spacer(Modifier.height(12.dp))
@@ -315,6 +270,21 @@ private fun infoRow(label: String, value: String) {
         Text(value, color = DriverColors.TextPrimary, fontSize = 14.sp, modifier = Modifier.weight(1f))
     }
     Spacer(Modifier.height(8.dp))
+}
+
+@Composable
+private fun editField(label: String, value: String, onChange: (String) -> Unit) {
+    Text(label, color = DriverColors.TextMuted, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 6.dp, start = 4.dp))
+    BasicTextField(
+        value = value,
+        onValueChange = onChange,
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(DriverColors.Surface).padding(16.dp),
+        textStyle = TextStyle(color = DriverColors.TextPrimary, fontSize = 15.sp),
+        cursorBrush = SolidColor(DriverColors.Primary),
+        singleLine = true,
+        decorationBox = { inner -> Box { if (value.isEmpty()) Text(label, color = DriverColors.TextDisabled, fontSize = 15.sp); inner() } }
+    )
+    Spacer(Modifier.height(12.dp))
 }
 
 @Composable
