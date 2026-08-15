@@ -130,7 +130,7 @@ fun LaunchScreen(onFinished: () -> Unit) {
             AppIcon(size = 120)
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                "星域臻旅",
+                "星域司导",
                 color = Color.White,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Black
@@ -180,7 +180,7 @@ fun LandingScreen(onEnterSystem: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                "星域臻旅",
+                "星域司导",
                 color = Color.White,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Black
@@ -415,7 +415,7 @@ fun RegisterScreen(
             Spacer(modifier = Modifier.width(12.dp))
             Text("司机注册", color = DriverColors.TextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Black)
         }
-        Text("加入星域臻旅车队", color = DriverColors.TextMuted, fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))
+        Text("加入星域司导车队", color = DriverColors.TextMuted, fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))
         
         Spacer(modifier = Modifier.height(32.dp))
         

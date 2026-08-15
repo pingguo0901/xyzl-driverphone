@@ -3,7 +3,7 @@ package com.stellarelite.driver.ui.theme
 import androidx.compose.ui.graphics.Color
 
 /**
- * 星域臻旅 司机端 - 暗色主题
+ * 星域司导 司机端 - 暗色主题
  * 参考原 React app: zinc-900/950 + emerald-500 配色
  */
 object DriverColors {

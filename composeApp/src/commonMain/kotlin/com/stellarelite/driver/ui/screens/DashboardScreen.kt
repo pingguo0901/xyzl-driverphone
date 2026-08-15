@@ -59,7 +59,7 @@ fun DashboardScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("星域臻旅", color = DriverColors.TextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Black)
+                    Text("星域司导", color = DriverColors.TextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Black)
                     Text("司机工作台", color = DriverColors.Primary, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
                 }
                 Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(DriverColors.Surface).clickable { },

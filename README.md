@@ -1,6 +1,6 @@
-# 星域臻旅 · 手机司机端
+# 星域司导 · 手机司机端
 
-Kotlin Multiplatform (KMP) + Compose Multiplatform 构建的星域臻旅手机司机端应用。
+Kotlin Multiplatform (KMP) + Compose Multiplatform 构建的星域司导手机司机端应用。
 
 ## 技术栈
 
@@ -24,4 +24,4 @@ Kotlin Multiplatform (KMP) + Compose Multiplatform 构建的星域臻旅手机�
 
 ## 许可证
 
-© 2026 星域臻旅 · Stellarelite. All rights reserved.
+© 2026 星域司导 · Stellarelite. All rights reserved.

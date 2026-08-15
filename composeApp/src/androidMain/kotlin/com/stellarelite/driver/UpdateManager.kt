@@ -19,7 +19,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 object UpdateManager {
-    private const val VERSION_URL = "https://xyzl-phoneapp.vercel.app/version.json"
+    private const val VERSION_URL = "https://cdn.jsdelivr.net/gh/pingguo0901/xyzl-driverphone@main/version.json"
     private const val APK_FILENAME = "xyzl-driver-update.apk"
     private var currentVersionCode = 0
     private var apkDownloadId = 0L
@@ -62,7 +62,7 @@ object UpdateManager {
         if (destFile.exists()) destFile.delete()
 
         val request = DownloadManager.Request(Uri.parse(apkUrl)).apply {
-            setTitle("星域臻旅更新下载中...")
+            setTitle("星域司导更新下载中...")
             setDescription("正在下载最新版本")
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             setDestinationUri(Uri.fromFile(destFile))
@@ -131,7 +131,7 @@ object UpdateManager {
         try {
             context.startActivity(intent)
         } catch (e: Exception) {
-            val chooser = Intent.createChooser(intent, "安装星域臻旅更新")
+            val chooser = Intent.createChooser(intent, "安装星域司导更新")
             chooser.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(chooser)
         }

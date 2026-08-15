@@ -18,7 +18,7 @@ actual fun AppIcon(
 ) {
     Image(
         painter = painterResource(id = R.drawable.app_icon),
-        contentDescription = "星域臻旅",
+        contentDescription = "星域司导",
         modifier = modifier
             .size(size.dp)
             .clip(RoundedCornerShape((size * 0.22).dp)),

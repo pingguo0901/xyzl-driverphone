@@ -1,6 +1,7 @@
 {
-  "versionCode": 7,
-  "versionName": "1.0.6",
-  "apkUrl": "https://xyzl-phoneapp.vercel.app/xyzl-driver.apk",
-  "changelog": "- 🎨 全新App Icon（星域臻旅Logo，圆角）\n- 📱 启动页/进入系统/登录页图标替换为真实Logo\n- 💬 新增聊天Tab（底部最左边）\n- 🏠 工作台按钮中间凸起突出显示\n- 🔄 新增APP内自动更新系统\n- 💚 当前任务卡片显示乘客微信号"
+  "versionCode": 8,
+  "versionName": "1.0.7",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.7/xyzl-driver.apk",
+  "changelog": "- 更新系统切换为 jsDelivr + GitHub Release（与客户机端一致，修复更新检测）\n- App 名称由「星域臻旅」更名为「星域司导」",
+  "buildDate": "2026-08-15"
 }
