@@ -1,7 +1,7 @@
 {
-  "versionCode": 8,
-  "versionName": "1.0.7",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.7/xyzl-driver.apk",
-  "changelog": "- 更新系统切换为 jsDelivr + GitHub Release（与客户机端一致，修复更新检测）\n- App 名称由「星域臻旅」更名为「星域司导」",
+  "versionCode": 9,
+  "versionName": "1.0.8",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.8/xyzl-driver.apk",
+  "changelog": "- 首页值班按钮链接 driver_profile.status（上线/下线同步后端）\n- 当前任务卡片接入真实订单：单号/出发地/目的地/金额/WhatsApp/微信\n- 卡片底部新增拉伸式确认按钮，滑动记录接客/送达时间\n- 导航按钮自动识别：未接客导航出发地，接客后导航目的地（Waze）",
   "buildDate": "2026-08-15"
 }

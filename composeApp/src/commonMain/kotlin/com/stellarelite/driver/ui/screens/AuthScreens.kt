@@ -32,6 +32,7 @@ import kotlinx.coroutines.delay
 data class DriverUser(
     val id: String,
     val email: String,
+    val driverId: String = "",
     val realName: String = "",
     val username: String = "",
     val phone: String = "",
@@ -338,6 +339,7 @@ fun LoginScreen(
                     onLoginSuccess(DriverUser(
                         id = "demo-driver-001",
                         email = email,
+                        driverId = "demo-driver-001",
                         realName = "Demo Driver",
                         username = "demo",
                         walletBalance = 1250.0,
