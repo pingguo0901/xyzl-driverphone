@@ -19,7 +19,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 object UpdateManager {
-    private const val VERSION_URL = "https://cdn.jsdelivr.net/gh/pingguo0901/xyzl-driverphone@main/version.json"
+    private const val VERSION_URL = "https://raw.githubusercontent.com/pingguo0901/xyzl-driverphone/main/version.json"
     private const val APK_FILENAME = "xyzl-driver-update.apk"
     private var currentVersionCode = 0
     private var apkDownloadId = 0L
