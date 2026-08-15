@@ -6,9 +6,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.stellarelite.driver.network.SupabaseClient
@@ -51,7 +54,7 @@ fun ProfileScreen(user: DriverUser?, onLogout: () -> Unit, onNavigateToLogin: ()
         return
     }
     if (showSecurity) {
-        SecuritySettingsScreen(onBack = { showSecurity = false; showSettings = true })
+        SecuritySettingsScreen(user = user, onBack = { showSecurity = false; showSettings = true })
         return
     }
     if (showPrivacy) {
@@ -262,7 +265,11 @@ private fun ProfileEditScreen(user: DriverUser?, onBack: () -> Unit) {
 // ─── SECURITY SETTINGS ───
 
 @Composable
-private fun SecuritySettingsScreen(onBack: () -> Unit) {
+private fun SecuritySettingsScreen(user: DriverUser?, onBack: () -> Unit) {
+    var oldPassword by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+
     Column(modifier = Modifier.fillMaxSize().background(DriverColors.Background).padding(16.dp)) {
         Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.size(36.dp).clip(CircleShape).clickable { onBack() },
@@ -270,19 +277,59 @@ private fun SecuritySettingsScreen(onBack: () -> Unit) {
             Spacer(modifier = Modifier.width(12.dp))
             Text("安全设置", color = DriverColors.TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Black)
         }
-        val f = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(DriverColors.Surface).padding(horizontal = 16.dp, vertical = 14.dp)
-        val ts = TextStyle(color = DriverColors.TextPrimary, fontSize = 14.sp)
-        sectionLabel("邮箱")
-        BasicTextField(value = remember { mutableStateOf("") }.value, onValueChange = {}, modifier = f, textStyle = ts, cursorBrush = SolidColor(DriverColors.Primary),
-            decorationBox = { inner -> Box { Text("your@email.com", color = DriverColors.TextDisabled, fontSize = 14.sp); inner() } })
-        sectionSpacer()
-        sectionLabel("新密码")
-        BasicTextField(value = remember { mutableStateOf("") }.value, onValueChange = {}, modifier = f, textStyle = ts, cursorBrush = SolidColor(DriverColors.Primary),
-            decorationBox = { inner -> Box { Text("留空不修改", color = DriverColors.TextDisabled, fontSize = 14.sp); inner() } })
-        sectionSpacer()
-        Box(modifier = Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(26.dp)).background(DriverColors.Primary).clickable { onBack() },
-            contentAlignment = Alignment.Center) { Text("保存安全设置", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Black) }
+
+        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+            // 头像
+            Box(modifier = Modifier.size(80.dp).clip(CircleShape).background(DriverColors.PrimaryBg).align(Alignment.CenterHorizontally),
+                contentAlignment = Alignment.Center
+            ) { Text("👤", fontSize = 36.sp) }
+            Spacer(Modifier.height(16.dp))
+
+            // 资料信息
+            infoRow("名称", user?.realName ?: user?.username ?: "未设置")
+            infoRow("ID", user?.driverId ?: user?.id ?: "")
+            infoRow("WhatsApp", user?.phone ?: "未绑定")
+            infoRow("微信", user?.wechat ?: "未绑定")
+            infoRow("邮箱", user?.email ?: "")
+
+            // 更改密码
+            Spacer(Modifier.height(12.dp))
+            Text("更改密码", color = DriverColors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(10.dp))
+            passwordField("原始密码", oldPassword) { oldPassword = it }
+            passwordField("新密码", newPassword) { newPassword = it }
+            passwordField("确认密码", confirmPassword) { confirmPassword = it }
+
+            Spacer(Modifier.height(20.dp))
+            Box(modifier = Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(26.dp)).background(DriverColors.Primary).clickable { onBack() },
+                contentAlignment = Alignment.Center) { Text("保存修改", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Black) }
+            Spacer(Modifier.height(40.dp))
+        }
     }
+}
+
+@Composable
+private fun infoRow(label: String, value: String) {
+    Row(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(DriverColors.Surface).padding(16.dp)) {
+        Text(label, color = DriverColors.TextMuted, fontSize = 13.sp, modifier = Modifier.width(90.dp))
+        Text(value, color = DriverColors.TextPrimary, fontSize = 14.sp, modifier = Modifier.weight(1f))
+    }
+    Spacer(Modifier.height(8.dp))
+}
+
+@Composable
+private fun passwordField(label: String, value: String, onChange: (String) -> Unit) {
+    BasicTextField(
+        value = value,
+        onValueChange = onChange,
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(DriverColors.Surface).padding(16.dp),
+        textStyle = TextStyle(color = DriverColors.TextPrimary, fontSize = 15.sp),
+        cursorBrush = SolidColor(DriverColors.Primary),
+        visualTransformation = PasswordVisualTransformation(),
+        singleLine = true,
+        decorationBox = { inner -> Box { if (value.isEmpty()) Text(label, color = DriverColors.TextDisabled, fontSize = 15.sp); inner() } }
+    )
+    Spacer(Modifier.height(10.dp))
 }
 
 // ─── GARAGE SETTINGS ───
