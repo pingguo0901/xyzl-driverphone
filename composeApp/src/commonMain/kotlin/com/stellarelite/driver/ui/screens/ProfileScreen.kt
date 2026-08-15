@@ -51,7 +51,7 @@ fun ProfileScreen(user: DriverUser?, onLogout: () -> Unit, onNavigateToLogin: ()
         return
     }
     if (showPrivacy) {
-        PrivacySettingsScreen(onBack = { showPrivacy = false; showSettings = true })
+        KYCFlowScreen(onBack = { showPrivacy = false })
         return
     }
     if (showLanguage) {
@@ -278,31 +278,6 @@ private fun SecuritySettingsScreen(onBack: () -> Unit) {
         sectionSpacer()
         Box(modifier = Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(26.dp)).background(DriverColors.Primary).clickable { onBack() },
             contentAlignment = Alignment.Center) { Text("保存安全设置", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Black) }
-    }
-}
-
-// ─── PRIVACY SETTINGS ───
-
-@Composable
-private fun PrivacySettingsScreen(onBack: () -> Unit) {
-    Column(modifier = Modifier.fillMaxSize().background(DriverColors.Background).padding(16.dp)) {
-        Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.size(36.dp).clip(CircleShape).clickable { onBack() },
-                contentAlignment = Alignment.Center) { Text("←", color = DriverColors.Primary, fontSize = 20.sp) }
-            Spacer(modifier = Modifier.width(12.dp))
-            Text("隐私授权", color = DriverColors.TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Black)
-        }
-        val f = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(DriverColors.Surface).padding(horizontal = 16.dp, vertical = 14.dp)
-        sectionLabel("身份证/护照（重新上传）")
-        Box(modifier = f.height(80.dp).clickable { }, contentAlignment = Alignment.Center
-        ) { Text("📷 点击拍照上传", color = DriverColors.TextMuted, fontSize = 13.sp) }
-        sectionSpacer()
-        sectionLabel("驾驶证（重新上传）")
-        Box(modifier = f.height(80.dp).clickable { }, contentAlignment = Alignment.Center
-        ) { Text("📄 点击上传", color = DriverColors.TextMuted, fontSize = 13.sp) }
-        sectionSpacer()
-        Box(modifier = Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(26.dp)).background(DriverColors.Primary).clickable { onBack() },
-            contentAlignment = Alignment.Center) { Text("保存隐私设置", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Black) }
     }
 }
 
