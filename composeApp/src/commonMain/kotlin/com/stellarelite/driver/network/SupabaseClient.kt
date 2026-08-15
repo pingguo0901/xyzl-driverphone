@@ -394,12 +394,10 @@ object SupabaseClient {
         } else emptyList()
     }
 
-    /** 请求车辆使用权限（发送给所属公司） */
-    suspend fun requestVehiclePermission(driverId: String, vehicleId: String): Boolean {
-        val companyId = getDriverCompanyId(driverId)
-        if (companyId.isNullOrBlank()) return false
-        val payload = """{"driver_id":"$driverId","vehicle_id":"$vehicleId","company_id":"$companyId","status":"pending"}"""
-        val resp = httpRequest("$BASE/rest/v1/vehicle_requests", "POST", headers(), payload)
+    /** 直接添加车辆到公司（vehicle_private_data） */
+    suspend fun addVehicle(vehicleId: String, companyId: String): Boolean {
+        val payload = """{"vehicle_id":"$vehicleId","company_id":"$companyId"}"""
+        val resp = httpRequest("$BASE/rest/v1/vehicle_private_data", "POST", headers(), payload)
         return resp.status in 200..299
     }
 

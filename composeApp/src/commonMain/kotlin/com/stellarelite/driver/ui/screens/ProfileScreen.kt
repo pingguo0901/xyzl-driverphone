@@ -294,6 +294,7 @@ private fun GarageSettingsScreen(user: DriverUser?, onBack: () -> Unit) {
     var vehicles by remember { mutableStateOf<List<VehicleRow>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var requestVehicleId by remember { mutableStateOf("") }
+    var companyId by remember { mutableStateOf("") }
     var requesting by remember { mutableStateOf(false) }
     var requestResult by remember { mutableStateOf<String?>(null) }
 
@@ -304,14 +305,14 @@ private fun GarageSettingsScreen(user: DriverUser?, onBack: () -> Unit) {
         loading = false
     }
 
-    fun sendRequest() {
-        if (requestVehicleId.isBlank() || requesting) return
+    fun addVehicle() {
+        if (requestVehicleId.isBlank() || companyId.isBlank() || requesting) return
         scope.launch {
             requesting = true
-            val ok = SupabaseClient.requestVehiclePermission(driverId, requestVehicleId.trim())
+            val ok = SupabaseClient.addVehicle(requestVehicleId.trim(), companyId.trim())
             requesting = false
-            requestResult = if (ok) "✓ 请求已发送给所属公司" else "发送失败，请重试"
-            if (ok) requestVehicleId = ""
+            requestResult = if (ok) "✓ 车辆已添加" else "添加失败，请重试"
+            if (ok) { requestVehicleId = ""; companyId = "" }
         }
     }
 
@@ -369,29 +370,42 @@ private fun GarageSettingsScreen(user: DriverUser?, onBack: () -> Unit) {
             // ── 请求权限车辆 ──
             item {
                 Spacer(Modifier.height(16.dp))
-                Text("请求权限车辆", color = DriverColors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text("添加车辆", color = DriverColors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(10.dp))
             }
             item {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column {
                     BasicTextField(
                         value = requestVehicleId,
                         onValueChange = { requestVehicleId = it },
-                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).background(DriverColors.Surface)
+                        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(DriverColors.Surface)
                             .border(1.dp, DriverColors.Border, RoundedCornerShape(14.dp)).padding(16.dp),
                         textStyle = TextStyle(color = DriverColors.TextPrimary, fontSize = 15.sp),
                         cursorBrush = SolidColor(DriverColors.Primary),
                         singleLine = true,
                         decorationBox = { inner -> Box { if (requestVehicleId.isEmpty()) Text("输入 vehicle_id", color = DriverColors.TextDisabled, fontSize = 15.sp); inner() } }
                     )
+                    Spacer(Modifier.height(10.dp))
+                    BasicTextField(
+                        value = companyId,
+                        onValueChange = { companyId = it },
+                        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(DriverColors.Surface)
+                            .border(1.dp, DriverColors.Border, RoundedCornerShape(14.dp)).padding(16.dp),
+                        textStyle = TextStyle(color = DriverColors.TextPrimary, fontSize = 15.sp),
+                        cursorBrush = SolidColor(DriverColors.Primary),
+                        singleLine = true,
+                        decorationBox = { inner -> Box { if (companyId.isEmpty()) Text("输入 company_id", color = DriverColors.TextDisabled, fontSize = 15.sp); inner() } }
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    val canAdd = requestVehicleId.isNotBlank() && companyId.isNotBlank() && !requesting
                     Box(
-                        modifier = Modifier.clip(RoundedCornerShape(14.dp))
-                            .background(if (requestVehicleId.isNotBlank() && !requesting) DriverColors.Primary else DriverColors.SurfaceVariant)
-                            .clickable(enabled = requestVehicleId.isNotBlank() && !requesting) { sendRequest() }
-                            .padding(horizontal = 22.dp, vertical = 16.dp),
+                        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
+                            .background(if (canAdd) DriverColors.Primary else DriverColors.SurfaceVariant)
+                            .clickable(enabled = canAdd) { addVehicle() }
+                            .padding(vertical = 16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(if (requesting) "发送中…" else "确认", color = if (requestVehicleId.isNotBlank() && !requesting) Color.Black else DriverColors.TextDisabled, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text(if (requesting) "添加中…" else "确认添加", color = if (canAdd) Color.Black else DriverColors.TextDisabled, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

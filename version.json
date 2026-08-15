@@ -1,7 +1,7 @@
 {
-  "versionCode": 13,
-  "versionName": "1.0.12",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.12/xyzl-driver.apk",
-  "changelog": "- 车库页面：显示已有权限车辆（按所属公司）\n- 新增请求权限：输入 vehicle_id 发送请求给所属公司",
+  "versionCode": 14,
+  "versionName": "1.0.13",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.13/xyzl-driver.apk",
+  "changelog": "- 车库添加车辆改为直接添加：输入 vehicle_id + company_id 确认即写入 vehicle_private_data",
   "buildDate": "2026-08-15"
 }
