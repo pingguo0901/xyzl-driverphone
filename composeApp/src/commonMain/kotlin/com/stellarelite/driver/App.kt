@@ -98,7 +98,7 @@ fun App(
             AnimatedContent(targetState = currentTab) { tab ->
                 when (tab) {
                     DriverTab.Chat -> ChatScreen()
-                    DriverTab.Trips -> TripsScreen()
+                    DriverTab.Trips -> TripsScreen(user = user)
                     DriverTab.Home -> DashboardScreen(
                         isWorking = isWorking,
                         onToggleWork = { isWorking = it },

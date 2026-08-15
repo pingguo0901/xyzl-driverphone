@@ -1,7 +1,7 @@
 {
-  "versionCode": 9,
-  "versionName": "1.0.8",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.8/xyzl-driver.apk",
-  "changelog": "- 首页值班按钮链接 driver_profile.status（上线/下线同步后端）\n- 当前任务卡片接入真实订单：单号/出发地/目的地/金额/WhatsApp/微信\n- 卡片底部新增拉伸式确认按钮，滑动记录接客/送达时间\n- 导航按钮自动识别：未接客导航出发地，接客后导航目的地（Waze）",
+  "versionCode": 10,
+  "versionName": "1.0.9",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.9/xyzl-driver.apk",
+  "changelog": "- 行程记录页面接入真实数据（duty_records + order_trips + order_amounts）\n- 新增查看详情页：路线/乘客信息/金额明细/接客送达时间\n- 详情页展示司机该单薪资（底薪/提成/扣款/实发）",
   "buildDate": "2026-08-15"
 }

@@ -417,12 +417,6 @@ private fun SlideToConfirmButton(
     }
 }
 
-private fun formatAmount(value: Double): String {
-    val rounded = (value * 100).roundToInt() / 100.0
-    return if (rounded == rounded.toLong().toDouble()) rounded.toLong().toString()
-    else rounded.toString()
-}
-
 @Composable
 private fun statCard(label: String, value: String, accent: Color, modifier: Modifier = Modifier) {
     Column(
