@@ -1,7 +1,7 @@
 {
-  "versionCode": 10,
-  "versionName": "1.0.9",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.9/xyzl-driver.apk",
-  "changelog": "- 行程记录页面接入真实数据（duty_records + order_trips + order_amounts）\n- 新增查看详情页：路线/乘客信息/金额明细/接客送达时间\n- 详情页展示司机该单薪资（底薪/提成/扣款/实发）",
+  "versionCode": 11,
+  "versionName": "1.0.10",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.10/xyzl-driver.apk",
+  "changelog": "- 个人中心新增「车库设置」入口",
   "buildDate": "2026-08-15"
 }

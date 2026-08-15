@@ -28,6 +28,7 @@ fun ProfileScreen(user: DriverUser?, onLogout: () -> Unit, onNavigateToLogin: ()
     var showSecurity by remember { mutableStateOf(false) }
     var showPrivacy by remember { mutableStateOf(false) }
     var showLanguage by remember { mutableStateOf(false) }
+    var showGarage by remember { mutableStateOf(false) }
     var language by remember { mutableStateOf("zh") }
 
     if (showSettings) {
@@ -55,6 +56,10 @@ fun ProfileScreen(user: DriverUser?, onLogout: () -> Unit, onNavigateToLogin: ()
     }
     if (showLanguage) {
         LanguageSettingsScreen(current = language, onSelect = { language = it; showLanguage = false; showSettings = true }, onBack = { showLanguage = false; showSettings = true })
+        return
+    }
+    if (showGarage) {
+        GarageSettingsScreen(onBack = { showGarage = false })
         return
     }
 
@@ -117,6 +122,7 @@ fun ProfileScreen(user: DriverUser?, onLogout: () -> Unit, onNavigateToLogin: ()
         item { menuItem("🔐", "安全设置", "邮箱、密码、手机") { showSecurity = true } }
         item { menuItem("🛡️", "隐私授权", "KYC证件、地址") { showPrivacy = true } }
         item { menuItem("🔔", "通知管理", "推送消息设置") { } }
+        item { menuItem("🚗", "车库设置", "车辆信息管理") { showGarage = true } }
         item { menuItem("🌐", "多语言设置", if (language == "zh") "中文" else "English") { showLanguage = true } }
         
         item {
@@ -297,6 +303,25 @@ private fun PrivacySettingsScreen(onBack: () -> Unit) {
         sectionSpacer()
         Box(modifier = Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(26.dp)).background(DriverColors.Primary).clickable { onBack() },
             contentAlignment = Alignment.Center) { Text("保存隐私设置", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Black) }
+    }
+}
+
+// ─── GARAGE SETTINGS ───
+
+@Composable
+private fun GarageSettingsScreen(onBack: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize().background(DriverColors.Background).padding(16.dp)) {
+        Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(modifier = Modifier.size(36.dp).clip(CircleShape).clickable { onBack() },
+                contentAlignment = Alignment.Center) { Text("←", color = DriverColors.Primary, fontSize = 20.sp) }
+            Spacer(modifier = Modifier.width(12.dp))
+            Text("车库设置", color = DriverColors.TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Black)
+        }
+        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Text("🚗", fontSize = 40.sp)
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("车辆管理功能开发中", color = DriverColors.TextMuted, fontSize = 14.sp)
+        }
     }
 }
 
