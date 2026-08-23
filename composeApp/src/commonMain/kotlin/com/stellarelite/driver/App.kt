@@ -17,7 +17,7 @@ import com.stellarelite.driver.ui.screens.*
 import com.stellarelite.driver.ui.theme.DriverColors
 
 enum class AppView {
-    Landing, Login, Register, Dashboard, ResetPassword
+    Login, Register, Dashboard, ResetPassword
 }
 
 @Composable
@@ -25,7 +25,7 @@ fun App(
     onCheckUpdate: (suspend () -> VersionInfo?)? = null,
     onRequestUpdate: ((VersionInfo) -> Unit)? = null
 ) {
-    var currentView by remember { mutableStateOf(AppView.Landing) }
+    var currentView by remember { mutableStateOf(AppView.Login) }
     var showSplash by remember { mutableStateOf(true) }
     var currentTab by remember { mutableStateOf(DriverTab.Home) }
     var isWorking by remember { mutableStateOf(false) }
@@ -54,12 +54,6 @@ fun App(
 
     // Not logged in screens
     when (currentView) {
-        AppView.Landing -> {
-            LandingScreen(
-                onEnterSystem = { currentView = AppView.Login }
-            )
-            return
-        }
         AppView.Login -> {
             LoginScreen(
                 onLoginSuccess = { loggedInUser ->
@@ -109,7 +103,7 @@ fun App(
                         user = user,
                         onLogout = {
                             user = null
-                            currentView = AppView.Landing
+                            currentView = AppView.Login
                         },
                         onNavigateToLogin = { currentView = AppView.Login }
                     )

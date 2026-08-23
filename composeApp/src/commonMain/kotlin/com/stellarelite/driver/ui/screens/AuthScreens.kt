@@ -14,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
@@ -144,68 +143,6 @@ fun LaunchScreen(onFinished: () -> Unit) {
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 8.sp
             )
-        }
-    }
-}
-
-// ─── LANDING SCREEN ───
-
-@Composable
-fun LandingScreen(onEnterSystem: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF000000))
-    ) {
-        // Background cover with logo
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFF0A0A0A)),
-            contentAlignment = Alignment.Center
-        ) {
-            AppIcon(size = 160)
-        }
-
-        // Bottom overlay
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color(0xCC000000), Color(0xFF000000))
-                    )
-                )
-                .padding(horizontal = 32.dp, vertical = 48.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                "星域司导",
-                color = Color.White,
-                fontSize = 36.sp,
-                fontWeight = FontWeight.Black
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "STAR REACH VIBE DRIVER",
-                color = DriverColors.TextMuted,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 4.sp
-            )
-            Spacer(modifier = Modifier.height(40.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(DriverColors.Primary)
-                    .clickable { onEnterSystem() },
-                contentAlignment = Alignment.Center
-            ) {
-                Text("进入系统", color = Color.Black, fontSize = 17.sp, fontWeight = FontWeight.Black)
-            }
         }
     }
 }
