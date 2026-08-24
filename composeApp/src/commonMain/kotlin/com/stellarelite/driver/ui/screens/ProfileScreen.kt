@@ -92,20 +92,6 @@ fun ProfileScreen(user: DriverUser?, onLogout: () -> Unit, onNavigateToLogin: ()
             }
         }
 
-        // Quick Info
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                infoCard("📱", "手机", user?.phone ?: "未绑定", Modifier.weight(1f))
-                infoCard("💬", "微信", user?.wechat ?: "未绑定", Modifier.weight(1f))
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                infoCard("📍", "地址", if (user?.city != null) "${user.city}, ${user.state}" else "未设置", Modifier.weight(1f))
-                infoCard("🎂", "生日", user?.dob ?: "未设置", Modifier.weight(1f))
-            }
-        }
-
         // Menu items
         item {
             Spacer(modifier = Modifier.height(16.dp))
@@ -136,18 +122,6 @@ fun ProfileScreen(user: DriverUser?, onLogout: () -> Unit, onNavigateToLogin: ()
         }
 
         item { Spacer(modifier = Modifier.height(80.dp)) }
-    }
-}
-
-@Composable
-private fun infoCard(emoji: String, label: String, value: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.clip(RoundedCornerShape(14.dp)).background(DriverColors.Surface)
-            .border(1.dp, DriverColors.Border, RoundedCornerShape(14.dp)).padding(12.dp)
-    ) {
-        Text("$emoji $label", color = DriverColors.TextMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(value, color = DriverColors.TextSecondary, fontSize = 12.sp)
     }
 }
 

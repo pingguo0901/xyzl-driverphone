@@ -1,7 +1,7 @@
 {
-  "versionCode": 20,
-  "versionName": "1.0.19",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.19/xyzl-driver.apk",
-  "changelog": "- 取消启动界面后的「进入系统」落地页，启动后直接进入登录页",
-  "buildDate": "2026-08-24"
+  "versionCode": 21,
+  "versionName": "1.0.20",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.20/xyzl-driver.apk",
+  "changelog": "- 取消个人中心的手机/地址/邮箱/生日四张小卡片",
+  "buildDate": "2026-08-25"
 }
