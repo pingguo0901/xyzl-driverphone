@@ -8,3 +8,9 @@ expect suspend fun httpRequest(
     headers: Map<String, String> = emptyMap(),
     body: String? = null
 ): HttpResponse
+
+expect suspend fun httpUpload(
+    url: String,
+    headers: Map<String, String>,
+    body: ByteArray
+): HttpResponse

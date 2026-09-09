@@ -1,7 +1,7 @@
 {
-  "versionCode": 21,
-  "versionName": "1.0.20",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.20/xyzl-driver.apk",
-  "changelog": "- 取消个人中心的手机/地址/邮箱/生日四张小卡片",
-  "buildDate": "2026-08-25"
+  "versionCode": 22,
+  "versionName": "1.0.21",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.21/xyzl-driver.apk",
+  "changelog": "- 开销报备：维修改为TNG充值、轮胎改为RFID充值\n- 新增拍收据按钮（相册/相机/文件），上传后方可确认",
+  "buildDate": "2026-09-10"
 }

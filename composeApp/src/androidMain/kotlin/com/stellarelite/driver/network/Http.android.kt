@@ -29,3 +29,25 @@ actual suspend fun httpRequest(
         conn.disconnect()
     }
 }
+
+actual suspend fun httpUpload(
+    url: String,
+    headers: Map<String, String>,
+    body: ByteArray
+): HttpResponse = withContext(Dispatchers.IO) {
+    val conn = URL(url).openConnection() as HttpURLConnection
+    try {
+        conn.requestMethod = "POST"
+        conn.connectTimeout = 15000
+        conn.readTimeout = 30000
+        headers.forEach { (k, v) -> conn.setRequestProperty(k, v) }
+        conn.doOutput = true
+        conn.outputStream.use { it.write(body) }
+        val status = conn.responseCode
+        val stream = if (status in 200..299) conn.inputStream else conn.errorStream
+        val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() } ?: ""
+        HttpResponse(status, text)
+    } finally {
+        conn.disconnect()
+    }
+}

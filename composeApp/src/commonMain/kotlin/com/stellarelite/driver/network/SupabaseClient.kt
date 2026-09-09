@@ -407,4 +407,21 @@ object SupabaseClient {
             runCatching { json.decodeFromString<List<DriverProfileRow>>(resp.body).firstOrNull()?.company_id }.getOrNull()
         } else null
     }
+
+    /** 上传开销收据到 storage，返回存储路径或 null */
+    suspend fun uploadReceipt(bytes: ByteArray, fileName: String, mimeType: String): String? {
+        val safeName = fileName.replace(Regex("[^a-zA-Z0-9._-]"), "_")
+        val suffix = kotlin.random.Random.nextInt(100000, 999999)
+        val path = "receipts/${suffix}_$safeName"
+        val resp = httpUpload(
+            "$BASE/storage/v1/object/driver_private/$path",
+            mapOf(
+                "apikey" to SupabaseConfig.ANON_KEY,
+                "Authorization" to "Bearer ${SupabaseConfig.ANON_KEY}",
+                "Content-Type" to mimeType
+            ),
+            bytes
+        )
+        return if (resp.status in 200..299) path else null
+    }
 }

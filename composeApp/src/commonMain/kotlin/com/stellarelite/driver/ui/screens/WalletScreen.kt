@@ -9,7 +9,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +22,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.stellarelite.driver.network.SupabaseClient
+import com.stellarelite.driver.platform.ReceiptSource
+import com.stellarelite.driver.platform.launchReceiptPicker
 import com.stellarelite.driver.ui.theme.DriverColors
+import kotlinx.coroutines.launch
 
 @Composable
 fun WalletScreen() {
@@ -323,6 +329,11 @@ private fun FuelLogScreen(onBack: () -> Unit) {
     var amount by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
+    var showSourceDialog by remember { mutableStateOf(false) }
+    var receiptPath by remember { mutableStateOf<String?>(null) }
+    var uploading by remember { mutableStateOf(false) }
+    var uploadMsg by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
     
     Column(modifier = Modifier.fillMaxSize().background(DriverColors.Background).padding(16.dp)) {
         Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -341,7 +352,7 @@ private fun FuelLogScreen(onBack: () -> Unit) {
         
         sectionLabel("类型")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf("加油", "Autopass充值", "维修", "保养", "轮胎", "其他").forEach { t ->
+            listOf("加油", "Autopass充值", "TNG充值", "保养", "RFID充值", "其他").forEach { t ->
                 Box(modifier = Modifier.clip(RoundedCornerShape(10.dp))
                     .background(if (expenseType == t) DriverColors.PrimaryBg else DriverColors.Surface)
                     .border(1.dp, if (expenseType == t) DriverColors.Primary else DriverColors.Border, RoundedCornerShape(10.dp))
@@ -350,7 +361,7 @@ private fun FuelLogScreen(onBack: () -> Unit) {
             }
         }
         sectionSpacer()
-        sectionLabel("金额 (${if (expenseType == "Autopass充值") "SGD" else "RM"})")
+        sectionLabel("金额 (${if (expenseType == "Autopass充值" || expenseType == "TNG充值") "SGD" else "RM"})")
         BasicTextField(value = amount, onValueChange = { amount = it }, modifier = f, textStyle = ts, cursorBrush = cs, singleLine = true,
             decorationBox = { inner -> Box { if (amount.isEmpty()) Text("0.00", color = DriverColors.TextDisabled, fontSize = 14.sp); inner() } })
         sectionSpacer()
@@ -362,10 +373,92 @@ private fun FuelLogScreen(onBack: () -> Unit) {
         BasicTextField(value = note, onValueChange = { note = it }, modifier = f.height(80.dp), textStyle = ts, cursorBrush = cs,
             decorationBox = { inner -> Box { if (note.isEmpty()) Text("备注说明...", color = DriverColors.TextDisabled, fontSize = 14.sp); inner() } })
         sectionSpacer()
+
+        // ─── 拍收据 ───
+        sectionLabel("收据")
+        Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
+            .background(DriverColors.Surface)
+            .border(1.dp, if (receiptPath != null) DriverColors.Primary else DriverColors.Border, RoundedCornerShape(14.dp))
+            .clickable(enabled = !uploading) { showSourceDialog = true }
+            .padding(horizontal = 16.dp, vertical = 14.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(if (receiptPath != null) "✅" else "📷", fontSize = 18.sp)
+                Spacer(modifier = Modifier.width(10.dp))
+                Column {
+                    Text(
+                        when {
+                            uploading -> "上传中..."
+                            receiptPath != null -> "已上传"
+                            else -> "拍收据"
+                        },
+                        color = if (receiptPath != null) DriverColors.Primary else DriverColors.TextSecondary,
+                        fontSize = 14.sp, fontWeight = FontWeight.Bold
+                    )
+                    if (uploadMsg != null) {
+                        Text(uploadMsg!!, color = if (receiptPath != null) DriverColors.Primary else DriverColors.Danger, fontSize = 10.sp)
+                    } else {
+                        Text("点击选择 相册 / 相机 / 文件", color = DriverColors.TextMuted, fontSize = 10.sp)
+                    }
+                }
+            }
+        }
+        sectionSpacer()
+
+        val canSubmit = receiptPath != null && !uploading
         Box(modifier = Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(26.dp))
-            .background(DriverColors.Primary).clickable { onBack() },
+            .background(if (canSubmit) DriverColors.Primary else DriverColors.TextDisabled)
+            .clickable(enabled = canSubmit) { onBack() },
             contentAlignment = Alignment.Center
-        ) { Text("确认上传开销", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Black) }
+        ) { Text("确认上传开销", color = if (canSubmit) Color.Black else DriverColors.Surface, fontSize = 16.sp, fontWeight = FontWeight.Black) }
+    }
+
+    if (showSourceDialog) {
+        AlertDialog(
+            onDismissRequest = { showSourceDialog = false },
+            containerColor = DriverColors.Surface,
+            title = { Text("选择收据来源", color = DriverColors.TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    listOf(
+                        "📷 相机" to ReceiptSource.Camera,
+                        "🖼️ 相册" to ReceiptSource.Gallery,
+                        "📁 文件" to ReceiptSource.File
+                    ).forEach { (label, source) ->
+                        Text(
+                            label,
+                            color = DriverColors.TextPrimary,
+                            fontSize = 15.sp,
+                            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+                                .clickable {
+                                    showSourceDialog = false
+                                    launchReceiptPicker(source) { picked ->
+                                        if (picked == null) return@launchReceiptPicker
+                                        scope.launch {
+                                            uploading = true
+                                            uploadMsg = "正在上传..."
+                                            val path = SupabaseClient.uploadReceipt(picked.bytes, picked.fileName, picked.mimeType)
+                                            uploading = false
+                                            if (path != null) {
+                                                receiptPath = path
+                                                uploadMsg = "收据已上传"
+                                            } else {
+                                                uploadMsg = "上传失败，请重试"
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding(vertical = 14.dp)
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showSourceDialog = false }) {
+                    Text("取消", color = DriverColors.TextMuted)
+                }
+            }
+        )
     }
 }
 
