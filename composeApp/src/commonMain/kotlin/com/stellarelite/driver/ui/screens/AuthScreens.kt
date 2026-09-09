@@ -9,7 +9,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -316,6 +323,7 @@ fun LoginScreen(
 
 // ─── REGISTER SCREEN ───
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     onBack: () -> Unit,
@@ -326,9 +334,12 @@ fun RegisterScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var realName by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
+    var phoneCountryCode by remember { mutableStateOf("+60") }
+    var phoneNumber by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("男") }
     var dob by remember { mutableStateOf("") }
+    var showCountryMenu by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
     var wechat by remember { mutableStateOf("") }
     var street by remember { mutableStateOf("") }
     var city by remember { mutableStateOf("") }
@@ -367,7 +378,10 @@ fun RegisterScreen(
         
         // Name
         sectionLabel("真实姓名 / Real Name")
-        BasicTextField(value = realName, onValueChange = { realName = it }, modifier = fieldStyle,
+        BasicTextField(value = realName, onValueChange = { input ->
+                val filtered = input.filter { it.isLetter() && it.code < 128 || it == ' ' }
+                realName = filtered.uppercase()
+            }, modifier = fieldStyle,
             textStyle = TextStyle(color = DriverColors.TextPrimary, fontSize = 14.sp),
             cursorBrush = SolidColor(DriverColors.Primary), singleLine = true,
             decorationBox = { inner -> Box { if (realName.isEmpty()) Text("护照英文全名", color = DriverColors.TextDisabled, fontSize = 14.sp); inner() } })
@@ -381,14 +395,43 @@ fun RegisterScreen(
         
         sectionSpacer()
         sectionLabel("手机号")
-        BasicTextField(value = phone, onValueChange = { phone = it }, modifier = fieldStyle,
-            textStyle = TextStyle(color = DriverColors.TextPrimary, fontSize = 14.sp),
-            cursorBrush = SolidColor(DriverColors.Primary), singleLine = true,
-            decorationBox = { inner -> Box { if (phone.isEmpty()) Text("+60 xxx xxxx", color = DriverColors.TextDisabled, fontSize = 14.sp); inner() } })
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            // 区号弹出式选择
+            Box(modifier = Modifier.width(110.dp)) {
+                Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
+                    .background(DriverColors.Surface)
+                    .clickable { showCountryMenu = true }
+                    .padding(horizontal = 14.dp, vertical = 14.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(phoneCountryCode, color = DriverColors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                }
+                DropdownMenu(expanded = showCountryMenu, onDismissRequest = { showCountryMenu = false },
+                    containerColor = DriverColors.Surface) {
+                    listOf("+60", "+65", "+86", "+852", "+853", "+886", "+66", "+84", "+62", "+63").forEach { code ->
+                        DropdownMenuItem(
+                            text = { Text(code, color = DriverColors.TextPrimary, fontSize = 14.sp) },
+                            onClick = { phoneCountryCode = code; showCountryMenu = false }
+                        )
+                    }
+                }
+            }
+            // 号码：只允许数字
+            BasicTextField(value = phoneNumber, onValueChange = { input ->
+                    phoneNumber = input.filter { it.isDigit() }
+                },
+                modifier = Modifier.weight(1f).clip(RoundedCornerShape(14.dp))
+                    .background(DriverColors.Surface).padding(horizontal = 16.dp, vertical = 14.dp),
+                textStyle = TextStyle(color = DriverColors.TextPrimary, fontSize = 14.sp),
+                cursorBrush = SolidColor(DriverColors.Primary), singleLine = true,
+                decorationBox = { inner -> Box { if (phoneNumber.isEmpty()) Text("12 345 6789", color = DriverColors.TextDisabled, fontSize = 14.sp); inner() } })
+        }
         
         sectionSpacer()
         sectionLabel("昵称 / Username")
-        BasicTextField(value = username, onValueChange = { username = it }, modifier = fieldStyle,
+        BasicTextField(value = username, onValueChange = { input ->
+                username = input.filter { (it.isLetterOrDigit()) && it.code < 128 }
+            }, modifier = fieldStyle,
             textStyle = TextStyle(color = DriverColors.TextPrimary, fontSize = 14.sp),
             cursorBrush = SolidColor(DriverColors.Primary), singleLine = true,
             decorationBox = { inner -> Box { if (username.isEmpty()) Text("显示名称", color = DriverColors.TextDisabled, fontSize = 14.sp); inner() } })
@@ -412,10 +455,17 @@ fun RegisterScreen(
             }
             Column(modifier = Modifier.weight(1f)) {
                 sectionLabel("出生日期")
-                BasicTextField(value = dob, onValueChange = { dob = it }, modifier = fieldStyle,
-                    textStyle = TextStyle(color = DriverColors.TextPrimary, fontSize = 14.sp),
-                    cursorBrush = SolidColor(DriverColors.Primary), singleLine = true,
-                    decorationBox = { inner -> Box { if (dob.isEmpty()) Text("YYYY-MM-DD", color = DriverColors.TextDisabled, fontSize = 14.sp); inner() } })
+                Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
+                    .background(DriverColors.Surface)
+                    .clickable { showDatePicker = true }
+                    .padding(horizontal = 16.dp, vertical = 14.dp)
+                ) {
+                    Text(
+                        if (dob.isEmpty()) "YYYY-MM-DD" else dob,
+                        color = if (dob.isEmpty()) DriverColors.TextDisabled else DriverColors.TextPrimary,
+                        fontSize = 14.sp
+                    )
+                }
             }
         }
         
@@ -520,6 +570,49 @@ fun RegisterScreen(
         
         Spacer(modifier = Modifier.height(60.dp))
     }
+
+    // 出生日期 - 原生日历选择器
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState()
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            dob = millisToDateString(millis)
+                        }
+                        showDatePicker = false
+                    }
+                ) { Text("确定", color = DriverColors.Primary, fontWeight = FontWeight.Bold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("取消", color = DriverColors.TextMuted)
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+}
+
+private fun millisToDateString(millis: Long): String {
+    // selectedDateMillis 为 UTC 当天零点时间戳，直接用 UTC 天数换算日期
+    val days = millis / 86400000L
+    var z = days + 719468L
+    val era = (if (z >= 0L) z else z - 146096L) / 146097L
+    val doe = z - era * 146097L
+    val yoe = (doe - doe / 1460L + doe / 36524L - doe / 146096L) / 365L
+    val y = yoe + era * 400L
+    val doy = doe - (365L * yoe + yoe / 4L - yoe / 100L)
+    val mp = (5L * doy + 2L) / 153L
+    val d = doy - (153L * mp + 2L) / 5L + 1L
+    val m = mp + if (mp < 10L) 3L else -9L
+    val year = y + if (m <= 2L) 1L else 0L
+    val mm = m.toString().padStart(2, '0')
+    val dd = d.toString().padStart(2, '0')
+    return "$year-$mm-$dd"
 }
 
 // ─── RESET PASSWORD SCREEN ───
