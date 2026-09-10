@@ -1,6 +1,7 @@
 package com.stellarelite.driver.ui.screens
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,7 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -31,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.stellarelite.driver.platform.ReceiptSource
+import com.stellarelite.driver.platform.decodeImage
 import com.stellarelite.driver.platform.launchReceiptPicker
 import com.stellarelite.driver.ui.components.AppIcon
 import com.stellarelite.driver.ui.theme.DriverColors
@@ -344,9 +348,9 @@ fun RegisterScreen(
     var showCountryMenu by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showLicenseSource by remember { mutableStateOf(false) }
-    var idDocTaken by remember { mutableStateOf(false) }
-    var licenseTaken by remember { mutableStateOf(false) }
-    var faceTaken by remember { mutableStateOf(false) }
+    var idDocImage by remember { mutableStateOf<ImageBitmap?>(null) }
+    var licenseImage by remember { mutableStateOf<ImageBitmap?>(null) }
+    var faceImage by remember { mutableStateOf<ImageBitmap?>(null) }
     var wechat by remember { mutableStateOf("") }
     var street by remember { mutableStateOf("") }
     var city by remember { mutableStateOf("") }
@@ -534,29 +538,77 @@ fun RegisterScreen(
         // KYC upload
         sectionSpacer()
         sectionLabel("身份证/护照（拍照）")
-        Box(modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(14.dp))
-            .background(if (idDocTaken) DriverColors.PrimaryBg else DriverColors.Surface)
-            .clickable { launchReceiptPicker(ReceiptSource.Camera) { picked -> if (picked != null) idDocTaken = true } },
+        Box(modifier = Modifier.fillMaxWidth().height(160.dp).clip(RoundedCornerShape(14.dp))
+            .background(DriverColors.Surface)
+            .clickable { launchReceiptPicker(ReceiptSource.Camera) { picked ->
+                if (picked != null) idDocImage = decodeImage(picked.bytes)
+            } },
             contentAlignment = Alignment.Center
-        ) { Text(if (idDocTaken) "✅ 已拍摄" else "📷 点击拍照", color = if (idDocTaken) DriverColors.Primary else DriverColors.TextMuted, fontSize = 13.sp) }
+        ) {
+            val img = idDocImage
+            if (img != null) {
+                Image(bitmap = img, contentDescription = "身份证/护照",
+                    modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            } else {
+                Text("📷 点击拍照", color = DriverColors.TextMuted, fontSize = 13.sp)
+            }
+        }
         
         sectionSpacer()
         sectionLabel("驾驶证")
-        Box(modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(14.dp))
-            .background(if (licenseTaken) DriverColors.PrimaryBg else DriverColors.Surface)
+        Box(modifier = Modifier.fillMaxWidth().height(160.dp).clip(RoundedCornerShape(14.dp))
+            .background(DriverColors.Surface)
             .clickable { showLicenseSource = true },
             contentAlignment = Alignment.Center
-        ) { Text(if (licenseTaken) "✅ 已上传" else "📄 点击拍照/上传", color = if (licenseTaken) DriverColors.Primary else DriverColors.TextMuted, fontSize = 13.sp) }
+        ) {
+            val img = licenseImage
+            if (img != null) {
+                Image(bitmap = img, contentDescription = "驾驶证",
+                    modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            } else {
+                Text("📄 点击拍照/上传", color = DriverColors.TextMuted, fontSize = 13.sp)
+            }
+        }
         
         sectionSpacer()
         sectionLabel("人脸拍照")
-        Box(modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(14.dp))
-            .background(if (faceTaken) DriverColors.PrimaryBg else DriverColors.Surface)
-            .clickable { launchReceiptPicker(ReceiptSource.Camera) { picked -> if (picked != null) faceTaken = true } },
+        Box(modifier = Modifier.fillMaxWidth().height(160.dp).clip(RoundedCornerShape(14.dp))
+            .background(DriverColors.Surface)
+            .clickable { launchReceiptPicker(ReceiptSource.Camera) { picked ->
+                if (picked != null) faceImage = decodeImage(picked.bytes)
+            } },
             contentAlignment = Alignment.Center
-        ) { Text(if (faceTaken) "✅ 已拍摄" else "🤳 点击自拍", color = if (faceTaken) DriverColors.Primary else DriverColors.TextMuted, fontSize = 13.sp) }
+        ) {
+            val img = faceImage
+            if (img != null) {
+                Image(bitmap = img, contentDescription = "人脸",
+                    modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            } else {
+                Text("🤳 点击自拍", color = DriverColors.TextMuted, fontSize = 13.sp)
+            }
+        }
         
         sectionSpacer()
+        
+        // 必填校验（微信号选填）
+        val missingFields = buildList {
+            if (realName.isBlank()) add("真实姓名")
+            if (email.isBlank()) add("邮箱")
+            if (phoneNumber.isBlank()) add("手机号")
+            if (username.isBlank()) add("昵称")
+            if (dob.isBlank()) add("出生日期")
+            if (password.isBlank()) add("密码")
+            if (confirmPassword.isBlank()) add("确认密码")
+            if (street.isBlank()) add("地址")
+            if (city.isBlank()) add("城市")
+            if (state.isBlank()) add("州")
+            if (postcode.isBlank()) add("邮编")
+            if (idDocImage == null) add("身份证/护照")
+            if (licenseImage == null) add("驾驶证")
+            if (faceImage == null) add("人脸拍照")
+        }
+        val passwordMismatch = password.isNotBlank() && confirmPassword.isNotBlank() && password != confirmPassword
+        val canSubmit = missingFields.isEmpty() && !passwordMismatch
         
         // Submit
         Box(
@@ -564,11 +616,27 @@ fun RegisterScreen(
                 .fillMaxWidth()
                 .height(56.dp)
                 .clip(RoundedCornerShape(28.dp))
-                .background(DriverColors.Primary)
-                .clickable { loading = true; onRegisterSuccess() },
+                .background(if (canSubmit) DriverColors.Primary else DriverColors.TextDisabled)
+                .clickable(enabled = canSubmit) { loading = true; onRegisterSuccess() },
             contentAlignment = Alignment.Center
         ) {
-            Text("提交申请", color = Color.Black, fontSize = 17.sp, fontWeight = FontWeight.Black)
+            Text("提交申请", color = if (canSubmit) Color.Black else DriverColors.Surface, fontSize = 17.sp, fontWeight = FontWeight.Black)
+        }
+        
+        if (missingFields.isNotEmpty()) {
+            Text(
+                "请填写：${missingFields.joinToString("、")}",
+                color = DriverColors.Danger,
+                fontSize = 11.sp,
+                modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 10.dp)
+            )
+        } else if (passwordMismatch) {
+            Text(
+                "两次密码不一致",
+                color = DriverColors.Danger,
+                fontSize = 11.sp,
+                modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 10.dp)
+            )
         }
         
         Text(
@@ -626,7 +694,7 @@ fun RegisterScreen(
                                 .clickable {
                                     showLicenseSource = false
                                     launchReceiptPicker(source) { picked ->
-                                        if (picked != null) licenseTaken = true
+                                        if (picked != null) licenseImage = decodeImage(picked.bytes)
                                     }
                                 }
                                 .padding(vertical = 14.dp)

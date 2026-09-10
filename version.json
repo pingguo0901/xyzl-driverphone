@@ -1,7 +1,7 @@
 {
-  "versionCode": 24,
-  "versionName": "1.0.23",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.23/xyzl-driver.apk",
-  "changelog": "- 注册页：身份证/护照仅拍照自动开相机\n- 驾驶证支持拍照或相册上传\n- 人脸拍照仅拍照自动开相机",
+  "versionCode": 25,
+  "versionName": "1.0.24",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.24/xyzl-driver.apk",
+  "changelog": "- 注册页：除微信号外全部必填，未填完不可提交\n- 身份证/护照、驾驶证、人脸拍照上传后显示图片预览",
   "buildDate": "2026-09-10"
 }
