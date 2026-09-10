@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
@@ -29,6 +30,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.stellarelite.driver.platform.ReceiptSource
+import com.stellarelite.driver.platform.launchReceiptPicker
 import com.stellarelite.driver.ui.components.AppIcon
 import com.stellarelite.driver.ui.theme.DriverColors
 import kotlinx.coroutines.delay
@@ -340,6 +343,10 @@ fun RegisterScreen(
     var dob by remember { mutableStateOf("") }
     var showCountryMenu by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var showLicenseSource by remember { mutableStateOf(false) }
+    var idDocTaken by remember { mutableStateOf(false) }
+    var licenseTaken by remember { mutableStateOf(false) }
+    var faceTaken by remember { mutableStateOf(false) }
     var wechat by remember { mutableStateOf("") }
     var street by remember { mutableStateOf("") }
     var city by remember { mutableStateOf("") }
@@ -524,27 +531,30 @@ fun RegisterScreen(
             cursorBrush = SolidColor(DriverColors.Primary), singleLine = true,
             decorationBox = { inner -> Box { if (postcode.isEmpty()) Text("邮编", color = DriverColors.TextDisabled, fontSize = 14.sp); inner() } })
         
-        // KYC upload placeholders
+        // KYC upload
         sectionSpacer()
         sectionLabel("身份证/护照（拍照）")
         Box(modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(14.dp))
-            .background(DriverColors.Surface).clickable { },
+            .background(if (idDocTaken) DriverColors.PrimaryBg else DriverColors.Surface)
+            .clickable { launchReceiptPicker(ReceiptSource.Camera) { picked -> if (picked != null) idDocTaken = true } },
             contentAlignment = Alignment.Center
-        ) { Text("📷 点击拍照上传", color = DriverColors.TextMuted, fontSize = 13.sp) }
+        ) { Text(if (idDocTaken) "✅ 已拍摄" else "📷 点击拍照", color = if (idDocTaken) DriverColors.Primary else DriverColors.TextMuted, fontSize = 13.sp) }
         
         sectionSpacer()
         sectionLabel("驾驶证")
         Box(modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(14.dp))
-            .background(DriverColors.Surface).clickable { },
+            .background(if (licenseTaken) DriverColors.PrimaryBg else DriverColors.Surface)
+            .clickable { showLicenseSource = true },
             contentAlignment = Alignment.Center
-        ) { Text("📄 点击上传驾驶证", color = DriverColors.TextMuted, fontSize = 13.sp) }
+        ) { Text(if (licenseTaken) "✅ 已上传" else "📄 点击拍照/上传", color = if (licenseTaken) DriverColors.Primary else DriverColors.TextMuted, fontSize = 13.sp) }
         
         sectionSpacer()
         sectionLabel("人脸拍照")
         Box(modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(14.dp))
-            .background(DriverColors.Surface).clickable { },
+            .background(if (faceTaken) DriverColors.PrimaryBg else DriverColors.Surface)
+            .clickable { launchReceiptPicker(ReceiptSource.Camera) { picked -> if (picked != null) faceTaken = true } },
             contentAlignment = Alignment.Center
-        ) { Text("🤳 点击自拍", color = DriverColors.TextMuted, fontSize = 13.sp) }
+        ) { Text(if (faceTaken) "✅ 已拍摄" else "🤳 点击自拍", color = if (faceTaken) DriverColors.Primary else DriverColors.TextMuted, fontSize = 13.sp) }
         
         sectionSpacer()
         
@@ -594,6 +604,42 @@ fun RegisterScreen(
         ) {
             DatePicker(state = datePickerState)
         }
+    }
+
+    // 驾驶证 - 来源选择（拍照 / 相册）
+    if (showLicenseSource) {
+        AlertDialog(
+            onDismissRequest = { showLicenseSource = false },
+            containerColor = DriverColors.Surface,
+            title = { Text("驾驶证来源", color = DriverColors.TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    listOf(
+                        "📷 拍照" to ReceiptSource.Camera,
+                        "🖼️ 相册" to ReceiptSource.Gallery
+                    ).forEach { (label, source) ->
+                        Text(
+                            label,
+                            color = DriverColors.TextPrimary,
+                            fontSize = 15.sp,
+                            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+                                .clickable {
+                                    showLicenseSource = false
+                                    launchReceiptPicker(source) { picked ->
+                                        if (picked != null) licenseTaken = true
+                                    }
+                                }
+                                .padding(vertical = 14.dp)
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLicenseSource = false }) {
+                    Text("取消", color = DriverColors.TextMuted)
+                }
+            }
+        )
     }
 }
 
