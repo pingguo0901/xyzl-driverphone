@@ -49,29 +49,11 @@ fun HomeScreen() {
         Text("首页", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(16.dp))
 
-        // 接单开关卡片
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        if (online) "接单中" else "休息中",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        if (online) "正在接收新订单" else "点击右侧按钮开始接单",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-                CircularToggleButton(
-                    online = online,
-                    onToggle = { online = !online },
-                )
-            }
-        }
+        // 接单开关卡片：整张卡片休息中灰色 → 接单中绿色从左到右渐变
+        OnlineStatusCard(
+            online = online,
+            onToggle = { online = !online },
+        )
 
         Spacer(Modifier.height(16.dp))
 
@@ -90,12 +72,12 @@ fun HomeScreen() {
 }
 
 /**
- * 圆形接单开关按钮：
- * 休息中为灰色，接单中时绿色从左到右渐变填充，
- * 切换回休息中时按原路反向退回。
+ * 接单开关卡片：
+ * 休息中整张卡片灰色，接单中绿色从左到右渐变填充整张卡片，
+ * 右侧圆形按钮负责切换，切换回休息中按原路反向退回。
  */
 @Composable
-private fun CircularToggleButton(
+private fun OnlineStatusCard(
     online: Boolean,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
@@ -108,30 +90,56 @@ private fun CircularToggleButton(
 
     val green = Color(0xFF4CAF50)
     val gray = Color(0xFFBDBDBD)
+    val contentColor = if (online) Color.White else Color(0xFF1B1B1B)
+    val subColor = if (online) Color.White.copy(alpha = 0.85f) else Color(0xFF5F5F5F)
 
-    Box(
-        modifier = modifier
-            .size(60.dp)
-            .clip(CircleShape)
-            .clickable(onClick = onToggle),
-    ) {
-        // 灰色底色（休息中）
-        Box(Modifier.fillMaxSize().background(gray))
-        // 绿色从左到右渐变填充（接单中）
-        Box(
-            Modifier
-                .align(Alignment.CenterStart)
-                .fillMaxHeight()
-                .fillMaxWidth(transition)
-                .background(green),
-        )
-        // 中心电源图标
-        Icon(
-            imageVector = Icons.Filled.PowerSettingsNew,
-            contentDescription = if (online) "停止接单" else "开始接单",
-            tint = Color.White,
-            modifier = Modifier.align(Alignment.Center).size(26.dp),
-        )
+    Card(modifier = modifier.fillMaxWidth()) {
+        Box(Modifier.fillMaxWidth()) {
+            // 灰色底色（休息中）
+            Box(Modifier.fillMaxSize().background(gray))
+            // 绿色从左到右渐变填充整张卡片（接单中）
+            Box(
+                Modifier
+                    .align(Alignment.CenterStart)
+                    .fillMaxHeight()
+                    .fillMaxWidth(transition)
+                    .background(green),
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        if (online) "接单中" else "休息中",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = contentColor,
+                    )
+                    Text(
+                        if (online) "正在接收新订单" else "点击右侧按钮开始接单",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = subColor,
+                    )
+                }
+                // 圆形开关按钮（负责切换）
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .clickable(onClick = onToggle),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.PowerSettingsNew,
+                        contentDescription = if (online) "停止接单" else "开始接单",
+                        tint = contentColor,
+                        modifier = Modifier.size(26.dp),
+                    )
+                }
+            }
+        }
     }
 }
 
