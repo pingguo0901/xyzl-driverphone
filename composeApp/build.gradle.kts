@@ -51,8 +51,8 @@ android {
         applicationId = "com.xyzl.driverphone"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 26
-        versionName = "1.0.26"
+        versionCode = 27
+        versionName = "1.0.27"
     }
     packaging {
         resources {
