@@ -37,6 +37,8 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.materialIconsExtended)
+            implementation(libs.haze)
+            implementation(libs.haze.materials)
         }
     }
 }
@@ -49,8 +51,8 @@ android {
         applicationId = "com.xyzl.driverphone"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 25
-        versionName = "1.0.25"
+        versionCode = 26
+        versionName = "1.0.26"
     }
     packaging {
         resources {
