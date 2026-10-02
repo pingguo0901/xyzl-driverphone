@@ -1,7 +1,7 @@
 {
-  "versionCode": 28,
-  "versionName": "1.0.28",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.28/composeApp-release.apk",
-  "changelog": "- 新增应用内更新系统：启动自动检测新版本，一键下载安装",
+  "versionCode": 29,
+  "versionName": "1.0.29",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.29/composeApp-release.apk",
+  "changelog": "- 接单开关渐变改为整张卡片",
   "buildDate": "2026-10-03"
 }
