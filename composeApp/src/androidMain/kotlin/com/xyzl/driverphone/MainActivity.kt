@@ -7,10 +7,17 @@ import androidx.activity.enableEdgeToEdge
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        UpdateManager.setCurrentVersion(packageManager.getPackageInfo(packageName, 0).longVersionCode.toInt())
         setContent {
-            App()
+            App(
+                onCheckUpdate = { UpdateManager.checkForUpdate() },
+                onApplyUpdate = { info, _ ->
+                    UpdateManager.downloadAndInstall(this, info.apkUrl)
+                    null
+                },
+            )
         }
     }
 }

@@ -8,10 +8,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -24,13 +26,19 @@ import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +63,7 @@ import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 enum class AppTab(val label: String) {
     Home("首页"),
@@ -74,10 +83,32 @@ private fun tabIcon(tab: AppTab): ImageVector = when (tab) {
 
 @OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
-fun App() {
+fun App(
+    onCheckUpdate: (suspend () -> VersionInfo?)? = null,
+    onApplyUpdate: (suspend (VersionInfo, (Long, Long) -> Unit) -> String?)? = null,
+) {
     DriverPhoneTheme {
         var selectedTab by remember { mutableStateOf(AppTab.Home) }
         val hazeState = remember { HazeState() }
+        var showUpdateDialog by remember { mutableStateOf(false) }
+        var updateInfo by remember { mutableStateOf<VersionInfo?>(null) }
+        var updating by remember { mutableStateOf(false) }
+        var updateProgress by remember { mutableStateOf(0f) }
+        var updateError by remember { mutableStateOf<String?>(null) }
+        val scope = rememberCoroutineScope()
+
+        // 启动时检查更新
+        LaunchedEffect(Unit) {
+            onCheckUpdate?.let { checkFn ->
+                try {
+                    val info = checkFn()
+                    if (info != null) {
+                        updateInfo = info
+                        showUpdateDialog = true
+                    }
+                } catch (_: Exception) { }
+            }
+        }
 
         Box(Modifier.fillMaxSize()) {
             // 页面内容（毛玻璃的模糊来源）
@@ -105,6 +136,109 @@ fun App() {
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 20.dp),
             )
+        }
+
+        // 更新弹窗
+        if (showUpdateDialog && updateInfo != null) {
+            if (updating) {
+                AlertDialog(
+                    onDismissRequest = {},
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    title = {
+                        Text(
+                            "正在更新 v${updateInfo!!.versionName}",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    },
+                    text = {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            Text("正在下载新版本，请稍候…", fontSize = 14.sp)
+                            LinearProgressIndicator(
+                                progress = { updateProgress },
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                            Text(
+                                "${(updateProgress * 100).toInt()}%",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                    },
+                    confirmButton = {},
+                )
+            } else {
+                AlertDialog(
+                    onDismissRequest = { showUpdateDialog = false },
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    title = {
+                        Text(
+                            "发现新版本 v${updateInfo!!.versionName}",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    },
+                    text = {
+                        Column {
+                            Text(
+                                updateInfo!!.changelog.replace("- ", "• "),
+                                fontSize = 14.sp,
+                                lineHeight = 22.sp,
+                            )
+                            if (updateError != null) {
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    "⚠️ $updateError",
+                                    color = MaterialTheme.colorScheme.error,
+                                    fontSize = 13.sp,
+                                )
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                updateError = null
+                                scope.launch {
+                                    val fn = onApplyUpdate
+                                    if (fn == null) {
+                                        updateError = "更新功能不可用"
+                                    } else {
+                                        updating = true
+                                        updateProgress = 0f
+                                        val err = fn.invoke(updateInfo!!) { done, total ->
+                                            if (total > 0) updateProgress = done.toFloat() / total.toFloat()
+                                        }
+                                        if (err != null) {
+                                            updating = false
+                                            updateError = err
+                                        } else {
+                                            showUpdateDialog = false
+                                            updating = false
+                                        }
+                                    }
+                                }
+                            },
+                        ) {
+                            Text(
+                                "立即更新",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showUpdateDialog = false }) {
+                            Text("稍后", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    },
+                )
+            }
         }
     }
 }
@@ -142,7 +276,6 @@ private fun CapsuleBottomBar(
             .height(52.dp)
             .padding(4.dp),
     ) {
-        // 白色滑块（滑到选中项下方）
         Box(
             modifier = Modifier
                 .offset(x = animatedX)
@@ -151,7 +284,6 @@ private fun CapsuleBottomBar(
                 .background(Color.White, RoundedCornerShape(50)),
         )
 
-        // 五个 tab 项
         Row(
             modifier = Modifier.fillMaxHeight(),
             verticalAlignment = Alignment.CenterVertically,
