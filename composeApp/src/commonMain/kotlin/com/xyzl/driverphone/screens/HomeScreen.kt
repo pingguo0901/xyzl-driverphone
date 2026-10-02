@@ -94,7 +94,7 @@ private fun OnlineStatusCard(
     val subColor = if (online) Color.White.copy(alpha = 0.85f) else Color(0xFF5F5F5F)
 
     Card(modifier = modifier.fillMaxWidth()) {
-        Box(Modifier.fillMaxWidth()) {
+        Box(Modifier.fillMaxWidth().height(88.dp)) {
             // 灰色底色（休息中）
             Box(Modifier.fillMaxSize().background(gray))
             // 绿色从左到右渐变填充整张卡片（接单中）
