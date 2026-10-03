@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,8 +22,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,6 +36,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+private val RestingGray = Color(0xFFE9E9EB)
+private val OnlineGreen = Color(0xFF34C759)
+private val InkDark = Color(0xFF111113)
+private val MutedGray = Color(0xFF8E8E93)
 
 @Composable
 fun HomeScreen() {
@@ -44,38 +51,30 @@ fun HomeScreen() {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Text("首页", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(16.dp))
-
-        // 接单开关卡片：整张卡片休息中灰色 → 接单中绿色从左到右渐变
-        OnlineStatusCard(
-            online = online,
-            onToggle = { online = !online },
+        Text(
+            "首页",
+            fontSize = 30.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.White,
         )
 
-        Spacer(Modifier.height(16.dp))
+        OnlineStatusCard(online = online, onToggle = { online = !online })
 
-        Row(Modifier.fillMaxWidth()) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatCard("今日订单", "12", Modifier.weight(1f))
-            Spacer(Modifier.width(12.dp))
             StatCard("今日收入", "RM 486", Modifier.weight(1f))
         }
-        Spacer(Modifier.height(12.dp))
-        Row(Modifier.fillMaxWidth()) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatCard("在线时长", "6.5h", Modifier.weight(1f))
-            Spacer(Modifier.width(12.dp))
             StatCard("评分", "4.9", Modifier.weight(1f))
         }
     }
 }
 
-/**
- * 接单开关卡片：
- * 休息中整张卡片灰色，接单中绿色从左到右渐变填充整张卡片，
- * 右侧圆形按钮负责切换，切换回休息中按原路反向退回。
- */
+/** 接单开关卡片：休息中柔和灰 → 接单中高级绿从左到右渐变整卡填充 */
 @Composable
 private fun OnlineStatusCard(
     online: Boolean,
@@ -84,58 +83,60 @@ private fun OnlineStatusCard(
 ) {
     val transition by animateFloatAsState(
         targetValue = if (online) 1f else 0f,
-        animationSpec = tween(durationMillis = 450),
+        animationSpec = tween(durationMillis = 400),
         label = "onlineTransition",
     )
 
-    val green = Color(0xFF4CAF50)
-    val gray = Color(0xFFBDBDBD)
-    val contentColor = if (online) Color.White else Color(0xFF1B1B1B)
-    val subColor = if (online) Color.White.copy(alpha = 0.85f) else Color(0xFF5F5F5F)
+    val titleColor = if (online) Color.White else InkDark
+    val subColor = if (online) Color.White.copy(alpha = 0.85f) else MutedGray
+    val iconTint = if (online) OnlineGreen else InkDark
 
-    Card(modifier = modifier.fillMaxWidth()) {
-        Box(Modifier.fillMaxWidth().height(88.dp)) {
-            // 灰色底色（休息中）
-            Box(Modifier.fillMaxSize().background(gray))
-            // 绿色从左到右渐变填充整张卡片（接单中）
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Box(Modifier.fillMaxWidth().height(92.dp)) {
+            Box(Modifier.fillMaxSize().background(RestingGray))
             Box(
                 Modifier
                     .align(Alignment.CenterStart)
                     .fillMaxHeight()
                     .fillMaxWidth(transition)
-                    .background(green),
+                    .background(OnlineGreen),
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(Modifier.weight(1f)) {
                     Text(
                         if (online) "接单中" else "休息中",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = contentColor,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = titleColor,
                     )
+                    Spacer(Modifier.height(4.dp))
                     Text(
                         if (online) "正在接收新订单" else "点击右侧按钮开始接单",
-                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 13.sp,
                         color = subColor,
                     )
                 }
-                // 圆形开关按钮（负责切换）
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(46.dp)
                         .clip(CircleShape)
+                        .background(Color.White, CircleShape)
                         .clickable(onClick = onToggle),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = Icons.Filled.PowerSettingsNew,
                         contentDescription = if (online) "停止接单" else "开始接单",
-                        tint = contentColor,
-                        modifier = Modifier.size(26.dp),
+                        tint = iconTint,
+                        modifier = Modifier.size(22.dp),
                     )
                 }
             }
@@ -145,11 +146,26 @@ private fun OnlineStatusCard(
 
 @Composable
 private fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
-    Card(modifier = modifier) {
-        Column(Modifier.padding(16.dp)) {
-            Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(4.dp))
-            Text(value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(Modifier.padding(20.dp)) {
+            Text(
+                label,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.5.sp,
+                color = MutedGray,
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                value,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = InkDark,
+            )
         }
     }
 }
