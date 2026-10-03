@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -57,11 +58,6 @@ import com.xyzl.driverphone.screens.HistoryScreen
 import com.xyzl.driverphone.screens.HomeScreen
 import com.xyzl.driverphone.screens.ProfileScreen
 import com.xyzl.driverphone.screens.TripsScreen
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.hazeSource
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
@@ -81,7 +77,6 @@ private fun tabIcon(tab: AppTab): ImageVector = when (tab) {
     AppTab.Profile -> Icons.Filled.Person
 }
 
-@OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 fun App(
     onCheckUpdate: (suspend () -> VersionInfo?)? = null,
@@ -89,7 +84,6 @@ fun App(
 ) {
     DriverPhoneTheme {
         var selectedTab by remember { mutableStateOf(AppTab.Home) }
-        val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
         var updateInfo by remember { mutableStateOf<VersionInfo?>(null) }
         var updating by remember { mutableStateOf(false) }
@@ -110,14 +104,14 @@ fun App(
             }
         }
 
-        Box(Modifier.fillMaxSize()) {
-            // 页面内容（毛玻璃的模糊来源）
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .hazeSource(state = hazeState)
-                    .padding(bottom = 88.dp)
-            ) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .statusBarsPadding()
+        ) {
+            // 页面内容（延伸到透明底部栏下方）
+            Box(Modifier.fillMaxSize()) {
                 when (selectedTab) {
                     AppTab.Home -> HomeScreen()
                     AppTab.Trips -> TripsScreen()
@@ -127,11 +121,10 @@ fun App(
                 }
             }
 
-            // 胶囊式毛玻璃底部栏
+            // 透明底部快捷栏（无背景，白胶囊滑块指示选中项）
             CapsuleBottomBar(
                 selectedTab = selectedTab,
                 onSelect = { selectedTab = it },
-                hazeState = hazeState,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 20.dp),
@@ -243,12 +236,10 @@ fun App(
     }
 }
 
-@OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 private fun CapsuleBottomBar(
     selectedTab: AppTab,
     onSelect: (AppTab) -> Unit,
-    hazeState: HazeState,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -269,10 +260,10 @@ private fun CapsuleBottomBar(
         label = "tabW",
     )
 
+    // 透明容器（无背景），只保留白胶囊滑块
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(50))
-            .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin())
             .height(52.dp)
             .padding(4.dp),
     ) {
@@ -311,7 +302,7 @@ private fun CapsuleBarItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val contentColor = if (selected) Color(0xFF1B1B1B) else Color(0xFF8A8A8A)
+    val contentColor = if (selected) Color(0xFF1B1B1B) else Color(0xFFD9D9D9)
 
     Row(
         modifier = modifier

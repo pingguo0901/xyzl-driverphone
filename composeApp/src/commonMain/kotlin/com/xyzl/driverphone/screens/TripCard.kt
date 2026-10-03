@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.xyzl.driverphone.model.Trip
@@ -47,7 +48,7 @@ private fun StatusBadge(status: TripStatus) {
     val (text, color) = when (status) {
         TripStatus.PENDING -> "待接单" to MaterialTheme.colorScheme.tertiary
         TripStatus.ONGOING -> "进行中" to MaterialTheme.colorScheme.primary
-        TripStatus.COMPLETED -> "已完成" to MaterialTheme.colorScheme.secondary
+        TripStatus.COMPLETED -> "已完成" to Color(0xFF34C759)
         TripStatus.CANCELLED -> "已取消" to MaterialTheme.colorScheme.error
     }
     Surface(color = color.copy(alpha = 0.12f), shape = MaterialTheme.shapes.small) {
