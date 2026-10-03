@@ -47,12 +47,19 @@ android {
     namespace = "com.xyzl.driverphone"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
+    // 只需改 appVersionName，versionCode 会自动按 major*10000 + minor*100 + patch 计算
+    val appVersionName = "1.0.31"
+    val appVersionParts = appVersionName.split(".").map { it.toIntOrNull() ?: 0 }
+    val appVersionCode = (appVersionParts.getOrNull(0) ?: 0) * 10000 +
+        (appVersionParts.getOrNull(1) ?: 0) * 100 +
+        (appVersionParts.getOrNull(2) ?: 0)
+
     defaultConfig {
         applicationId = "com.xyzl.driverphone"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 31
-        versionName = "1.0.31"
+        versionCode = appVersionCode
+        versionName = appVersionName
     }
     packaging {
         resources {

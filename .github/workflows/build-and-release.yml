@@ -48,9 +48,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ github.ref_name }}"
-          VER="${TAG#v}"
-          CODE=$(sed -n 's/.*versionCode = \([0-9]*\).*/\1/p' composeApp/build.gradle.kts | head -1)
+          VER=$(sed -n 's/.*appVersionName = "\([^"]*\)".*/\1/p' composeApp/build.gradle.kts | head -1)
+          MAJOR=$(echo "$VER" | cut -d. -f1)
+          MINOR=$(echo "$VER" | cut -d. -f2)
+          PATCH=$(echo "$VER" | cut -d. -f3)
+          CODE=$(( MAJOR*10000 + MINOR*100 + PATCH ))
           TODAY=$(date +%Y-%m-%d)
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout -B main origin/main
           cat > version.json <<EOF
           {
             "versionCode": ${CODE},
@@ -60,8 +67,6 @@ jobs:
             "buildDate": "${TODAY}"
           }
           EOF
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add version.json
           git commit -m "chore: 同步 version.json 到 ${VER}" || echo "no change"
-          git push origin HEAD:main
+          git push origin main
