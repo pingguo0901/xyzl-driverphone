@@ -1,228 +1,306 @@
 package com.xyzl.driverphone.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.brandLogoPainter
 
-private val NightTop = Color(0xFF0A1A33)
-private val NightMid = Color(0xFF0D2547)
-private val NightBottom = Color(0xFF123A63)
-private val Gold = Color(0xFFD9B36A)
-private val GoldBright = Color(0xFFF0D08A)
-private val FieldBg = Color(0x1AFFFFFF)
-private val FieldBorder = Color(0x33FFFFFF)
-
-/** 登录 / 注册页面：深蓝星空 + 金色品牌 + 账号密码 + 第三方登录 */
+// =====================  星域臻旅 登录页面  =====================
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit = {}) {
-    var tab by remember { mutableStateOf(0) } // 0=登录 1=注册
-    var account by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var showPassword by remember { mutableStateOf(false) }
-    var agreed by remember { mutableStateOf(false) }
+fun LoginScreen(
+    onLoginSuccess: () -> Unit = {},
+    onRegister: () -> Unit = {},
+    onForgetPassword: () -> Unit = {},
+    onWechatLogin: () -> Unit = {},
+    onAppleLogin: () -> Unit = {},
+    onUserAgreementClick: () -> Unit = {},
+    onPrivacyPolicyClick: () -> Unit = {},
+) {
+    var selectedTabIndex by remember { mutableStateOf(0) } // 0 登录， 1 注册
+    var accountText by remember { mutableStateOf("") }
+    var passwordText by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var agreedPolicy by remember { mutableStateOf(false) }
+
+    // 星空深蓝色渐变
+    val backgroundBrush = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFF081226),
+            Color(0xFF0F2040),
+            Color(0xFF102244),
+        ),
+    )
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(NightTop, NightMid, NightBottom),
-                ),
-            ),
+            .background(brush = backgroundBrush),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 28.dp),
+                .padding(horizontal = 28.dp, vertical = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(Modifier.height(72.dp))
-
-            // 品牌标志：金色流星 + 星星
-            BrandMark()
-
-            Spacer(Modifier.height(18.dp))
-
+            // ==========  顶部品牌  ==========
+            Spacer(Modifier.height(24.dp))
             Text(
-                "星域臻旅",
-                fontSize = 34.sp,
+                text = "星域臻旅",
+                fontSize = 44.sp,
+                color = Color(0xFFD4AF37),
                 fontWeight = FontWeight.Bold,
-                color = GoldBright,
                 letterSpacing = 6.sp,
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(10.dp))
             Text(
-                "尊荣邀制 · 至尊之旅",
-                fontSize = 13.sp,
-                color = Gold.copy(alpha = 0.85f),
-                letterSpacing = 3.sp,
+                text = "— 尊荣邀制 · 至尊之旅 —",
+                fontSize = 15.sp,
+                color = Color(0xFFE2C260),
+                letterSpacing = 2.sp,
+                modifier = Modifier.padding(bottom = 36.dp),
             )
 
-            Spacer(Modifier.height(40.dp))
-
-            // 登录 / 注册 选项卡
-            AuthTabs(selected = tab, onSelect = { tab = it })
-
-            Spacer(Modifier.height(28.dp))
-
-            // 账号输入
-            AuthField(
-                value = account,
-                onValueChange = { account = it },
-                placeholder = "请输入手机号 / 邮箱",
-                leadingIcon = Icons.Filled.Person,
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // 密码输入
-            AuthField(
-                value = password,
-                onValueChange = { password = it },
-                placeholder = "请输入密码",
-                leadingIcon = Icons.Filled.Lock,
-                isPassword = true,
-                showPassword = showPassword,
-                onTogglePassword = { showPassword = !showPassword },
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                Text(
-                    "忘记密码？",
-                    fontSize = 13.sp,
-                    color = Gold.copy(alpha = 0.9f),
-                    modifier = Modifier.clickable { },
-                )
-            }
-
-            Spacer(Modifier.height(24.dp))
-
-            // 主按钮
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .clip(RoundedCornerShape(26.dp))
-                    .background(
-                        Brush.horizontalGradient(listOf(Gold, GoldBright)),
-                    )
-                    .clickable {
-                        if (agreed) onLoginSuccess()
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    if (tab == 0) "登 录" else "注 册",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1A1206),
-                    letterSpacing = 2.sp,
-                )
-            }
-
-            Spacer(Modifier.height(28.dp))
-
-            // 其他登录方式
-            Row(
+            // ==========  登录 / 注册 卡片容器  ==========
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+                shape = RoundedCornerShape(26.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0x22345688),
+                ),
+                border = BorderStroke(1.dp, Color(0xFF4A72BB)),
             ) {
-                Box(Modifier.weight(1f).height(1.dp).background(Color(0x33FFFFFF)))
-                Text(
-                    "其他登录方式",
-                    fontSize = 12.sp,
-                    color = Color(0x99FFFFFF),
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                )
-                Box(Modifier.weight(1f).height(1.dp).background(Color(0x33FFFFFF)))
-            }
-
-            Spacer(Modifier.height(20.dp))
-
-            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                SocialButton(painter = brandLogoPainter(isWhatsApp = false), label = "微信")
-                SocialButton(painter = brandLogoPainter(isWhatsApp = true), label = "WhatsApp")
-            }
-
-            Spacer(Modifier.height(32.dp))
-
-            // 协议勾选
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                Box(
+                Column(
                     modifier = Modifier
-                        .size(18.dp)
-                        .clip(CircleShape)
-                        .background(if (agreed) Gold else Color.Transparent)
-                        .clickable { agreed = !agreed },
-                    contentAlignment = Alignment.Center,
+                        .fillMaxWidth()
+                        .padding(26.dp),
                 ) {
-                    if (agreed) {
-                        Text("✓", fontSize = 12.sp, color = Color(0xFF1A1206), fontWeight = FontWeight.Bold)
-                    } else {
+                    // Tab 登录 / 注册
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        TabItem(
+                            title = "登录",
+                            selected = selectedTabIndex == 0,
+                            modifier = Modifier.weight(1f),
+                            onClick = { selectedTabIndex = 0 },
+                        )
+                        TabItem(
+                            title = "注册",
+                            selected = selectedTabIndex == 1,
+                            modifier = Modifier.weight(1f),
+                            onClick = { selectedTabIndex = 1 },
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // 输入框：手机号 / 邮箱
+                    OutlinedTextField(
+                        value = accountText,
+                        onValueChange = { accountText = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("请输入手机号 / 邮箱", color = Color(0xFFAAAAAA)) },
+                        leadingIcon = {
+                            Icon(Icons.Filled.Person, null, tint = Color(0xFFC8C8C8))
+                        },
+                        shape = RoundedCornerShape(18.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFD6B442),
+                            unfocusedBorderColor = Color(0xFF5478AA),
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                        ),
+                        singleLine = true,
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // 密码输入框（眼睛 显示 / 隐藏）
+                    OutlinedTextField(
+                        value = passwordText,
+                        onValueChange = { passwordText = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("请输入密码", color = Color(0xFFAAAAAA)) },
+                        leadingIcon = {
+                            Icon(Icons.Filled.Lock, null, tint = Color(0xFFC8C8C8))
+                        },
+                        trailingIcon = {
+                            val icon = if (passwordVisible) Icons.Filled.Visibility
+                            else Icons.Filled.VisibilityOff
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(icon, "切换密码可见", tint = Color(0xFFCCCCCC))
+                            }
+                        },
+                        shape = RoundedCornerShape(18.dp),
+                        visualTransformation = if (passwordVisible) VisualTransformation.None
+                        else PasswordVisualTransformation(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFD6B442),
+                            unfocusedBorderColor = Color(0xFF5478AA),
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                        ),
+                        singleLine = true,
+                    )
+
+                    // 忘记密码 靠右
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 6.dp),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        Text(
+                            text = "忘记密码？",
+                            color = Color(0xFFE6C765),
+                            fontSize = 13.sp,
+                            modifier = Modifier.clickable { onForgetPassword() },
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(28.dp))
+
+                    // 金色大登录按钮
+                    Button(
+                        onClick = {
+                            if (selectedTabIndex == 0) {
+                                onLoginSuccess()
+                            } else {
+                                onRegister()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(999.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFD8B645),
+                        ),
+                        enabled = agreedPolicy,
+                    ) {
+                        Text(
+                            if (selectedTabIndex == 0) "登录" else "注册",
+                            fontSize = 20.sp,
+                            color = Color(0xFF1A1A1A),
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(26.dp))
+
+                    // 分割线 + 其他登录方式
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
-                            Modifier
-                                .size(18.dp)
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(1.dp)
+                                .background(Color(0xFF496899)),
+                        )
+                        Text(
+                            "其他登录方式",
+                            color = Color(0xFFB0C4E2),
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(horizontal = 12.dp),
+                        )
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(1.dp)
+                                .background(Color(0xFF496899)),
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(22.dp))
+
+                    // 微信 + Apple 登录
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        // 微信
+                        Box(
+                            modifier = Modifier
+                                .size(64.dp)
                                 .clip(CircleShape)
-                                .background(Color(0x22FFFFFF)),
+                                .background(Color(0xFF07C160))
+                                .clickable { onWechatLogin() },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Image(
+                                painter = brandLogoPainter(isWhatsApp = false),
+                                contentDescription = "微信",
+                                modifier = Modifier.size(36.dp),
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(36.dp))
+                        // Apple
+                        Box(
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFF111111))
+                                .clickable { onAppleLogin() },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            AppleLogo(
+                                modifier = Modifier.size(30.dp),
+                                tint = Color.White,
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(26.dp))
+
+                    // 复选框 用户协议、隐私政策
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = agreedPolicy,
+                            onCheckedChange = { agreedPolicy = it },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = Color(0xFFD6B442),
+                                uncheckedColor = Color(0xFF889CC0),
+                                checkmarkColor = Color(0xFF1A1A1A),
+                            ),
+                        )
+                        Text("我已阅读并同意 ", color = Color(0xFFDDE6F7), fontSize = 12.sp)
+                        Text(
+                            "《用户协议》",
+                            color = Color(0xFFE6C765),
+                            fontSize = 12.sp,
+                            modifier = Modifier.clickable { onUserAgreementClick() },
+                        )
+                        Text(" 与 ", color = Color(0xFFDDE6F7), fontSize = 12.sp)
+                        Text(
+                            "《隐私政策》",
+                            color = Color(0xFFE6C765),
+                            fontSize = 12.sp,
+                            modifier = Modifier.clickable { onPrivacyPolicyClick() },
                         )
                     }
                 }
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    "我已阅读并同意《用户协议》与《隐私政策》",
-                    fontSize = 12.sp,
-                    color = Color(0xB3FFFFFF),
-                    textAlign = TextAlign.Center,
-                )
             }
 
             Spacer(Modifier.height(40.dp))
@@ -230,146 +308,62 @@ fun LoginScreen(onLoginSuccess: () -> Unit = {}) {
     }
 }
 
-/** 金色流星 + 星星品牌标志 */
+// 登录 / 注册 Tab 子组件
 @Composable
-private fun BrandMark() {
-    Box(
-        modifier = Modifier.size(96.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        // 光晕
-        Box(
-            Modifier
-                .size(96.dp)
-                .clip(CircleShape)
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(Gold.copy(alpha = 0.28f), Color.Transparent),
-                    ),
-                ),
-        )
-        // 流星轨迹
-        Box(
-            Modifier
-                .width(64.dp)
-                .height(3.dp)
-                .clip(RoundedCornerShape(2.dp))
-                .background(
-                    Brush.horizontalGradient(
-                        listOf(Color.Transparent, Gold.copy(alpha = 0.7f), GoldBright),
-                    ),
-                ),
-        )
-        // 星点
-        Box(
-            Modifier
-                .size(10.dp)
-                .clip(CircleShape)
-                .background(GoldBright),
-        )
-    }
-}
-
-/** 登录 / 注册 选项卡 */
-@Composable
-private fun AuthTabs(selected: Int, onSelect: (Int) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        listOf("登录", "注册").forEachIndexed { index, label ->
-            val active = index == selected
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .clickable { onSelect(index) }
-                    .padding(horizontal = 24.dp),
-            ) {
-                Text(
-                    label,
-                    fontSize = 17.sp,
-                    fontWeight = if (active) FontWeight.Bold else FontWeight.Normal,
-                    color = if (active) GoldBright else Color(0x80FFFFFF),
-                )
-                Spacer(Modifier.height(6.dp))
-                Box(
-                    Modifier
-                        .width(28.dp)
-                        .height(2.dp)
-                        .clip(RoundedCornerShape(1.dp))
-                        .background(if (active) GoldBright else Color.Transparent),
-                )
-            }
-        }
-    }
-}
-
-/** 账号 / 密码输入框 */
-@Composable
-private fun AuthField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    leadingIcon: androidx.compose.ui.graphics.vector.ImageVector,
-    isPassword: Boolean = false,
-    showPassword: Boolean = false,
-    onTogglePassword: () -> Unit = {},
+private fun TabItem(
+    title: String,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        singleLine = true,
-        placeholder = {
-            Text(placeholder, fontSize = 14.sp, color = Color(0x80FFFFFF))
-        },
-        leadingIcon = {
-            Icon(leadingIcon, contentDescription = null, tint = Gold.copy(alpha = 0.9f), modifier = Modifier.size(20.dp))
-        },
-        trailingIcon = if (isPassword) {
-            {
-                Icon(
-                    imageVector = if (showPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                    contentDescription = null,
-                    tint = Color(0x80FFFFFF),
-                    modifier = Modifier.size(20.dp).clickable { onTogglePassword() },
-                )
-            }
-        } else null,
-        visualTransformation = if (isPassword && !showPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        keyboardOptions = KeyboardOptions.Default,
-        shape = RoundedCornerShape(14.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = FieldBg,
-            unfocusedContainerColor = FieldBg,
-            focusedBorderColor = Gold.copy(alpha = 0.8f),
-            unfocusedBorderColor = FieldBorder,
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-            cursorColor = GoldBright,
-        ),
-        modifier = Modifier.fillMaxWidth(),
-    )
-}
-
-/** 第三方登录圆形按钮 */
-@Composable
-private fun SocialButton(painter: androidx.compose.ui.graphics.painter.Painter, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape)
-                .background(Color(0x1AFFFFFF))
-                .clickable { },
-            contentAlignment = Alignment.Center,
-        ) {
-            Image(
-                painter = painter,
-                contentDescription = label,
-                modifier = Modifier.size(28.dp),
+    Column(
+        modifier = modifier
+            .clickable { onClick() }
+            .padding(vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = title,
+            fontSize = 24.sp,
+            color = if (selected) Color.White else Color(0xFF889CC0),
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        if (selected) {
+            Box(
+                modifier = Modifier
+                    .width(44.dp)
+                    .height(3.dp)
+                    .background(Color(0xFFD8B645)),
             )
         }
-        Spacer(Modifier.height(6.dp))
-        Text(label, fontSize = 11.sp, color = Color(0x99FFFFFF))
+    }
+}
+
+/** Apple 品牌 Logo（矢量） */
+@Composable
+private fun AppleLogo(modifier: Modifier = Modifier, tint: Color = Color.White) {
+    androidx.compose.foundation.Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val path = androidx.compose.ui.graphics.Path().apply {
+            // 苹果主体
+            moveTo(w * 0.50f, h * 0.28f)
+            cubicTo(w * 0.42f, h * 0.28f, w * 0.36f, h * 0.34f, w * 0.36f, h * 0.44f)
+            cubicTo(w * 0.36f, h * 0.62f, w * 0.46f, h * 0.80f, w * 0.56f, h * 0.80f)
+            cubicTo(w * 0.62f, h * 0.80f, w * 0.66f, h * 0.76f, w * 0.70f, h * 0.76f)
+            cubicTo(w * 0.74f, h * 0.76f, w * 0.78f, h * 0.80f, w * 0.84f, h * 0.80f)
+            cubicTo(w * 0.94f, h * 0.80f, w * 1.00f, h * 0.62f, w * 1.00f, h * 0.50f)
+            cubicTo(w * 1.00f, h * 0.36f, w * 0.90f, h * 0.30f, w * 0.82f, h * 0.30f)
+            cubicTo(w * 0.76f, h * 0.30f, w * 0.72f, h * 0.34f, w * 0.68f, h * 0.34f)
+            cubicTo(w * 0.64f, h * 0.34f, w * 0.58f, h * 0.28f, w * 0.50f, h * 0.28f)
+            close()
+            // 叶子
+            moveTo(w * 0.52f, h * 0.24f)
+            cubicTo(w * 0.52f, h * 0.16f, w * 0.58f, h * 0.08f, w * 0.68f, h * 0.06f)
+            cubicTo(w * 0.68f, h * 0.16f, w * 0.62f, h * 0.24f, w * 0.52f, h * 0.24f)
+            close()
+        }
+        drawPath(path, color = tint)
     }
 }

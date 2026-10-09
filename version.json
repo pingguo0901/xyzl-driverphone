@@ -1,7 +1,7 @@
 {
-  "versionCode": 10042,
-  "versionName": "1.0.42",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.42/composeApp-release.apk",
-  "changelog": "- 新版本 1.0.42",
-  "buildDate": "2026-10-09"
+  "versionCode": 10043,
+  "versionName": "1.0.43",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.43/composeApp-release.apk",
+  "changelog": "- 登录页按董事长提供的代码重做：半透明卡片容器 + 微信/Apple 快捷登录",
+  "buildDate": "2026-10-10"
 }
