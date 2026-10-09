@@ -1,7 +1,7 @@
 {
-  "versionCode": 10041,
-  "versionName": "1.0.41",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.41/composeApp-release.apk",
-  "changelog": "- 新版本 1.0.41",
-  "buildDate": "2026-10-09"
+  "versionCode": 10042,
+  "versionName": "1.0.42",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.42/composeApp-release.apk",
+  "changelog": "- 新增登录/注册页面（深蓝星空+金色品牌+账号密码+微信/WhatsApp快捷登录）",
+  "buildDate": "2026-10-10"
 }

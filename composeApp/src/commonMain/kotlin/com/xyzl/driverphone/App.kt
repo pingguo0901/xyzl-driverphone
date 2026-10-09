@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.screens.FinanceScreen
 import com.xyzl.driverphone.screens.HistoryScreen
 import com.xyzl.driverphone.screens.HomeScreen
+import com.xyzl.driverphone.screens.LoginScreen
 import com.xyzl.driverphone.screens.ProfileScreen
 import com.xyzl.driverphone.screens.TripsScreen
 import dev.chrisbanes.haze.HazeState
@@ -91,6 +92,7 @@ fun App(
     onApplyUpdate: (suspend (VersionInfo, (Long, Long) -> Unit) -> String?)? = null,
 ) {
     DriverPhoneTheme {
+        var loggedIn by remember { mutableStateOf(false) }
         var selectedTab by remember { mutableStateOf(AppTab.Home) }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
@@ -111,6 +113,11 @@ fun App(
                     }
                 } catch (_: Exception) { }
             }
+        }
+
+        if (!loggedIn) {
+            LoginScreen(onLoginSuccess = { loggedIn = true })
+            return@DriverPhoneTheme
         }
 
         Box(
