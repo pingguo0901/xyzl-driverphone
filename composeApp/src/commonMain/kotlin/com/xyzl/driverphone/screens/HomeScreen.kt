@@ -552,7 +552,6 @@ private fun PickupDropoffSlider(
                         },
                     )
                 },
-            contentAlignment = Alignment.Center,
         )
     }
 }
