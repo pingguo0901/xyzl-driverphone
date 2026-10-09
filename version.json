@@ -1,7 +1,7 @@
 {
-  "versionCode": 10039,
-  "versionName": "1.0.39",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.39/composeApp-release.apk",
-  "changelog": "- 新版本 1.0.39",
-  "buildDate": "2026-10-09"
+  "versionCode": 10040,
+  "versionName": "1.0.40",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.40/composeApp-release.apk",
+  "changelog": "- 行程页面与行程详情页",
+  "buildDate": "2026-10-10"
 }
