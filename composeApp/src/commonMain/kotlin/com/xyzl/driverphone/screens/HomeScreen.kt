@@ -485,9 +485,10 @@ private fun SlideToConfirmBar(
     ) {
         val density = LocalDensity.current
         val ballSize = 48.dp
+        val trackWidth = maxWidth
         val trackHeightPx = with(density) { 56.dp.toPx() }
         val ballPx = with(density) { ballSize.toPx() }
-        val trackPx = with(density) { maxWidth.toPx() }
+        val trackPx = with(density) { trackWidth.toPx() }
         val maxPx = trackPx - ballPx
         val yOffset = ((trackHeightPx - ballPx) / 2f).roundToInt()
         val triggerPx = maxPx * 0.9f
@@ -517,7 +518,7 @@ private fun SlideToConfirmBar(
         ) {
             Box(
                 Modifier
-                    .width(maxWidth)
+                    .width(trackWidth)
                     .fillMaxHeight(),
                 contentAlignment = Alignment.Center,
             ) {
