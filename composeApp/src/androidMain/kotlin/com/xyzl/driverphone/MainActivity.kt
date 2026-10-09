@@ -10,6 +10,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         UpdateManager.setCurrentVersion(packageManager.getPackageInfo(packageName, 0).longVersionCode.toInt())
+        initNavigationContext(this)
         setContent {
             App(
                 onCheckUpdate = { UpdateManager.checkForUpdate() },
