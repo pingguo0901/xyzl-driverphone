@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material3.AlertDialog
@@ -96,6 +97,10 @@ fun HomeScreen() {
         GreenDivider()
 
         OnlineStatusCard(online = online, onToggle = { online = !online })
+
+        GreenDivider()
+
+        DutyVehicleCard()
 
         GreenDivider()
 
@@ -186,6 +191,112 @@ private fun OnlineStatusCard(
                 }
             }
         }
+    }
+}
+
+/** 值班车辆卡片：显示当前值班车辆，点击可更换 */
+@Composable
+private fun DutyVehicleCard() {
+    var showPicker by remember { mutableStateOf(false) }
+    var vehicle by remember { mutableStateOf("JXY 8888 · 丰田 Innova") }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showPicker = true }
+                .padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(OnlineGreen.copy(alpha = 0.10f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.DirectionsCar,
+                    contentDescription = null,
+                    tint = OnlineGreen,
+                    modifier = Modifier.size(22.dp),
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    "值班车辆",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 0.5.sp,
+                    color = MutedGray,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    vehicle,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = InkDark,
+                )
+            }
+            Text(
+                "更换",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = OnlineGreen,
+            )
+            Icon(
+                imageVector = Icons.Filled.ChevronRight,
+                contentDescription = null,
+                tint = OnlineGreen,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+    }
+
+    if (showPicker) {
+        val vehicles = listOf(
+            "JXY 8888 · 丰田 Innova",
+            "WMB 2233 · 本田 CR-V",
+            "VKL 5566 · 日产 Serena",
+        )
+        AlertDialog(
+            onDismissRequest = { showPicker = false },
+            containerColor = Color.White,
+            title = {
+                Text(
+                    "更换值班车辆",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = InkDark,
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    vehicles.forEach { v ->
+                        NavOptionRow(
+                            label = v,
+                            color = if (v == vehicle) OnlineGreen else MutedGray,
+                            onClick = {
+                                vehicle = v
+                                showPicker = false
+                            },
+                        )
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showPicker = false }) {
+                    Text("取消", color = MutedGray)
+                }
+            },
+        )
     }
 }
 
