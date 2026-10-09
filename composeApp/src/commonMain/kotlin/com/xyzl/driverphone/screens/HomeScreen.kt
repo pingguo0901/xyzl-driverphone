@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -50,16 +51,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.NavigationApp
-import com.xyzl.driverphone.WeChatLogo
-import com.xyzl.driverphone.WhatsAppLogo
+import com.xyzl.driverphone.brandLogoPainter
 import com.xyzl.driverphone.openNavigation
 import com.xyzl.driverphone.openUrl
 import kotlin.math.roundToInt
@@ -256,17 +258,13 @@ private fun CurrentTaskCard() {
                 )
                 Spacer(Modifier.weight(1f))
                 RoundContactButton(
-                    icon = WhatsAppLogo,
-                    tint = Color.White,
-                    bg = WhatsAppGreen,
+                    painter = brandLogoPainter(isWhatsApp = true),
                     contentDescription = "WhatsApp",
                     onClick = { openUrl("https://wa.me/60123456789?text=Hi%2C%20I%20am%20driver.") },
                 )
                 Spacer(Modifier.width(10.dp))
                 RoundContactButton(
-                    icon = WeChatLogo,
-                    tint = Color.White,
-                    bg = WeChatGreen,
+                    painter = brandLogoPainter(isWhatsApp = false),
                     contentDescription = "微信",
                     onClick = { openUrl("weixin://") },
                 )
@@ -443,9 +441,7 @@ private fun RoundActionButton(
 
 @Composable
 private fun RoundContactButton(
-    icon: ImageVector,
-    tint: Color,
-    bg: Color,
+    painter: Painter,
     contentDescription: String,
     onClick: () -> Unit = {},
 ) {
@@ -454,15 +450,14 @@ private fun RoundContactButton(
             .size(42.dp)
             .shadow(3.dp, CircleShape)
             .clip(CircleShape)
-            .background(bg)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            imageVector = icon,
+        Image(
+            painter = painter,
             contentDescription = contentDescription,
-            tint = tint,
-            modifier = Modifier.size(20.dp),
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.size(42.dp),
         )
     }
 }
