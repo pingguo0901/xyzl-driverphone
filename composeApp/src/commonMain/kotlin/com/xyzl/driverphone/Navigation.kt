@@ -5,3 +5,6 @@ enum class NavigationApp { WAZE, GOOGLE_MAPS }
 
 /** 打开指定导航 App 跳转到目标地址（平台各自实现） */
 expect fun openNavigation(app: NavigationApp, address: String)
+
+/** 打开外部链接（如 WhatsApp / 微信跳转，平台各自实现） */
+expect fun openUrl(url: String)

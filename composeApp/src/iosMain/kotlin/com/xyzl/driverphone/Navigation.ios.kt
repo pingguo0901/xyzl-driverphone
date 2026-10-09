@@ -17,3 +17,9 @@ actual fun openNavigation(app: NavigationApp, address: String) {
         UIApplication.sharedApplication.openURL(url)
     }
 }
+
+actual fun openUrl(url: String) {
+    NSURL.URLWithString(url)?.let {
+        UIApplication.sharedApplication.openURL(it)
+    }
+}
