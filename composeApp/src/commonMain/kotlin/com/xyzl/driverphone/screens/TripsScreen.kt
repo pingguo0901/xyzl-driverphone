@@ -23,7 +23,7 @@ fun TripsScreen() {
     val activeTrips = MockData.trips.filter { it.status == TripStatus.PENDING || it.status == TripStatus.ONGOING }
 
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 12.dp)) {
-        Text("行程", fontSize = 30.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+        Text("行程", fontSize = 30.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF111113))
         Spacer(Modifier.height(14.dp))
         if (activeTrips.isEmpty()) {
             Text("暂无进行中的行程", fontSize = 14.sp, color = Color(0xFF8E8E93), modifier = Modifier.padding(top = 32.dp))

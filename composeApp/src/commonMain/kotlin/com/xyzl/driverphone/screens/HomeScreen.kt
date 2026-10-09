@@ -1,12 +1,13 @@
 package com.xyzl.driverphone.screens
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -39,16 +40,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
@@ -57,9 +60,10 @@ import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.NavigationApp
 import com.xyzl.driverphone.openNavigation
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
-private val RestingGray = Color(0xFFE9E9EB)
-private val OnlineGreen = Color(0xFF34C759)
+private val RestingGray = Color(0xFFEDEDEF)
+private val OnlineGreen = Color(0xFF206A4E)
 private val InkDark = Color(0xFF111113)
 private val MutedGray = Color(0xFF8E8E93)
 private val DividerGray = Color(0xFFE8E8EC)
@@ -81,7 +85,7 @@ fun HomeScreen() {
             "首页",
             fontSize = 30.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color.White,
+            color = InkDark,
         )
 
         GreenDivider()
@@ -94,7 +98,7 @@ fun HomeScreen() {
             "当前任务",
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color.White,
+            color = InkDark,
         )
 
         CurrentTaskCard()
@@ -180,28 +184,28 @@ private fun OnlineStatusCard(
     }
 }
 
-/** 当前任务卡片：日期时间 / 起点 / 目的地 / 联系方式 / 接人放人滑块，各段之间用分隔线 */
+/** 当前任务卡片：接单时间 / 起终点 / 乘客联系方式 / WhatsApp微信 / 滑动确认滑块 */
 @Composable
 private fun CurrentTaskCard() {
     var stage by remember { mutableIntStateOf(0) } // 0=待接 1=接人 2=放人
     var navAddress by remember { mutableStateOf<String?>(null) } // 待导航地址（null=关闭弹窗）
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 14.dp,
+                shape = RoundedCornerShape(20.dp),
+                ambientColor = Color.Black.copy(alpha = 0.35f),
+                spotColor = Color.Black.copy(alpha = 0.45f),
+            ),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFBFBFC)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        Column(Modifier.padding(vertical = 20.dp)) {
-            // 日期 时间
-            Column(Modifier.padding(horizontal = 20.dp)) {
-                Text(
-                    "今天 · 14:30",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MutedGray,
-                )
-            }
+        Column(Modifier.padding(20.dp)) {
+            // 接单时间
+            InfoRow("接单时间", "今天 · 14:30")
 
             Spacer(Modifier.height(16.dp))
             HorizontalDivider(color = DividerGray, thickness = 1.dp)
@@ -209,19 +213,15 @@ private fun CurrentTaskCard() {
             // 起点
             Spacer(Modifier.height(16.dp))
             FieldWithAction(
-                modifier = Modifier.padding(horizontal = 20.dp),
                 label = "起点",
                 value = "吉隆坡国际机场",
                 onAction = { navAddress = "吉隆坡国际机场" },
             )
 
-            Spacer(Modifier.height(16.dp))
-            HorizontalDivider(color = DividerGray, thickness = 1.dp)
+            Spacer(Modifier.height(14.dp))
 
             // 目的地
-            Spacer(Modifier.height(16.dp))
             FieldWithAction(
-                modifier = Modifier.padding(horizontal = 20.dp),
                 label = "目的地",
                 value = "武吉免登",
                 onAction = { navAddress = "武吉免登" },
@@ -230,32 +230,46 @@ private fun CurrentTaskCard() {
             Spacer(Modifier.height(16.dp))
             HorizontalDivider(color = DividerGray, thickness = 1.dp)
 
-            // 联系方式
+            // 乘客联系方式
             Spacer(Modifier.height(16.dp))
-            Column(Modifier.padding(horizontal = 20.dp)) {
+            InfoRow("乘客联系方式", "张先生 · +60 12-345 6789")
+
+            Spacer(Modifier.height(16.dp))
+            HorizontalDivider(color = DividerGray, thickness = 1.dp)
+
+            // WhatsApp / 微信圆形联系按钮（右下角）
+            Spacer(Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Text(
-                    "联系方式",
+                    "联系乘客",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     letterSpacing = 0.5.sp,
                     color = MutedGray,
                 )
-                Spacer(Modifier.height(12.dp))
-                ContactRow("WhatsApp", "+60 12-345 6789", Icons.Filled.Call, WhatsAppGreen)
-                Spacer(Modifier.height(12.dp))
-                ContactRow("WeChat", "driver_zhang", Icons.Filled.Chat, WeChatGreen)
+                Spacer(Modifier.weight(1f))
+                RoundContactButton(
+                    icon = Icons.Filled.Call,
+                    tint = Color.White,
+                    bg = WhatsAppGreen,
+                    contentDescription = "WhatsApp",
+                )
+                Spacer(Modifier.width(10.dp))
+                RoundContactButton(
+                    icon = Icons.Filled.Chat,
+                    tint = Color.White,
+                    bg = WeChatGreen,
+                    contentDescription = "微信",
+                )
             }
 
+            // 滑动确认滑块
             Spacer(Modifier.height(16.dp))
-            HorizontalDivider(color = DividerGray, thickness = 1.dp)
-
-            // 长条滑块：往右滑第一次=接人 第二次=放人
-            Spacer(Modifier.height(16.dp))
-            PickupDropoffSlider(
-                modifier = Modifier.padding(horizontal = 20.dp),
-                stage = stage,
-                onStageChange = { stage = it },
-            )
+            PickupDropoffSlider(stage = stage, onStageChange = { stage = it })
         }
     }
 
@@ -267,6 +281,26 @@ private fun CurrentTaskCard() {
                 openNavigation(app, address)
                 navAddress = null
             },
+        )
+    }
+}
+
+@Composable
+private fun InfoRow(label: String, value: String, modifier: Modifier = Modifier) {
+    Column(modifier) {
+        Text(
+            label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            letterSpacing = 0.5.sp,
+            color = MutedGray,
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            value,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = InkDark,
         )
     }
 }
@@ -372,30 +406,6 @@ private fun NavOptionRow(label: String, color: Color, onClick: () -> Unit) {
 }
 
 @Composable
-private fun ContactRow(platform: String, value: String, icon: ImageVector, accent: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            "$platform：",
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Medium,
-            color = MutedGray,
-        )
-        Text(
-            value,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = InkDark,
-            modifier = Modifier.weight(1f),
-        )
-        RoundActionButton(
-            icon = icon,
-            tint = accent,
-            bg = accent.copy(alpha = 0.12f),
-        )
-    }
-}
-
-@Composable
 private fun RoundActionButton(
     icon: ImageVector,
     tint: Color,
@@ -419,7 +429,32 @@ private fun RoundActionButton(
     }
 }
 
-/** 长条滑块：三段式，往右滑第一次=接人，第二次=放人 */
+@Composable
+private fun RoundContactButton(
+    icon: ImageVector,
+    tint: Color,
+    bg: Color,
+    contentDescription: String,
+) {
+    Box(
+        modifier = Modifier
+            .size(42.dp)
+            .shadow(3.dp, CircleShape)
+            .clip(CircleShape)
+            .background(bg)
+            .clickable { },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = tint,
+            modifier = Modifier.size(20.dp),
+        )
+    }
+}
+
+/** 滑动确认滑块：胶囊轨道，拖动圆球，绿色填充，未到位松手自动回弹。待接 → 接人 → 放人 */
 @Composable
 private fun PickupDropoffSlider(
     stage: Int,
@@ -427,49 +462,37 @@ private fun PickupDropoffSlider(
     modifier: Modifier = Modifier,
 ) {
     val labels = listOf("待接", "接人", "放人")
+    val scope = rememberCoroutineScope()
 
     BoxWithConstraints(
         modifier
             .fillMaxWidth()
-            .height(52.dp)
-            .clip(RoundedCornerShape(50))
-            .background(Color(0xFFF2F2F4)),
+            .height(56.dp)
+            .clip(RoundedCornerShape(28.dp))
+            .background(Color(0xFFEDEFF3)),
     ) {
         val density = LocalDensity.current
-        val segment = maxWidth / 3
-        val usable = with(density) { (maxWidth - segment).toPx() }
-        val step = usable / 2f
+        val ballSize = 48.dp
+        val trackHeightPx = with(density) { 56.dp.toPx() }
+        val ballPx = with(density) { ballSize.toPx() }
+        val trackPx = with(density) { maxWidth.toPx() }
+        val maxPx = trackPx - ballPx
+        val stepPx = maxPx / 2f
+        val yOffset = ((trackHeightPx - ballPx) / 2f).roundToInt()
 
-        var dragPx by remember { mutableFloatStateOf(stage * step) }
+        val ballAnim = remember { Animatable(stage * stepPx) }
 
-        val dragState = rememberDraggableState { delta ->
-            dragPx = (dragPx + delta).coerceIn(0f, usable)
-        }
-
+        // 绿色填充：从左到圆球中心
+        val fillFraction = ((ballAnim.value + ballPx / 2f) / trackPx).coerceIn(0f, 1f)
         Box(
             Modifier
-                .matchParentSize()
-                .draggable(
-                    state = dragState,
-                    orientation = Orientation.Horizontal,
-                    onDragStopped = {
-                        val nearest = (dragPx / step).roundToInt().coerceIn(0, 2)
-                        if (nearest != stage) onStageChange(nearest)
-                        dragPx = nearest * step
-                    },
-                ),
-        )
-
-        Box(
-            Modifier
-                .offset { IntOffset(dragPx.roundToInt(), 0) }
-                .width(segment)
                 .fillMaxHeight()
-                .padding(3.dp)
-                .background(OnlineGreen, RoundedCornerShape(50)),
+                .fillMaxWidth(fillFraction)
+                .background(OnlineGreen),
         )
 
-        Row(Modifier.fillMaxSize()) {
+        // 阶段标签
+        Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
             labels.forEachIndexed { i, label ->
                 Box(
                     Modifier
@@ -479,12 +502,57 @@ private fun PickupDropoffSlider(
                 ) {
                     Text(
                         label,
-                        fontSize = 15.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (i == stage) Color.White else MutedGray,
+                        color = if (i <= stage) Color.White else MutedGray,
                     )
                 }
             }
         }
+
+        // 可拖动圆球
+        Box(
+            Modifier
+                .offset { IntOffset(ballAnim.value.roundToInt(), yOffset) }
+                .size(ballSize)
+                .shadow(4.dp, CircleShape)
+                .background(Color.White, CircleShape)
+                .pointerInput(stage) {
+                    detectHorizontalDragGestures(
+                        onDragStart = { scope.launch { ballAnim.stop() } },
+                        onHorizontalDrag = { change, dragAmount ->
+                            change.consume()
+                            scope.launch {
+                                ballAnim.snapTo((ballAnim.value + dragAmount).coerceIn(0f, maxPx))
+                            }
+                        },
+                        onDragEnd = {
+                            val nearest = (ballAnim.value / stepPx).roundToInt().coerceIn(0, 2)
+                            onStageChange(nearest)
+                            scope.launch {
+                                ballAnim.animateTo(
+                                    nearest * stepPx,
+                                    spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessMediumLow,
+                                    ),
+                                )
+                            }
+                        },
+                        onDragCancel = {
+                            scope.launch {
+                                ballAnim.animateTo(
+                                    stage * stepPx,
+                                    spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessMediumLow,
+                                    ),
+                                )
+                            }
+                        },
+                    )
+                },
+            contentAlignment = Alignment.Center,
+        )
     }
 }

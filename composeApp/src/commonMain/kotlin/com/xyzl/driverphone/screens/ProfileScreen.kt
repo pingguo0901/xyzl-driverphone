@@ -37,7 +37,7 @@ fun ProfileScreen() {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        Text("我的", fontSize = 30.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+        Text("我的", fontSize = 30.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF111113))
         Spacer(Modifier.height(14.dp))
 
         Card(

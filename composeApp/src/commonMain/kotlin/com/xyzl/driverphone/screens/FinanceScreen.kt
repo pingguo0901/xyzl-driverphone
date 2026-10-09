@@ -27,7 +27,7 @@ fun FinanceScreen() {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        Text("财务", fontSize = 30.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+        Text("财务", fontSize = 30.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF111113))
         Spacer(Modifier.height(14.dp))
 
         Card(
@@ -43,7 +43,7 @@ fun FinanceScreen() {
         }
 
         Spacer(Modifier.height(24.dp))
-        Text("本周收入", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+        Text("本周收入", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF111113))
         Spacer(Modifier.height(8.dp))
         WeeklyRow("周一", "RM 412")
         WeeklyRow("周二", "RM 386")
@@ -56,7 +56,7 @@ fun FinanceScreen() {
 @Composable
 private fun WeeklyRow(day: String, amount: String) {
     Row(Modifier.fillMaxWidth().padding(vertical = 10.dp)) {
-        Text(day, Modifier.weight(1f), fontSize = 15.sp, color = Color(0xFFC7C7CC))
-        Text(amount, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+        Text(day, Modifier.weight(1f), fontSize = 15.sp, color = Color(0xFF8E8E93))
+        Text(amount, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF111113))
     }
 }

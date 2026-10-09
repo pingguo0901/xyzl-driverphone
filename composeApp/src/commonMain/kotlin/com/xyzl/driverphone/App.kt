@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -280,7 +281,7 @@ private fun CapsuleBottomBar(
         modifier = modifier
             .clip(RoundedCornerShape(50))
             .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin())
-            .border(1.dp, Color.White.copy(alpha = 0.18f), RoundedCornerShape(50))
+            .border(1.dp, Color(0xFFE4E6EA), RoundedCornerShape(50))
             .height(52.dp)
             .padding(4.dp),
     ) {
@@ -289,6 +290,7 @@ private fun CapsuleBottomBar(
                 .offset(x = animatedX)
                 .width(animatedW)
                 .fillMaxHeight()
+                .shadow(2.dp, RoundedCornerShape(50))
                 .background(Color.White, RoundedCornerShape(50)),
         )
 
@@ -319,7 +321,7 @@ private fun CapsuleBarItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val contentColor = if (selected) Color(0xFF1B1B1B) else Color(0xFFD9D9D9)
+    val contentColor = if (selected) Color(0xFF206A4E) else Color(0xFF9AA0A6)
 
     Row(
         modifier = modifier
