@@ -11,6 +11,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         UpdateManager.setCurrentVersion(packageManager.getPackageInfo(packageName, 0).longVersionCode.toInt())
         initNavigationContext(this)
+        initImagePicker(this)
         setContent {
             App(
                 onCheckUpdate = { UpdateManager.checkForUpdate() },
