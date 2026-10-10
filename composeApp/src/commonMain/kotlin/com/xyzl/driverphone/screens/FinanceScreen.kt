@@ -101,6 +101,14 @@ fun FinanceScreen(
 
         Spacer(Modifier.height(14.dp))
 
+        // 当月累计报销 + 当月累计薪资（平均分布）
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            StatCard("当月累计报销", "RM 2,486.50", Modifier.weight(1f))
+            StatCard("当月累计薪资", "RM 8,642.00", Modifier.weight(1f))
+        }
+
+        Spacer(Modifier.height(14.dp))
+
         // 代收新币 + 代收马币（平均分布）
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             StatCard("代收新币", "SGD 240.00", Modifier.weight(1f))
