@@ -1,19 +1,43 @@
 package com.xyzl.driverphone.screens
 
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,10 +47,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import com.xyzl.driverphone.AccountTypes
 import com.xyzl.driverphone.DialCodes
 import com.xyzl.driverphone.GenderOptions
-import com.xyzl.driverphone.canSubmit
+import com.xyzl.driverphone.ImageSource
 import com.xyzl.driverphone.sanitizeDigits
 import com.xyzl.driverphone.sanitizeEmail
 import com.xyzl.driverphone.sanitizeEnglish
@@ -81,7 +108,6 @@ fun RegisterScreen(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 16.dp),
         ) {
-            // 顶部返回 + 标题
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) {
                     Icon(Icons.Filled.ArrowBack, "返回", tint = Color.White)
@@ -90,7 +116,6 @@ fun RegisterScreen(
             }
             Spacer(Modifier.height(8.dp))
 
-            // ===== 类型 =====
             SectionTitle("类型")
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 AccountTypes.forEach { type ->
@@ -99,19 +124,17 @@ fun RegisterScreen(
             }
             Spacer(Modifier.height(18.dp))
 
-            // ===== 昵称 =====
             LabeledField(
                 label = "昵称", required = true,
                 value = nickname, placeholder = "中文 / 英文 / 数字 / 标点",
                 onValueChange = { nickname = sanitizeNickname(it) },
             )
-            // ===== 姓名 =====
             LabeledField(
                 label = "姓名", required = true,
                 value = fullName, placeholder = "仅英文和空格",
                 onValueChange = { fullName = sanitizeEnglishName(it) },
             )
-            // ===== 性别 =====
+
             SectionTitle("性别", required = true)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 GenderOptions.forEach { g ->
@@ -120,7 +143,6 @@ fun RegisterScreen(
             }
             Spacer(Modifier.height(18.dp))
 
-            // ===== 生日 =====
             SectionTitle("生日日期", required = true)
             PickerField(
                 text = birthday.ifBlank { "选择日期" },
@@ -128,7 +150,6 @@ fun RegisterScreen(
             )
             Spacer(Modifier.height(18.dp))
 
-            // ===== 居住地 =====
             SectionTitle("居住地")
             LabeledField(
                 label = "门牌及街道", required = true,
@@ -157,18 +178,34 @@ fun RegisterScreen(
                 onValueChange = { state = sanitizeEnglish(it) },
             )
 
-            // ===== 手机号 =====
             SectionTitle("手机号", required = true)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 var showDial by remember { mutableStateOf(false) }
                 Box(Modifier.width(96.dp)) {
                     PickerField(text = dialCode, onClick = { showDial = true })
-                    DropdownMenu(expanded = showDial, onDismissRequest = { showDial = false }) {
-                        DialCodes.forEach { code ->
-                            DropdownMenuItem(
-                                text = { Text(code) },
-                                onClick = { dialCode = code; showDial = false },
-                            )
+                    if (showDial) {
+                        Popup(
+                            onDismissRequest = { showDial = false },
+                            properties = PopupProperties(focusable = true),
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = Color(0xFF16294A),
+                                shadowElevation = 8.dp,
+                            ) {
+                                Column(Modifier.width(96.dp).padding(vertical = 4.dp)) {
+                                    DialCodes.forEach { code ->
+                                        Text(
+                                            code,
+                                            color = Color.White,
+                                            fontSize = 15.sp,
+                                            modifier = Modifier.fillMaxWidth()
+                                                .clickable { dialCode = code; showDial = false }
+                                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -184,13 +221,11 @@ fun RegisterScreen(
             }
             Spacer(Modifier.height(18.dp))
 
-            // ===== 邮箱 =====
             LabeledField(
                 label = "邮箱地址", required = true,
                 value = email, placeholder = "英文 / 数字 / 标点",
                 onValueChange = { email = sanitizeEmail(it) },
             )
-            // ===== 微信号 =====
             LabeledField(
                 label = "微信号", required = false,
                 value = wechat, placeholder = "选填 · 英文 / 数字 / 标点",
@@ -201,7 +236,6 @@ fun RegisterScreen(
             Text("KYC认证", fontSize = 20.sp, color = GoldLight, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(12.dp))
 
-            // ===== KYC 上传 =====
             UploadBox(
                 title = "上传马来西亚身份证",
                 hint = "仅支持拍照",
@@ -226,7 +260,6 @@ fun RegisterScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // ===== 协议勾选 =====
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
                     checked = agreed,
@@ -247,7 +280,6 @@ fun RegisterScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // ===== 注册按钮 =====
             Button(
                 onClick = onSubmit,
                 enabled = canSubmit,
@@ -372,19 +404,23 @@ private fun UploadBox(
         }
     }
     if (showSheet) {
-        AlertDialog(
-            onDismissRequest = { showSheet = false },
-            title = { Text(title) },
-            text = {
-                Column {
+        Dialog(onDismissRequest = { showSheet = false }) {
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = Color(0xFF16294A),
+                shadowElevation = 12.dp,
+            ) {
+                Column(Modifier.fillMaxWidth().padding(20.dp)) {
+                    Text(title, color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(12.dp))
                     Row(
                         Modifier.fillMaxWidth().clickable { showSheet = false; onPick(ImageSource.Camera) }
                             .padding(vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Filled.CameraAlt, null)
+                        Icon(Icons.Filled.CameraAlt, null, tint = GoldLight)
                         Spacer(Modifier.width(12.dp))
-                        Text("拍照")
+                        Text("拍照", color = Color.White)
                     }
                     if (allowGallery) {
                         Row(
@@ -392,17 +428,21 @@ private fun UploadBox(
                                 .padding(vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Icon(Icons.Filled.PhotoLibrary, null)
+                            Icon(Icons.Filled.PhotoLibrary, null, tint = GoldLight)
                             Spacer(Modifier.width(12.dp))
-                            Text("从相册选择")
+                            Text("从相册选择", color = Color.White)
                         }
                     }
+                    Spacer(Modifier.height(4.dp))
+                    TextButton(
+                        onClick = { showSheet = false },
+                        modifier = Modifier.align(Alignment.End),
+                    ) {
+                        Text("取消", color = GoldLight)
+                    }
                 }
-            },
-            confirmButton = {
-                TextButton(onClick = { showSheet = false }) { Text("取消") }
-            },
-        )
+            }
+        }
     }
 }
 

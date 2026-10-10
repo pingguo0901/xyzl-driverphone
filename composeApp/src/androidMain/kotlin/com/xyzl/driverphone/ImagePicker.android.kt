@@ -93,5 +93,5 @@ private fun createImageUri(context: Context): Uri {
     val dir = File(context.cacheDir, "kyc").apply { mkdirs() }
     val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(System.currentTimeMillis())
     val file = File(dir, "IMG_$stamp.jpg")
-    return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+    return FileProvider.getUriForFile(context, context.packageName + ".fileprovider", file)
 }
