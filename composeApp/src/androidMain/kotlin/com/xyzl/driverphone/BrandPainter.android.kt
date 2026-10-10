@@ -9,3 +9,6 @@ actual fun brandLogoPainter(isWhatsApp: Boolean): Painter =
     painterResource(
         if (isWhatsApp) R.drawable.whatsapp_logo else R.drawable.wechat_logo,
     )
+
+@Composable
+actual fun entryBackgroundPainter(): Painter? = painterResource(R.drawable.entry_bg)

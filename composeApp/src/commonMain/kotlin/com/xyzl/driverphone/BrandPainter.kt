@@ -9,3 +9,10 @@ import androidx.compose.ui.graphics.painter.Painter
  */
 @Composable
 expect fun brandLogoPainter(isWhatsApp: Boolean): Painter
+
+/**
+ * 登录/注册入口页背景图。
+ * Android 使用真实图片资源，iOS 回退到纯色渐变。
+ */
+@Composable
+expect fun entryBackgroundPainter(): Painter?

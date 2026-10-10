@@ -7,3 +7,6 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 @Composable
 actual fun brandLogoPainter(isWhatsApp: Boolean): Painter =
     rememberVectorPainter(if (isWhatsApp) WhatsAppLogo else WeChatLogo)
+
+@Composable
+actual fun entryBackgroundPainter(): Painter? = null
