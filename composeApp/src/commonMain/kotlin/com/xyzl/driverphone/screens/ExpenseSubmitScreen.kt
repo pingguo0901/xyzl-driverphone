@@ -147,7 +147,7 @@ fun ExpenseSubmitScreen(
             OutlinedTextField(
                 value = amount,
                 onValueChange = { input ->
-                    amount = input.filter { it.isDigit() || it == "." }
+                    amount = input.filter { it.isDigit() || it == '.' }
                 },
                 modifier = Modifier.weight(1f),
                 placeholder = { Text("0.00", color = MutedGray) },
