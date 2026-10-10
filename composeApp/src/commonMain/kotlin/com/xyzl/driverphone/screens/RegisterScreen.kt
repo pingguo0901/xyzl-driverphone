@@ -1,6 +1,6 @@
 package com.xyzl.driverphone.screens
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.AccountTypes
@@ -297,9 +298,8 @@ private fun LabeledField(
             placeholder = { Text(placeholder, color = Color(0xFFAAAAAA)) },
             shape = RoundedCornerShape(14.dp),
             singleLine = true,
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                keyboardType = if (keyboardNumber) androidx.compose.ui.text.input.KeyboardType.Number
-                else androidx.compose.ui.text.input.KeyboardType.Text,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = if (keyboardNumber) KeyboardType.Number else KeyboardType.Text,
             ),
             colors = fieldColors(),
         )
