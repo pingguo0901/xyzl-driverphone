@@ -70,11 +70,11 @@ import com.xyzl.driverphone.openUrl
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
-private val RestingGray = Color(0xFFEDEDEF)
+private val RestingGray = Color(0xFF31403A)
 private val OnlineGreen = Color(0xFF206A4E)
-private val InkDark = Color(0xFF111113)
-private val MutedGray = Color(0xFF8E8E93)
-private val DividerGray = Color(0xFFE8E8EC)
+private val InkDark = Color(0xFFE8EDEA)
+private val MutedGray = Color(0xFF9DB0A8)
+private val DividerGray = Color(0xFF3A4A44)
 private val WhatsAppGreen = Color(0xFF25D366)
 private val WeChatGreen = Color(0xFF07C160)
 
@@ -148,7 +148,7 @@ private fun OnlineStatusCard(
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF2A3833)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Box(Modifier.fillMaxWidth().height(92.dp)) {
@@ -208,7 +208,7 @@ private fun DutyVehicleCard() {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF2A3833)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
@@ -272,7 +272,7 @@ private fun DutyVehicleCard() {
         )
         AlertDialog(
             onDismissRequest = { showPicker = false },
-            containerColor = Color.White,
+            containerColor = Color(0xFF2A3833),
             title = {
                 Text(
                     "更换值班车辆",
@@ -321,7 +321,7 @@ private fun CurrentTaskCard() {
                 spotColor = Color.Black.copy(alpha = 0.45f),
             ),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFBFBFC)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF2A3833)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(Modifier.padding(20.dp)) {
@@ -458,7 +458,7 @@ private fun FieldWithAction(
             RoundActionButton(
                 icon = Icons.Filled.Navigation,
                 tint = InkDark,
-                bg = Color(0xFFF2F2F4),
+                bg = Color(0xFF31403A),
                 onClick = onAction,
             )
         }
@@ -474,7 +474,7 @@ private fun NavigationDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color.White,
+        containerColor = Color(0xFF2A3833),
         title = {
             Text(
                 "导航到",
@@ -592,7 +592,7 @@ private fun SlideToConfirmBar(
             .fillMaxWidth()
             .height(56.dp)
             .clip(RoundedCornerShape(28.dp))
-            .background(Color(0xFFEDEFF3)),
+            .background(Color(0xFF31403A)),
     ) {
         val density = LocalDensity.current
         val ballSize = 48.dp

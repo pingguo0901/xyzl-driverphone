@@ -39,9 +39,9 @@ import com.xyzl.driverphone.model.LedgerKind
 import com.xyzl.driverphone.model.formatMoney
 
 private val OnlineGreen = Color(0xFF206A4E)
-private val InkDark = Color(0xFF111113)
-private val MutedGray = Color(0xFF8E8E93)
-private val FieldGray = Color(0xFFF2F2F4)
+private val InkDark = Color(0xFFE8EDEA)
+private val MutedGray = Color(0xFF9DB0A8)
+private val FieldGray = Color(0xFF31403A)
 
 private enum class LedgerFilter(val label: String) {
     ALL("全部"),
@@ -124,7 +124,7 @@ private fun LedgerRow(entry: LedgerEntry) {
     Card(
         Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF2A3833)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(

@@ -40,9 +40,9 @@ import com.xyzl.driverphone.model.formatRinggit
 import com.xyzl.driverphone.openUrl
 
 private val OnlineGreen = Color(0xFF206A4E)
-private val InkDark = Color(0xFF111113)
-private val MutedGray = Color(0xFF8E8E93)
-private val DividerGray = Color(0xFFE8E8EC)
+private val InkDark = Color(0xFFE8EDEA)
+private val MutedGray = Color(0xFF9DB0A8)
+private val DividerGray = Color(0xFF3A4A44)
 
 @Composable
 fun TripDetailScreen(trip: Trip, onBack: () -> Unit) {
@@ -58,7 +58,7 @@ fun TripDetailScreen(trip: Trip, onBack: () -> Unit) {
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFF2F2F4))
+                    .background(Color(0xFF31403A))
                     .clickable(onClick = onBack),
                 contentAlignment = Alignment.Center,
             ) {
@@ -77,7 +77,7 @@ fun TripDetailScreen(trip: Trip, onBack: () -> Unit) {
 
         Card(
             Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF2A3833)),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(Modifier.padding(20.dp)) {

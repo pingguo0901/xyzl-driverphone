@@ -347,7 +347,8 @@ private fun CapsuleBottomBar(
         modifier = modifier
             .clip(RoundedCornerShape(50))
             .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin())
-            .border(1.dp, Color(0xFFE4E6EA), RoundedCornerShape(50))
+            .background(Color(0xFF2A3833), RoundedCornerShape(50))
+            .border(1.dp, Color(0xFF3A4A44), RoundedCornerShape(50))
             .height(52.dp)
             .padding(4.dp),
     ) {
@@ -357,7 +358,7 @@ private fun CapsuleBottomBar(
                 .width(animatedW)
                 .fillMaxHeight()
                 .shadow(2.dp, RoundedCornerShape(50))
-                .background(Color.White, RoundedCornerShape(50)),
+                .background(Color(0xFF3A4A44), RoundedCornerShape(50)),
         )
 
         Row(

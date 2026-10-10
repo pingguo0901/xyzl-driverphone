@@ -32,9 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 private val OnlineGreen = Color(0xFF206A4E)
-private val InkDark = Color(0xFF111113)
-private val MutedGray = Color(0xFF8E8E93)
-private val CardGray = Color(0xFFF7F7F8)
+private val InkDark = Color(0xFFE8EDEA)
+private val MutedGray = Color(0xFF9DB0A8)
+private val CardGray = Color(0xFF31403A)
 
 /** 财务页：今日薪资 + 今日报销/今日单数 + 代收新币/代收马币 + 提交报销 */
 @Composable
@@ -137,7 +137,7 @@ private fun StatCard(label: String, value: String, modifier: Modifier = Modifier
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF2A3833)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(Modifier.padding(18.dp)) {

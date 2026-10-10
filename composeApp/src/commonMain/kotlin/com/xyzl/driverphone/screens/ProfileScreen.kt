@@ -44,7 +44,7 @@ fun ProfileScreen() {
             "我的",
             fontSize = 22.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF111113),
+            color = Color(0xFFE8EDEA),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -52,22 +52,22 @@ fun ProfileScreen() {
 
         Card(
             Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF2A3833)),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Row(Modifier.fillMaxWidth().padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier.size(64.dp).background(Color(0xFFF2F2F4), CircleShape),
+                    modifier = Modifier.size(64.dp).background(Color(0xFF31403A), CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(Icons.Filled.Person, contentDescription = null, modifier = Modifier.size(32.dp), tint = Color(0xFF8E8E93))
+                    Icon(Icons.Filled.Person, contentDescription = null, modifier = Modifier.size(32.dp), tint = Color(0xFF9DB0A8))
                 }
                 Spacer(Modifier.width(16.dp))
                 Column {
-                    Text("陈师傅", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF111113))
+                    Text("陈师傅", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFE8EDEA))
                     Spacer(Modifier.height(4.dp))
-                    Text("车牌：JXY 8888", fontSize = 13.sp, color = Color(0xFF8E8E93))
-                    Text("手机：+60 12-345 6789", fontSize = 13.sp, color = Color(0xFF8E8E93))
+                    Text("车牌：JXY 8888", fontSize = 13.sp, color = Color(0xFF9DB0A8))
+                    Text("手机：+60 12-345 6789", fontSize = 13.sp, color = Color(0xFF9DB0A8))
                 }
             }
         }
@@ -76,16 +76,16 @@ fun ProfileScreen() {
 
         Card(
             Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF2A3833)),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(Modifier.padding(vertical = 6.dp)) {
                 ProfileItem("个人信息")
-                HorizontalDivider(color = Color(0xFFF0F0F2))
+                HorizontalDivider(color = Color(0xFF3A4A44))
                 ProfileItem("车辆信息")
-                HorizontalDivider(color = Color(0xFFF0F0F2))
+                HorizontalDivider(color = Color(0xFF3A4A44))
                 ProfileItem("设置")
-                HorizontalDivider(color = Color(0xFFF0F0F2))
+                HorizontalDivider(color = Color(0xFF3A4A44))
                 ProfileItem("关于")
             }
         }
@@ -98,6 +98,6 @@ private fun ProfileItem(title: String) {
         title,
         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
         fontSize = 16.sp,
-        color = Color(0xFF111113),
+        color = Color(0xFFE8EDEA),
     )
 }
