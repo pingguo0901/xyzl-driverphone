@@ -30,13 +30,13 @@ fun HistoryScreen() {
             "历史",
             fontSize = 22.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF111113),
+            color = Color(0xFFE8EDEA),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(14.dp))
         if (history.isEmpty()) {
-            Text("暂无历史行程", fontSize = 14.sp, color = Color(0xFF8E8E93), modifier = Modifier.padding(top = 32.dp))
+            Text("暂无历史行程", fontSize = 14.sp, color = Color(0xFF9DB0A8), modifier = Modifier.padding(top = 32.dp))
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(history) { trip -> TripCard(trip) }
