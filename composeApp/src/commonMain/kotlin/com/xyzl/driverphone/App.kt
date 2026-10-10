@@ -55,7 +55,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.screens.ExpenseSubmitScreen
 import com.xyzl.driverphone.screens.FinanceScreen
+import com.xyzl.driverphone.screens.LedgerScreen
 import com.xyzl.driverphone.screens.HistoryScreen
 import com.xyzl.driverphone.screens.HomeScreen
 import com.xyzl.driverphone.screens.EntryScreen
@@ -101,6 +103,8 @@ fun App(
         var showPolicy by remember { mutableStateOf(false) }
         var loggedIn by remember { mutableStateOf(false) }
         var selectedTab by remember { mutableStateOf(AppTab.Home) }
+        var showLedger by remember { mutableStateOf(false) }
+        var showExpense by remember { mutableStateOf(false) }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
         var updateInfo by remember { mutableStateOf<VersionInfo?>(null) }
@@ -263,7 +267,10 @@ fun App(
                     AppTab.Home -> HomeScreen()
                     AppTab.Trips -> TripsScreen()
                     AppTab.History -> HistoryScreen()
-                    AppTab.Finance -> FinanceScreen()
+                    AppTab.Finance -> FinanceScreen(
+                        onOpenLedger = { showLedger = true },
+                        onSubmitExpense = { showExpense = true },
+                    )
                     AppTab.Profile -> ProfileScreen()
                 }
             }
@@ -277,6 +284,33 @@ fun App(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 20.dp),
             )
+
+            // 流水记录页（覆盖层）
+            if (showLedger) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    LedgerScreen(onBack = { showLedger = false })
+                }
+            }
+
+            // 提交报销页（覆盖层）
+            if (showExpense) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    ExpenseSubmitScreen(
+                        onBack = { showExpense = false },
+                        onPickImage = { source, cb -> pickImage(source, cb) },
+                        onPickDocument = { cb -> pickDocument(cb) },
+                        onSubmit = { showExpense = false },
+                    )
+                }
+            }
         }
 
     }

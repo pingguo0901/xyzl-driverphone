@@ -8,3 +8,6 @@ expect fun pickBirthday(onPicked: (String) -> Unit)
 
 /** 选择图片（拍照 / 相册），回调本地 uri 字符串 */
 expect fun pickImage(source: ImageSource, onPicked: (String) -> Unit)
+
+/** 选择文档（PDF / 图片等），回调本地 uri 字符串 */
+expect fun pickDocument(onPicked: (String) -> Unit)

@@ -17,9 +17,12 @@ import java.util.Locale
 private var birthdayLauncher: ActivityResultLauncher<Intent>? = null
 private var cameraLauncher: ActivityResultLauncher<Uri>? = null
 private var galleryLauncher: ActivityResultLauncher<String>? = null
+private var documentLauncher: ActivityResultLauncher<Array<String>>? = null
 private var pendingCameraUri: Uri? = null
 private var pendingCameraCallback: ((String) -> Unit)? = null
 private var pendingGalleryCallback: ((String) -> Unit)? = null
+private var pendingDocumentCallback: ((String) -> Unit)? = null
+private var pendingBirthdayCallback: ((String) -> Unit)? = null
 
 private lateinit var pickerActivity: ComponentActivity
 
@@ -56,9 +59,14 @@ fun initImagePicker(activity: ComponentActivity) {
         uri?.let { pendingGalleryCallback?.invoke(it.toString()) }
         pendingGalleryCallback = null
     }
-}
 
-private var pendingBirthdayCallback: ((String) -> Unit)? = null
+    documentLauncher = activity.registerForActivityResult(
+        ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        uri?.let { pendingDocumentCallback?.invoke(it.toString()) }
+        pendingDocumentCallback = null
+    }
+}
 
 actual fun pickBirthday(onPicked: (String) -> Unit) {
     pendingBirthdayCallback = onPicked
@@ -87,6 +95,11 @@ actual fun pickImage(source: ImageSource, onPicked: (String) -> Unit) {
             galleryLauncher?.launch("image/*")
         }
     }
+}
+
+actual fun pickDocument(onPicked: (String) -> Unit) {
+    pendingDocumentCallback = onPicked
+    documentLauncher?.launch(arrayOf("application/pdf", "image/*"))
 }
 
 private fun createImageUri(context: Context): Uri {
