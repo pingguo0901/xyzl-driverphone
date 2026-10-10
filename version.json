@@ -1,7 +1,7 @@
 {
-  "versionCode": 10045,
-  "versionName": "1.0.45",
-  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.45/composeApp-release.apk",
-  "changelog": "- 新增注册页：账号资料（类型/昵称/姓名/性别/生日/居住地/手机号/邮箱/微信）+ KYC 三证上传 + 协议勾选",
+  "versionCode": 10047,
+  "versionName": "1.0.47",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.47/composeApp-release.apk",
+  "changelog": "- 新版本 1.0.47",
   "buildDate": "2026-10-10"
 }
