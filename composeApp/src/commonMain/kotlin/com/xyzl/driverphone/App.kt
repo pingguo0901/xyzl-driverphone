@@ -120,58 +120,6 @@ fun App(
             }
         }
 
-        if (!loggedIn) {
-            when {
-                showEntry -> EntryScreen(
-                    onLoginClick = { showEntry = false; showLogin = true },
-                    onRegisterClick = { showEntry = false; showRegister = true },
-                )
-                showRegister -> RegisterScreen(
-                    onBack = { showRegister = false; showEntry = true },
-                    onSubmit = { loggedIn = true },
-                    onPickBirthday = { cb -> pickBirthday(cb) },
-                    onPickImage = { source, cb -> pickImage(source, cb) },
-                )
-                else -> LoginScreen(
-                    onLoginSuccess = { loggedIn = true },
-                    onRegister = { showLogin = false; showRegister = true },
-                )
-            }
-            return@DriverPhoneTheme
-        }
-
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .statusBarsPadding()
-        ) {
-            // 底层内容：首页背景 + 中层卡片（毛玻璃的模糊来源）
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .hazeSource(state = hazeState)
-            ) {
-                when (selectedTab) {
-                    AppTab.Home -> HomeScreen()
-                    AppTab.Trips -> TripsScreen()
-                    AppTab.History -> HistoryScreen()
-                    AppTab.Finance -> FinanceScreen()
-                    AppTab.Profile -> ProfileScreen()
-                }
-            }
-
-            // 顶层底部快捷栏：毛玻璃 + 边框胶囊，无实色背景
-            CapsuleBottomBar(
-                selectedTab = selectedTab,
-                onSelect = { selectedTab = it },
-                hazeState = hazeState,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 20.dp),
-            )
-        }
-
         // 更新弹窗
         if (showUpdateDialog && updateInfo != null) {
             if (updating) {
@@ -274,6 +222,59 @@ fun App(
                 )
             }
         }
+
+        if (!loggedIn) {
+            when {
+                showEntry -> EntryScreen(
+                    onLoginClick = { showEntry = false; showLogin = true },
+                    onRegisterClick = { showEntry = false; showRegister = true },
+                )
+                showRegister -> RegisterScreen(
+                    onBack = { showRegister = false; showEntry = true },
+                    onSubmit = { loggedIn = true },
+                    onPickBirthday = { cb -> pickBirthday(cb) },
+                    onPickImage = { source, cb -> pickImage(source, cb) },
+                )
+                else -> LoginScreen(
+                    onLoginSuccess = { loggedIn = true },
+                    onRegister = { showLogin = false; showRegister = true },
+                )
+            }
+            return@DriverPhoneTheme
+        }
+
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .statusBarsPadding()
+        ) {
+            // 底层内容：首页背景 + 中层卡片（毛玻璃的模糊来源）
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .hazeSource(state = hazeState)
+            ) {
+                when (selectedTab) {
+                    AppTab.Home -> HomeScreen()
+                    AppTab.Trips -> TripsScreen()
+                    AppTab.History -> HistoryScreen()
+                    AppTab.Finance -> FinanceScreen()
+                    AppTab.Profile -> ProfileScreen()
+                }
+            }
+
+            // 顶层底部快捷栏：毛玻璃 + 边框胶囊，无实色背景
+            CapsuleBottomBar(
+                selectedTab = selectedTab,
+                onSelect = { selectedTab = it },
+                hazeState = hazeState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 20.dp),
+            )
+        }
+
     }
 }
 
