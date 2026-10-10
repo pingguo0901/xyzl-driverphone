@@ -61,6 +61,7 @@ import com.xyzl.driverphone.screens.HomeScreen
 import com.xyzl.driverphone.screens.EntryScreen
 import com.xyzl.driverphone.screens.LoginScreen
 import com.xyzl.driverphone.screens.RegisterScreen
+import com.xyzl.driverphone.screens.PolicyScreen
 import com.xyzl.driverphone.screens.ProfileScreen
 import com.xyzl.driverphone.screens.TripsScreen
 import dev.chrisbanes.haze.HazeState
@@ -97,6 +98,7 @@ fun App(
         var showEntry by remember { mutableStateOf(true) }
         var showLogin by remember { mutableStateOf(false) }
         var showRegister by remember { mutableStateOf(false) }
+        var showPolicy by remember { mutableStateOf(false) }
         var loggedIn by remember { mutableStateOf(false) }
         var selectedTab by remember { mutableStateOf(AppTab.Home) }
         val hazeState = remember { HazeState() }
@@ -225,6 +227,7 @@ fun App(
 
         if (!loggedIn) {
             when {
+                showPolicy -> PolicyScreen(onBack = { showPolicy = false })
                 showEntry -> EntryScreen(
                     onLoginClick = { showEntry = false; showLogin = true },
                     onRegisterClick = { showEntry = false; showRegister = true },
@@ -234,6 +237,7 @@ fun App(
                     onSubmit = { loggedIn = true },
                     onPickBirthday = { cb -> pickBirthday(cb) },
                     onPickImage = { source, cb -> pickImage(source, cb) },
+                    onPolicyClick = { showPolicy = true },
                 )
                 else -> LoginScreen(
                     onLoginSuccess = { loggedIn = true },
