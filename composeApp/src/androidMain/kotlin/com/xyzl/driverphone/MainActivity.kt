@@ -12,6 +12,7 @@ class MainActivity : ComponentActivity() {
         UpdateManager.setCurrentVersion(packageManager.getPackageInfo(packageName, 0).longVersionCode.toInt())
         initNavigationContext(this)
         initImagePicker(this)
+        initQrPlatform(this)
         setContent {
             App(
                 onCheckUpdate = { UpdateManager.checkForUpdate() },

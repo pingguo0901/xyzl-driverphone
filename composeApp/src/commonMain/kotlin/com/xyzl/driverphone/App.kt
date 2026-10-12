@@ -91,6 +91,7 @@ import com.xyzl.driverphone.screens.EntryScreen
 import com.xyzl.driverphone.screens.LoginScreen
 import com.xyzl.driverphone.screens.RegisterScreen
 import com.xyzl.driverphone.screens.PolicyScreen
+import com.xyzl.driverphone.screens.QrCodeScreen
 import com.xyzl.driverphone.screens.ProfileScreen
 import com.xyzl.driverphone.screens.TripsScreen
 import dev.chrisbanes.haze.HazeState
@@ -154,6 +155,7 @@ fun App(
         var showChatRecords by remember { mutableStateOf(false) }
         var showMyReviews by remember { mutableStateOf(false) }
         var policyIndex by remember { mutableStateOf(-1) }
+        var showQrCode by remember { mutableStateOf(false) }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
         var updateInfo by remember { mutableStateOf<VersionInfo?>(null) }
@@ -335,6 +337,7 @@ fun App(
                         onOpenChatRecords = { showChatRecords = true },
                         onOpenMyReviews = { showMyReviews = true },
                         onOpenPolicy = { policyIndex = it },
+                        onOpenQr = { showQrCode = true },
                         onLogout = {
                             loggedIn = false
                             showEntry = false
@@ -654,6 +657,17 @@ fun App(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     MyReviewsScreen(onBack = { showMyReviews = false })
+                }
+            }
+
+            // 二维码页（覆盖层）
+            if (showQrCode) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    QrCodeScreen(onBack = { showQrCode = false })
                 }
             }
 

@@ -83,6 +83,7 @@ fun ProfileScreen(
     onOpenChatRecords: () -> Unit = {},
     onOpenMyReviews: () -> Unit = {},
     onOpenPolicy: (Int) -> Unit = {},
+    onOpenQr: () -> Unit = {},
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -181,7 +182,7 @@ fun ProfileScreen(
                         .size(44.dp)
                         .clip(RoundedCornerShape(14.dp))
                         .background(ProfileChip)
-                        .clickable { },
+                        .clickable { onOpenQr() },
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(

@@ -30,6 +30,7 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
+            implementation(libs.zxing.core)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -48,7 +49,7 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     // 只需改 appVersionName，versionCode 会自动按 major*10000 + minor*100 + patch 计算
-    val appVersionName = "1.0.60"
+    val appVersionName = "1.0.61"
     val appVersionParts = appVersionName.split(".").map { it.toIntOrNull() ?: 0 }
     val appVersionCode = (appVersionParts.getOrNull(0) ?: 0) * 10000 +
         (appVersionParts.getOrNull(1) ?: 0) * 100 +
