@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,6 +71,7 @@ private val FieldBorder = Color(0xFF27272A)
 private val LabelGray = Color(0xFFA1A1AA)
 
 /** 注册页：账号资料 + KYC 认证 */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RegisterScreen(
     onBack: () -> Unit = {},
@@ -272,16 +275,15 @@ fun RegisterScreen(
                         checkmarkColor = Color(0xFFFFFFFF),
                     ),
                 )
-                Text("我已阅读并同意", color = Color(0xFFFFFFFF), fontSize = 12.sp)
-            }
-            Column(Modifier.padding(start = 2.dp, top = 2.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                FlowRow(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Text("我已阅读并同意", color = Color(0xFFFFFFFF), fontSize = 12.sp)
                     PolicyLink("《KYC实名认证合规条款》") { onOpenPolicy(2) }
                     Text("、", color = Color(0xFFFFFFFF), fontSize = 12.sp)
                     PolicyLink("《用户服务协议》") { onOpenPolicy(0) }
-                }
-                Spacer(Modifier.height(2.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("、", color = Color(0xFFFFFFFF), fontSize = 12.sp)
                     PolicyLink("《隐私政策》") { onOpenPolicy(1) }
                     Text("与", color = Color(0xFFFFFFFF), fontSize = 12.sp)
                     PolicyLink("《终端用户软件许可》") { onOpenPolicy(7) }

@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.brandLogoPainter
 
 // =====================  星域臻旅 登录页面  =====================
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LoginScreen(
     onBack: () -> Unit = {},
@@ -251,7 +252,7 @@ fun LoginScreen(
 
                     Spacer(Modifier.height(18.dp))
 
-                    // 复选框 用户协议、隐私政策
+                    // 复选框 + 同意条款：同一行连成一句（小屏空间不够才会折行）
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(
                             checked = agreedPolicy,
@@ -262,18 +263,14 @@ fun LoginScreen(
                                 checkmarkColor = Color(0xFFFFFFFF),
                             ),
                         )
-                        Text("我已阅读并同意", color = Color(0xFFFFFFFF), fontSize = 12.sp)
-                    }
-                    Column(Modifier.padding(start = 2.dp, top = 2.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        FlowRow(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Text("我已阅读并同意", color = Color(0xFFFFFFFF), fontSize = 12.sp)
                             PolicyLink("《用户服务协议》") { onOpenPolicy(0) }
-                            Text("、", color = Color(0xFFFFFFFF), fontSize = 12.sp)
-                            PolicyLink("《隐私政策》") { onOpenPolicy(1) }
-                        }
-                        Spacer(Modifier.height(2.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Text("与", color = Color(0xFFFFFFFF), fontSize = 12.sp)
-                            PolicyLink("《终端用户软件许可》") { onOpenPolicy(7) }
+                            PolicyLink("《隐私政策》") { onOpenPolicy(1) }
                         }
                     }
                 }
