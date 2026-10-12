@@ -74,6 +74,8 @@ fun ProfileScreen(
     onOpenPersonalInfo: () -> Unit = {},
     onOpenPrivacyInfo: () -> Unit = {},
     onOpenVehicleInfo: () -> Unit = {},
+    onOpenChangePassword: () -> Unit = {},
+    onOpenDeviceManage: () -> Unit = {},
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -83,6 +85,8 @@ fun ProfileScreen(
             "隐私信息" -> onOpenPrivacyInfo()
             "车辆信息" -> onOpenVehicleInfo()
             "通知" -> onOpenNotifications()
+            "司机端密码" -> onOpenChangePassword()
+            "登录设备管理" -> onOpenDeviceManage()
             else -> { }
         }
     }

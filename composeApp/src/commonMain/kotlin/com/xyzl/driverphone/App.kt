@@ -60,7 +60,12 @@ import com.xyzl.driverphone.screens.FinanceScreen
 import com.xyzl.driverphone.screens.LedgerScreen
 import com.xyzl.driverphone.screens.ChatScreen
 import com.xyzl.driverphone.screens.NotificationsScreen
+import com.xyzl.driverphone.screens.ChangePasswordScreen
+import com.xyzl.driverphone.screens.DeviceManageScreen
+import com.xyzl.driverphone.screens.ForgotPasswordScreen
 import com.xyzl.driverphone.screens.PersonalInfoScreen
+import com.xyzl.driverphone.screens.ResetPasswordScreen
+import com.xyzl.driverphone.screens.VerifyCodeScreen
 import com.xyzl.driverphone.screens.PrivacyInfoScreen
 import com.xyzl.driverphone.screens.VehicleInfoScreen
 import com.xyzl.driverphone.screens.HomeScreen
@@ -113,6 +118,12 @@ fun App(
         var showPersonalInfo by remember { mutableStateOf(false) }
         var showPrivacyInfo by remember { mutableStateOf(false) }
         var showVehicleInfo by remember { mutableStateOf(false) }
+        var showChangePassword by remember { mutableStateOf(false) }
+        var showForgotPassword by remember { mutableStateOf(false) }
+        var showVerifyCode by remember { mutableStateOf(false) }
+        var showResetPassword by remember { mutableStateOf(false) }
+        var showDeviceManage by remember { mutableStateOf(false) }
+        var verifyEmail by remember { mutableStateOf("") }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
         var updateInfo by remember { mutableStateOf<VersionInfo?>(null) }
@@ -285,6 +296,8 @@ fun App(
                         onOpenPersonalInfo = { showPersonalInfo = true },
                         onOpenPrivacyInfo = { showPrivacyInfo = true },
                         onOpenVehicleInfo = { showVehicleInfo = true },
+                        onOpenChangePassword = { showChangePassword = true },
+                        onOpenDeviceManage = { showDeviceManage = true },
                         onLogout = {
                             loggedIn = false
                             showEntry = false
@@ -385,6 +398,95 @@ fun App(
                         onPickImage = { source, cb -> pickImage(source, cb) },
                         onPickDocument = { cb -> pickDocument(cb) },
                     )
+                }
+            }
+
+            // 司机端密码页（覆盖层）
+            if (showChangePassword) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    ChangePasswordScreen(
+                        onBack = { showChangePassword = false },
+                        onForgotPassword = { showForgotPassword = true },
+                    )
+                }
+            }
+
+            // 忘记密码页（覆盖层）
+            if (showForgotPassword) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    ForgotPasswordScreen(
+                        onBack = { showForgotPassword = false },
+                        onSendCode = { email ->
+                            verifyEmail = email
+                            showForgotPassword = false
+                            showVerifyCode = true
+                        },
+                    )
+                }
+            }
+
+            // 验证码页（覆盖层）
+            if (showVerifyCode) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    VerifyCodeScreen(
+                        email = verifyEmail,
+                        onBack = {
+                            showVerifyCode = false
+                            showForgotPassword = true
+                        },
+                        onConfirm = {
+                            showVerifyCode = false
+                            showResetPassword = true
+                        },
+                    )
+                }
+            }
+
+            // 重建密码页（覆盖层）：确认后回到登录页
+            if (showResetPassword) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    ResetPasswordScreen(
+                        onBack = { showResetPassword = false },
+                        onDone = {
+                            showResetPassword = false
+                            showVerifyCode = false
+                            showForgotPassword = false
+                            showChangePassword = false
+                            loggedIn = false
+                            showEntry = false
+                            showLogin = true
+                            showRegister = false
+                            showPolicy = false
+                            selectedTab = AppTab.Home
+                        },
+                    )
+                }
+            }
+
+            // 登录设备管理页（覆盖层）
+            if (showDeviceManage) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    DeviceManageScreen(onBack = { showDeviceManage = false })
                 }
             }
         }

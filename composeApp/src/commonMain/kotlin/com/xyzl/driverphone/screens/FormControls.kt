@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -460,6 +461,78 @@ private fun FormSheetRow(icon: ImageVector, label: String, onClick: () -> Unit) 
     }
 }
 
+/** 密码输入框（默认隐藏明文） */
+@Composable
+fun FormPasswordField(
+    label: String,
+    value: String,
+    placeholder: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        FormLabel(label)
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text(placeholder, color = FormMuted) },
+            shape = RoundedCornerShape(14.dp),
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions.Default,
+            colors = formFieldColors(),
+        )
+    }
+}
+
+/** 带右侧文字按钮的二级页标题栏（如：返回 + 标题 + 编辑） */
+@Composable
+fun FormPageHeaderAction(
+    title: String,
+    actionLabel: String,
+    onBack: () -> Unit,
+    onAction: () -> Unit,
+) {
+    Box(Modifier.fillMaxWidth().height(44.dp)) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .size(40.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(FormChip)
+                .clickable { onBack() },
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "返回",
+                tint = FormInk,
+                modifier = Modifier.size(20.dp),
+            )
+        }
+        Text(
+            text = title,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = FormInk,
+            modifier = Modifier.align(Alignment.Center),
+        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .height(36.dp)
+                .clip(RoundedCornerShape(50))
+                .background(FormChip)
+                .clickable { onAction() }
+                .padding(horizontal = 14.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(actionLabel, fontSize = 14.sp, color = FormGreen, fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
 /** 主按钮（保存更改 / 完成提交） */
 @Composable
 fun FormPrimaryButton(
@@ -467,6 +540,7 @@ fun FormPrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    danger: Boolean = false,
 ) {
     Button(
         onClick = onClick,
@@ -474,7 +548,7 @@ fun FormPrimaryButton(
         modifier = modifier.fillMaxWidth().height(54.dp),
         shape = RoundedCornerShape(50),
         colors = ButtonDefaults.buttonColors(
-            containerColor = FormGreen,
+            containerColor = if (danger) FormRed else FormGreen,
             disabledContainerColor = FormChip,
         ),
     ) {

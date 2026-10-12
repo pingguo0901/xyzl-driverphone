@@ -64,6 +64,17 @@ fun sanitizeEmail(input: String): String =
 fun sanitizeWechat(input: String): String =
     input.filter { (it.isLetterOrDigit() && it.code < 128) || it in "._-@" }
 
+/** 密码：英文 / 数字 / 常用符号（至少 8 位由页面校验） */
+fun sanitizePassword(input: String): String =
+    input.filter { (it.isLetterOrDigit() && it.code < 128) || it in "!@#$%^&*()_-+=.,?" }
+
+/** 验证码：仅数字，最多 6 位 */
+fun sanitizeCode(input: String): String = input.filter { it.isDigit() }.take(6)
+
+/** 邮箱格式是否可用（用于发送验证码按钮） */
+fun isEmailValid(email: String): Boolean =
+    email.length >= 6 && email.contains("@") && email.substringAfter("@").contains(".")
+
 /** 生日显示格式：yyyy-MM-dd */
 fun formatBirthday(year: Int, month: Int, day: Int): String =
     year.toString().padStart(4, '0') + "-" +
