@@ -91,7 +91,10 @@ import com.xyzl.driverphone.screens.EntryScreen
 import com.xyzl.driverphone.screens.LoginScreen
 import com.xyzl.driverphone.screens.RegisterScreen
 import com.xyzl.driverphone.screens.PolicyScreen
+import com.xyzl.driverphone.screens.AboutScreen
+import com.xyzl.driverphone.screens.EulaScreen
 import com.xyzl.driverphone.screens.QrCodeScreen
+import com.xyzl.driverphone.screens.VersionUpdateScreen
 import com.xyzl.driverphone.screens.ProfileScreen
 import com.xyzl.driverphone.screens.TripsScreen
 import dev.chrisbanes.haze.HazeState
@@ -123,6 +126,7 @@ private fun tabIcon(tab: AppTab): ImageVector = when (tab) {
 fun App(
     onCheckUpdate: (suspend () -> VersionInfo?)? = null,
     onApplyUpdate: (suspend (VersionInfo, (Long, Long) -> Unit) -> String?)? = null,
+    appVersionName: String = "",
 ) {
     DriverPhoneTheme {
         var showEntry by remember { mutableStateOf(true) }
@@ -156,6 +160,8 @@ fun App(
         var showMyReviews by remember { mutableStateOf(false) }
         var policyIndex by remember { mutableStateOf(-1) }
         var showQrCode by remember { mutableStateOf(false) }
+        var showAbout by remember { mutableStateOf(false) }
+        var showVersionUpdate by remember { mutableStateOf(false) }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
         var updateInfo by remember { mutableStateOf<VersionInfo?>(null) }
@@ -338,6 +344,7 @@ fun App(
                         onOpenMyReviews = { showMyReviews = true },
                         onOpenPolicy = { policyIndex = it },
                         onOpenQr = { showQrCode = true },
+                        onOpenAbout = { showAbout = true },
                         onLogout = {
                             loggedIn = false
                             showEntry = false
@@ -660,6 +667,38 @@ fun App(
                 }
             }
 
+            // 关于平台页（覆盖层）
+            if (showAbout) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    AboutScreen(
+                        versionName = appVersionName,
+                        onOpenVersionUpdate = { showVersionUpdate = true },
+                        onOpenEula = { policyIndex = 7 },
+                        onBack = { showAbout = false },
+                    )
+                }
+            }
+
+            // 版本更新页（覆盖层）
+            if (showVersionUpdate) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    VersionUpdateScreen(
+                        currentVersion = appVersionName,
+                        onCheckUpdate = onCheckUpdate,
+                        onApplyUpdate = onApplyUpdate,
+                        onBack = { showVersionUpdate = false },
+                    )
+                }
+            }
+
             // 二维码页（覆盖层）
             if (showQrCode) {
                 Box(
@@ -686,6 +725,8 @@ fun App(
                         3 -> RefundPolicyScreen(onBack = closePolicy)
                         4 -> DataRetentionPolicyScreen(onBack = closePolicy)
                         5 -> DisclaimerScreen(onBack = closePolicy)
+                        6 -> FinalComplianceScreen(onBack = closePolicy)
+                        7 -> EulaScreen(onBack = closePolicy)
                         else -> FinalComplianceScreen(onBack = closePolicy)
                     }
                 }

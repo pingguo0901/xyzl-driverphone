@@ -62,6 +62,7 @@ private val sections: List<Pair<String, List<String>>> = listOf(
         "数据留存与审计合规政策",
         "免责声明",
         "合规最终说明",
+        "终端用户软件许可协议",
     ),
     "帮助与关于" to listOf("帮助与反馈", "关于我们", "关于平台"),
 )
@@ -84,6 +85,7 @@ fun ProfileScreen(
     onOpenMyReviews: () -> Unit = {},
     onOpenPolicy: (Int) -> Unit = {},
     onOpenQr: () -> Unit = {},
+    onOpenAbout: () -> Unit = {},
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -107,6 +109,8 @@ fun ProfileScreen(
             "数据留存与审计合规政策" -> onOpenPolicy(4)
             "免责声明" -> onOpenPolicy(5)
             "合规最终说明" -> onOpenPolicy(6)
+            "终端用户软件许可协议" -> onOpenPolicy(7)
+            "关于平台" -> onOpenAbout()
             else -> { }
         }
     }

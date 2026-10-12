@@ -15,6 +15,7 @@ class MainActivity : ComponentActivity() {
         initQrPlatform(this)
         setContent {
             App(
+                appVersionName = packageManager.getPackageInfo(packageName, 0).versionName ?: "",
                 onCheckUpdate = { UpdateManager.checkForUpdate() },
                 onApplyUpdate = { info, _ ->
                     UpdateManager.downloadAndInstall(this, info.apkUrl)

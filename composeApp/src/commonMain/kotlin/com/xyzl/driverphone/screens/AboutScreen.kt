@@ -1,0 +1,92 @@
+package com.xyzl.driverphone.screens
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.appIconPainter
+
+/** 关于平台页：APP 图标 + 名称 + 版本号 + 版本更新入口 + EULA 按钮 + 版权 */
+@Composable
+fun AboutScreen(
+    versionName: String,
+    onOpenVersionUpdate: () -> Unit = {},
+    onOpenEula: () -> Unit = {},
+    onBack: () -> Unit = {},
+) {
+    val icon = remember { appIconPainter() }
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        FormPageHeader(title = "关于平台", onBack = onBack)
+        Spacer(Modifier.height(36.dp))
+
+        Box(
+            Modifier.size(92.dp).clip(RoundedCornerShape(24.dp)).background(FormChip),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (icon != null) {
+                Image(painter = icon, contentDescription = "星域司机", modifier = Modifier.fillMaxSize())
+            } else {
+                Text("星域", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = FormInk)
+            }
+        }
+
+        Spacer(Modifier.height(18.dp))
+        Text("星域臻旅 司机端", fontSize = 19.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
+        Spacer(Modifier.height(6.dp))
+        Text("Version $versionName", fontSize = 13.sp, color = FormMuted)
+
+        Spacer(Modifier.height(30.dp))
+        Card(
+            Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = FormCard),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        ) {
+            FormValueRow(
+                label = "版本更新",
+                value = "",
+                onClick = onOpenVersionUpdate,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
+
+        Spacer(Modifier.height(60.dp))
+        TextButton(onClick = onOpenEula) {
+            Text("《终端用户软件许可协议》", fontSize = 14.sp, color = FormGreen)
+        }
+        Spacer(Modifier.height(8.dp))
+        Text("星域臻旅版权所有", fontSize = 12.sp, color = FormMuted)
+
+        Spacer(Modifier.height(120.dp))
+    }
+}

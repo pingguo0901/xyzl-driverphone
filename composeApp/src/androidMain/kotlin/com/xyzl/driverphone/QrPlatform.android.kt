@@ -20,6 +20,9 @@ fun initQrPlatform(context: Context) {
     qrContext = context.applicationContext
 }
 
+/** 供其他 androidMain actual 复用宿主 application context */
+internal fun platformAppContext(): Context? = qrContext
+
 actual fun setTorchEnabled(enabled: Boolean): Boolean {
     val context = qrContext ?: return false
     return try {
