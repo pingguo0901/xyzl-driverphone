@@ -42,11 +42,15 @@ fun AboutScreen(
         Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         FormPageHeader(title = "关于平台", onBack = onBack)
+        // 上半内容可滚动，撑满剩余空间
+        Column(
+            Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
         Spacer(Modifier.height(36.dp))
 
         Box(
@@ -80,13 +84,15 @@ fun AboutScreen(
             )
         }
 
-        Spacer(Modifier.height(60.dp))
+            Spacer(Modifier.height(24.dp))
+        }
+
+        // 底部固定：《终端用户软件许可协议》+ 版权
         TextButton(onClick = onOpenEula) {
             Text("《终端用户软件许可协议》", fontSize = 14.sp, color = FormGreen)
         }
         Spacer(Modifier.height(8.dp))
         Text("星域臻旅版权所有", fontSize = 12.sp, color = FormMuted)
-
-        Spacer(Modifier.height(120.dp))
+        Spacer(Modifier.height(16.dp))
     }
 }

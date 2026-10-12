@@ -56,9 +56,13 @@ fun FontSizeScreen(onBack: () -> Unit = {}) {
         )
         Spacer(Modifier.height(16.dp))
 
-        FontPreview(fontSize = previewSize)
+        FontPreview(fontSize = previewSize, modifier = Modifier.weight(1f))
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(14.dp))
+        FormNote("拖动下面的滑块，可设置字体大小。设置后，会改变聊天和应用全部的字体大小。如果在使用过程中存在问题或意见，可反馈给官方团队。")
+
+        // 字体大小档位：固定在最底部
+        Spacer(Modifier.height(14.dp))
         Slider(
             value = level.toFloat(),
             onValueChange = { level = it.roundToInt().coerceIn(1, 7) },
@@ -76,16 +80,14 @@ fun FontSizeScreen(onBack: () -> Unit = {}) {
             Text("A", fontSize = 20.sp, color = FormInk)
         }
 
-        Spacer(Modifier.height(12.dp))
-        FormNote("拖动下面的滑块，可设置字体大小。设置后，会改变聊天和应用全部的字体大小。如果在使用过程中存在问题或意见，可反馈给官方团队。")
-        Spacer(Modifier.height(110.dp))
+        Spacer(Modifier.height(16.dp))
     }
 }
 
 @Composable
-private fun FontPreview(fontSize: TextUnit) {
+private fun FontPreview(fontSize: TextUnit, modifier: Modifier = Modifier) {
     Column(
-        Modifier
+        modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(18.dp))
             .background(FormCard)

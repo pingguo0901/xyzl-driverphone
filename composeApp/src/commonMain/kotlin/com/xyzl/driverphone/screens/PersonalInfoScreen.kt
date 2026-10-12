@@ -71,11 +71,14 @@ fun PersonalInfoScreen(
         Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
         FormPageHeader(title = "个人信息", onBack = onBack)
         Spacer(Modifier.height(16.dp))
+        // 表单区可滚动，保存按钮固定在最底部
+        Column(
+            Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()),
+        ) {
 
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -153,9 +156,11 @@ fun PersonalInfoScreen(
             onValueChange = { wechat = sanitizeWechat(it) },
         )
 
-        Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(6.dp))
+        }
+
         FormPrimaryButton(text = "保存更改", onClick = { showSaved = true })
-        Spacer(Modifier.height(110.dp))
+        Spacer(Modifier.height(16.dp))
     }
 
     if (showAvatarSheet) {

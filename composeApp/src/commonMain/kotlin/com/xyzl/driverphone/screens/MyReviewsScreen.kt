@@ -124,7 +124,7 @@ private fun ReviewCard(review: DriverReview) {
                 Text(
                     text = "★".repeat(review.stars) + "☆".repeat(5 - review.stars),
                     fontSize = 14.sp,
-                    color = FormGreen,
+                    color = Color(0xFFFBBF24),
                 )
             }
             Spacer(Modifier.height(10.dp))

@@ -778,7 +778,7 @@ private fun CapsuleBottomBar(
                 .width(animatedW)
                 .fillMaxHeight()
                 .shadow(2.dp, RoundedCornerShape(50))
-                .background(Color(0xFF3B82F6), RoundedCornerShape(50)),
+                .background(Color.White, RoundedCornerShape(50)),
         )
 
         Row(
@@ -808,7 +808,7 @@ private fun CapsuleBarItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val contentColor = if (selected) Color(0xFFFFFFFF) else Color(0xFF71717A)
+    val contentColor = if (selected) Color(0xFF18181B) else Color(0xFF71717A)
 
     Row(
         modifier = modifier

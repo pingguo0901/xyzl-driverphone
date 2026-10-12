@@ -392,7 +392,7 @@ private fun UploadBox(
         ) {
             if (uri == null) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Filled.CameraAlt, null, tint = GoldLight, modifier = Modifier.size(30.dp))
+                    Icon(Icons.Filled.CameraAlt, null, tint = Color.White, modifier = Modifier.size(30.dp))
                     Spacer(Modifier.height(6.dp))
                     Text(hint, color = LabelGray, fontSize = 12.sp)
                 }
@@ -420,7 +420,7 @@ private fun UploadBox(
                             .padding(vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Filled.CameraAlt, null, tint = GoldLight)
+                        Icon(Icons.Filled.CameraAlt, null, tint = Color.White)
                         Spacer(Modifier.width(12.dp))
                         Text("拍照", color = Color.White)
                     }

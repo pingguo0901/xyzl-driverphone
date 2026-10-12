@@ -400,7 +400,7 @@ fun FormUploadTile(
                 Icon(
                     Icons.Filled.CameraAlt,
                     contentDescription = null,
-                    tint = FormGreen,
+                    tint = Color.White,
                     modifier = Modifier.size(26.dp),
                 )
                 Spacer(Modifier.height(6.dp))

@@ -116,17 +116,17 @@ fun QrCodeScreen(onBack: () -> Unit = {}) {
             onSelect = { tab = it },
         )
         Spacer(Modifier.height(20.dp))
-        if (tab == 0) ShareQrTab() else ScanQrTab()
+        if (tab == 0) ShareQrTab(Modifier.weight(1f)) else ScanQrTab(Modifier.weight(1f))
     }
 }
 
 @Composable
-private fun ShareQrTab() {
+private fun ShareQrTab(modifier: Modifier = Modifier) {
     val clipboard = LocalClipboardManager.current
     var hint by remember { mutableStateOf<String?>(null) }
 
     Column(
-        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+        modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
@@ -335,7 +335,7 @@ private fun ShareActionItem(
 }
 
 @Composable
-private fun ScanQrTab() {
+private fun ScanQrTab(modifier: Modifier = Modifier) {
     var torchOn by remember { mutableStateOf(false) }
     var scanned by remember { mutableStateOf<String?>(null) }
     var notFound by remember { mutableStateOf(false) }
@@ -344,11 +344,11 @@ private fun ScanQrTab() {
         onDispose { setTorchEnabled(false) }
     }
 
-    Column(Modifier.fillMaxWidth()) {
+    Column(modifier.fillMaxWidth()) {
         Box(
             Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f)
+                .weight(1f)
                 .clip(RoundedCornerShape(22.dp))
                 .background(Color(0xFF0A0A0A)),
             contentAlignment = Alignment.Center,
@@ -376,7 +376,7 @@ private fun ScanQrTab() {
             )
         }
 
-        Spacer(Modifier.height(40.dp))
+        Spacer(Modifier.height(20.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             ScanActionItem(
                 label = if (torchOn) "关闭闪光灯" else "闪光灯",

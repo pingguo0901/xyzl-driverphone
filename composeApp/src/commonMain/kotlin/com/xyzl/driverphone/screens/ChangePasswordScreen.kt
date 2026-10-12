@@ -3,6 +3,7 @@ package com.xyzl.driverphone.screens
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -41,11 +42,14 @@ fun ChangePasswordScreen(
         Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
         FormPageHeader(title = "司机端密码", onBack = onBack)
         Spacer(Modifier.height(16.dp))
+        // 表单区可滚动，确认按钮固定在最底部
+        Column(
+            Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()),
+        ) {
 
         FormPasswordField(
             label = "原密码",
@@ -83,13 +87,15 @@ fun ChangePasswordScreen(
             Text("忘记密码？", color = FormGreen, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
         }
 
-        Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(8.dp))
+        }
+
         FormPrimaryButton(
             text = "确认更改",
             onClick = { showSaved = true },
             enabled = canSubmit,
         )
-        Spacer(Modifier.height(110.dp))
+        Spacer(Modifier.height(16.dp))
     }
 
     if (showSaved) {
