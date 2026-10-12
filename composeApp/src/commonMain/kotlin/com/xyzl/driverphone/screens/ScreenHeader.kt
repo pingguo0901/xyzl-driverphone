@@ -22,8 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val HeaderInk = Color(0xFFE8EDEA)
-private val HeaderChip = Color(0xFF31403A)
+private val HeaderInk = Color(0xFFFFFFFF)
+private val HeaderChip = Color(0xFF27272A)
 
 /** 通用页面标题栏：标题居中，右上角通知铃铛（可插入额外按钮） */
 @Composable

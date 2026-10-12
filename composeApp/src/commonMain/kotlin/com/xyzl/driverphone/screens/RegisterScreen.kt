@@ -63,10 +63,10 @@ import com.xyzl.driverphone.sanitizeEnglishPunct
 import com.xyzl.driverphone.sanitizeNickname
 import com.xyzl.driverphone.sanitizeWechat
 
-private val Gold = Color(0xFFD8B645)
-private val GoldLight = Color(0xFFE6C765)
-private val FieldBorder = Color(0xFF5478AA)
-private val LabelGray = Color(0xFFB0C4E2)
+private val Gold = Color(0xFF3B82F6)
+private val GoldLight = Color(0xFF3B82F6)
+private val FieldBorder = Color(0xFF27272A)
+private val LabelGray = Color(0xFFA1A1AA)
 
 /** 注册页：账号资料 + KYC 认证 */
 @Composable
@@ -102,7 +102,7 @@ fun RegisterScreen(
         phone.isNotBlank() && email.isNotBlank() && icUri != null &&
         licenseUri != null && passportUri != null && agreed
 
-    val bg = Brush.verticalGradient(listOf(Color(0xFF081226), Color(0xFF0F2040), Color(0xFF102244)))
+    val bg = Brush.verticalGradient(listOf(Color(0xFF0A0A0A), Color(0xFF0A0A0A), Color(0xFF0A0A0A)))
 
     Box(Modifier.fillMaxSize().background(bg)) {
         Column(
@@ -192,7 +192,7 @@ fun RegisterScreen(
                         ) {
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
-                                color = Color(0xFF16294A),
+                                color = Color(0xFF27272A),
                                 shadowElevation = 8.dp,
                             ) {
                                 Column(Modifier.width(96.dp).padding(vertical = 4.dp)) {
@@ -215,7 +215,7 @@ fun RegisterScreen(
                     value = phone,
                     onValueChange = { phone = sanitizeDigits(it) },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("仅数字", color = Color(0xFFAAAAAA)) },
+                    placeholder = { Text("仅数字", color = Color(0xFFA1A1AA)) },
                     shape = RoundedCornerShape(14.dp),
                     singleLine = true,
                     colors = fieldColors(),
@@ -268,11 +268,11 @@ fun RegisterScreen(
                     onCheckedChange = { agreed = it },
                     colors = CheckboxDefaults.colors(
                         checkedColor = Gold,
-                        uncheckedColor = Color(0xFF889CC0),
-                        checkmarkColor = Color(0xFF1A1A1A),
+                        uncheckedColor = Color(0xFF71717A),
+                        checkmarkColor = Color(0xFFFFFFFF),
                     ),
                 )
-                Text("我已阅读并同意", color = Color(0xFFDDE6F7), fontSize = 12.sp)
+                Text("我已阅读并同意", color = Color(0xFFFFFFFF), fontSize = 12.sp)
                 Text(
                     "《司机入驻KYC实名认证服务政策》",
                     color = GoldLight, fontSize = 12.sp,
@@ -289,14 +289,14 @@ fun RegisterScreen(
                 shape = RoundedCornerShape(999.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Gold,
-                    disabledContainerColor = Color(0xFF3A4A66),
+                    disabledContainerColor = Color(0xFF27272A),
                 ),
             ) {
                 Text(
                     "注 册",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (canSubmit) Color(0xFF1A1206) else Color(0xFF8899B0),
+                    color = if (canSubmit) Color(0xFFFFFFFF) else Color(0xFF52525B),
                     letterSpacing = 4.sp,
                 )
             }
@@ -329,7 +329,7 @@ private fun LabeledField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(placeholder, color = Color(0xFFAAAAAA)) },
+            placeholder = { Text(placeholder, color = Color(0xFFA1A1AA)) },
             shape = RoundedCornerShape(14.dp),
             singleLine = true,
             keyboardOptions = KeyboardOptions(
@@ -345,7 +345,7 @@ private fun PickerField(text: String, onClick: () -> Unit) {
     Box(
         Modifier.fillMaxWidth().height(56.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(Color(0x1AFFFFFF))
+            .background(Color(0x15FFFFFF))
             .clickable { onClick() }
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.CenterStart,
@@ -359,13 +359,13 @@ private fun ChoiceChip(text: String, selected: Boolean, modifier: Modifier, onCl
     Box(
         modifier = modifier.height(48.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(if (selected) Gold else Color(0x1AFFFFFF))
+            .background(if (selected) Gold else Color(0x15FFFFFF))
             .clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text,
-            color = if (selected) Color(0xFF1A1206) else Color(0xFFDDE6F7),
+            color = if (selected) Color(0xFFFFFFFF) else Color(0xFFFFFFFF),
             fontSize = 15.sp,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
         )
@@ -386,7 +386,7 @@ private fun UploadBox(
         Box(
             Modifier.fillMaxWidth().height(120.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0x1AFFFFFF))
+                .background(Color(0x15FFFFFF))
                 .clickable { showSheet = true },
             contentAlignment = Alignment.Center,
         ) {
@@ -409,7 +409,7 @@ private fun UploadBox(
         Dialog(onDismissRequest = { showSheet = false }) {
             Surface(
                 shape = RoundedCornerShape(20.dp),
-                color = Color(0xFF16294A),
+                color = Color(0xFF27272A),
                 shadowElevation = 12.dp,
             ) {
                 Column(Modifier.fillMaxWidth().padding(20.dp)) {

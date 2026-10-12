@@ -52,11 +52,11 @@ import com.xyzl.driverphone.model.DutyVehicles
 import com.xyzl.driverphone.model.ExpenseTypes
 import com.xyzl.driverphone.model.currencyForType
 
-private val OnlineGreen = Color(0xFF206A4E)
-private val InkDark = Color(0xFFE8EDEA)
-private val MutedGray = Color(0xFF9DB0A8)
-private val FieldGray = Color(0xFF31403A)
-private val DividerGray = Color(0xFF3A4A44)
+private val OnlineGreen = Color(0xFF3B82F6)
+private val InkDark = Color(0xFFFFFFFF)
+private val MutedGray = Color(0xFFA1A1AA)
+private val FieldGray = Color(0xFF27272A)
+private val DividerGray = Color(0xFF27272A)
 
 /** 提交报销页 */
 @Composable
@@ -183,7 +183,7 @@ fun ExpenseSubmitScreen(
                 .fillMaxWidth()
                 .height(54.dp)
                 .clip(RoundedCornerShape(999.dp))
-                .background(if (canSubmit) OnlineGreen else Color(0xFF3A4A44))
+                .background(if (canSubmit) OnlineGreen else Color(0xFF27272A))
                 .clickable(enabled = canSubmit) { onSubmit() },
             contentAlignment = Alignment.Center,
         ) {
@@ -191,7 +191,7 @@ fun ExpenseSubmitScreen(
                 "确认提交",
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = if (canSubmit) Color.White else Color(0xFF7E918A),
+                color = if (canSubmit) Color.White else Color(0xFF71717A),
                 letterSpacing = 2.sp,
             )
         }
@@ -247,7 +247,7 @@ private fun DropdownField(
             ) {
                 Surface(
                     shape = RoundedCornerShape(14.dp),
-                    color = Color(0xFF2A3833),
+                    color = Color(0xFF1C1C1E),
                     shadowElevation = 8.dp,
                 ) {
                     Column(Modifier.width(240.dp).padding(vertical = 6.dp)) {
@@ -310,7 +310,7 @@ private fun ReceiptUploadBox(
         Dialog(onDismissRequest = { showSheet = false }) {
             Surface(
                 shape = RoundedCornerShape(20.dp),
-                color = Color(0xFF2A3833),
+                color = Color(0xFF1C1C1E),
                 shadowElevation = 12.dp,
             ) {
                 Column(Modifier.fillMaxWidth().padding(20.dp)) {

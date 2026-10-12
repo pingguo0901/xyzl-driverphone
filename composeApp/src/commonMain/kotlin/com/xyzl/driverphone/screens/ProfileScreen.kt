@@ -41,12 +41,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val ProfileCard = Color(0xFF2A3833)
-private val ProfileChip = Color(0xFF31403A)
-private val ProfileInk = Color(0xFFE8EDEA)
-private val ProfileMuted = Color(0xFF9DB0A8)
-private val ProfileDivider = Color(0xFF3A4A44)
-private val ProfileRed = Color(0xFFD93025)
+private val ProfileCard = Color(0xFF1C1C1E)
+private val ProfileChip = Color(0xFF27272A)
+private val ProfileInk = Color(0xFFFFFFFF)
+private val ProfileMuted = Color(0xFFA1A1AA)
+private val ProfileDivider = Color(0xFF27272A)
+private val ProfileRed = Color(0xFFF43F5E)
 
 private val sections: List<Pair<String, List<String>>> = listOf(
     "我的信息" to listOf("个人信息", "隐私信息", "车辆信息"),

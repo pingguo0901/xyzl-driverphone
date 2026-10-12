@@ -37,11 +37,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val NotifCard = Color(0xFF2A3833)
-private val NotifChip = Color(0xFF31403A)
-private val NotifGreen = Color(0xFF206A4E)
-private val NotifInk = Color(0xFFE8EDEA)
-private val NotifMuted = Color(0xFF9DB0A8)
+private val NotifCard = Color(0xFF1C1C1E)
+private val NotifChip = Color(0xFF27272A)
+private val NotifGreen = Color(0xFF3B82F6)
+private val NotifInk = Color(0xFFFFFFFF)
+private val NotifMuted = Color(0xFFA1A1AA)
 
 private data class NoticeItem(
     val title: String,

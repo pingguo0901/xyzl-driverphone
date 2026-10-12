@@ -38,10 +38,10 @@ import com.xyzl.driverphone.model.LedgerEntry
 import com.xyzl.driverphone.model.LedgerKind
 import com.xyzl.driverphone.model.formatMoney
 
-private val OnlineGreen = Color(0xFF206A4E)
-private val InkDark = Color(0xFFE8EDEA)
-private val MutedGray = Color(0xFF9DB0A8)
-private val FieldGray = Color(0xFF31403A)
+private val OnlineGreen = Color(0xFF3B82F6)
+private val InkDark = Color(0xFFFFFFFF)
+private val MutedGray = Color(0xFFA1A1AA)
+private val FieldGray = Color(0xFF27272A)
 
 private enum class LedgerFilter(val label: String) {
     ALL("全部"),
@@ -124,7 +124,7 @@ private fun LedgerRow(entry: LedgerEntry) {
     Card(
         Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF2A3833)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1C1C1E)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
@@ -157,9 +157,9 @@ private fun LedgerRow(entry: LedgerEntry) {
 @Composable
 private fun KindBadge(kind: LedgerKind) {
     val color = when (kind) {
-        LedgerKind.SALARY -> Color(0xFF206A4E)
-        LedgerKind.REIMBURSEMENT -> Color(0xFFFF9F0A)
-        LedgerKind.COLLECTION -> Color(0xFF0A84FF)
+        LedgerKind.SALARY -> Color(0xFF3B82F6)
+        LedgerKind.REIMBURSEMENT -> Color(0xFFFBBF24)
+        LedgerKind.COLLECTION -> Color(0xFF3B82F6)
     }
     Box(
         Modifier

@@ -33,11 +33,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val ChatCard = Color(0xFF2A3833)
-private val ChatAvatar = Color(0xFF31403A)
-private val ChatGreen = Color(0xFF206A4E)
-private val ChatInk = Color(0xFFE8EDEA)
-private val ChatMuted = Color(0xFF9DB0A8)
+private val ChatCard = Color(0xFF1C1C1E)
+private val ChatAvatar = Color(0xFF27272A)
+private val ChatGreen = Color(0xFF3B82F6)
+private val ChatInk = Color(0xFFFFFFFF)
+private val ChatMuted = Color(0xFFA1A1AA)
 
 private data class ChatItem(
     val name: String,

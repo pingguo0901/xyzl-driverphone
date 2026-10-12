@@ -312,14 +312,14 @@ private fun ScanQrTab() {
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(22.dp))
-                .background(Color(0xFF101713)),
+                .background(Color(0xFF0A0A0A)),
             contentAlignment = Alignment.Center,
         ) {
             Box(Modifier.fillMaxWidth(0.72f).aspectRatio(1f)) {
                 Canvas(Modifier.fillMaxSize()) {
                     val len = size.minDimension * 0.18f
                     val stroke = 4.dp.toPx()
-                    val c = Color(0xFF7FE3B8)
+                    val c = Color(0xFF10B981)
                     drawLine(c, Offset(0f, 0f), Offset(len, 0f), stroke)
                     drawLine(c, Offset(0f, 0f), Offset(0f, len), stroke)
                     drawLine(c, Offset(size.width, 0f), Offset(size.width - len, 0f), stroke)
@@ -333,7 +333,7 @@ private fun ScanQrTab() {
             Text(
                 "将二维码放入框内",
                 fontSize = 12.sp,
-                color = Color(0xFF9DB0A8),
+                color = Color(0xFFA1A1AA),
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 18.dp),
             )
         }

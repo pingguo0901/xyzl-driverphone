@@ -49,9 +49,9 @@ fun LoginScreen(
     // 星空深蓝色渐变
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFF081226),
-            Color(0xFF0F2040),
-            Color(0xFF102244),
+            Color(0xFF0A0A0A),
+            Color(0xFF0A0A0A),
+            Color(0xFF0A0A0A),
         ),
     )
 
@@ -73,7 +73,7 @@ fun LoginScreen(
             Text(
                 text = "星域臻旅",
                 fontSize = 44.sp,
-                color = Color(0xFFD4AF37),
+                color = Color(0xFFFFFFFF),
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 6.sp,
             )
@@ -81,7 +81,7 @@ fun LoginScreen(
             Text(
                 text = "— 尊荣邀制 · 至尊之旅 —",
                 fontSize = 15.sp,
-                color = Color(0xFFE2C260),
+                color = Color(0xFFA1A1AA),
                 letterSpacing = 2.sp,
                 modifier = Modifier.padding(bottom = 36.dp),
             )
@@ -91,9 +91,9 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(26.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0x22345688),
+                    containerColor = Color(0x1A3B82F6),
                 ),
-                border = BorderStroke(1.dp, Color(0xFF4A72BB)),
+                border = BorderStroke(1.dp, Color(0xFF27272A)),
             ) {
                 Column(
                     modifier = Modifier
@@ -123,14 +123,14 @@ fun LoginScreen(
                         value = accountText,
                         onValueChange = { accountText = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("请输入手机号 / 邮箱", color = Color(0xFFAAAAAA)) },
+                        placeholder = { Text("请输入手机号 / 邮箱", color = Color(0xFFA1A1AA)) },
                         leadingIcon = {
-                            Icon(Icons.Filled.Person, null, tint = Color(0xFFC8C8C8))
+                            Icon(Icons.Filled.Person, null, tint = Color(0xFFA1A1AA))
                         },
                         shape = RoundedCornerShape(18.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFFD6B442),
-                            unfocusedBorderColor = Color(0xFF5478AA),
+                            focusedBorderColor = Color(0xFF3B82F6),
+                            unfocusedBorderColor = Color(0xFF27272A),
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
                         ),
@@ -144,23 +144,23 @@ fun LoginScreen(
                         value = passwordText,
                         onValueChange = { passwordText = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("请输入密码", color = Color(0xFFAAAAAA)) },
+                        placeholder = { Text("请输入密码", color = Color(0xFFA1A1AA)) },
                         leadingIcon = {
-                            Icon(Icons.Filled.Lock, null, tint = Color(0xFFC8C8C8))
+                            Icon(Icons.Filled.Lock, null, tint = Color(0xFFA1A1AA))
                         },
                         trailingIcon = {
                             val icon = if (passwordVisible) Icons.Filled.Visibility
                             else Icons.Filled.VisibilityOff
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(icon, "切换密码可见", tint = Color(0xFFCCCCCC))
+                                Icon(icon, "切换密码可见", tint = Color(0xFFA1A1AA))
                             }
                         },
                         shape = RoundedCornerShape(18.dp),
                         visualTransformation = if (passwordVisible) VisualTransformation.None
                         else PasswordVisualTransformation(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFFD6B442),
-                            unfocusedBorderColor = Color(0xFF5478AA),
+                            focusedBorderColor = Color(0xFF3B82F6),
+                            unfocusedBorderColor = Color(0xFF27272A),
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
                         ),
@@ -176,7 +176,7 @@ fun LoginScreen(
                     ) {
                         Text(
                             text = "忘记密码？",
-                            color = Color(0xFFE6C765),
+                            color = Color(0xFF3B82F6),
                             fontSize = 13.sp,
                             modifier = Modifier.clickable { onForgetPassword() },
                         )
@@ -198,14 +198,14 @@ fun LoginScreen(
                             .height(56.dp),
                         shape = RoundedCornerShape(999.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFD8B645),
+                            containerColor = Color(0xFF3B82F6),
                         ),
                         enabled = agreedPolicy,
                     ) {
                         Text(
                             if (selectedTabIndex == 0) "登录" else "注册",
                             fontSize = 20.sp,
-                            color = Color(0xFF1A1A1A),
+                            color = Color(0xFFFFFFFF),
                             fontWeight = FontWeight.Bold,
                         )
                     }
@@ -218,11 +218,11 @@ fun LoginScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(1.dp)
-                                .background(Color(0xFF496899)),
+                                .background(Color(0xFF18181B)),
                         )
                         Text(
                             "其他登录方式",
-                            color = Color(0xFFB0C4E2),
+                            color = Color(0xFFA1A1AA),
                             fontSize = 12.sp,
                             modifier = Modifier.padding(horizontal = 12.dp),
                         )
@@ -230,7 +230,7 @@ fun LoginScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(1.dp)
-                                .background(Color(0xFF496899)),
+                                .background(Color(0xFF18181B)),
                         )
                     }
 
@@ -262,7 +262,7 @@ fun LoginScreen(
                             modifier = Modifier
                                 .size(64.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF111111))
+                                .background(Color(0xFF18181B))
                                 .clickable { onAppleLogin() },
                             contentAlignment = Alignment.Center,
                         ) {
@@ -281,22 +281,22 @@ fun LoginScreen(
                             checked = agreedPolicy,
                             onCheckedChange = { agreedPolicy = it },
                             colors = CheckboxDefaults.colors(
-                                checkedColor = Color(0xFFD6B442),
-                                uncheckedColor = Color(0xFF889CC0),
-                                checkmarkColor = Color(0xFF1A1A1A),
+                                checkedColor = Color(0xFF3B82F6),
+                                uncheckedColor = Color(0xFF71717A),
+                                checkmarkColor = Color(0xFFFFFFFF),
                             ),
                         )
-                        Text("我已阅读并同意 ", color = Color(0xFFDDE6F7), fontSize = 12.sp)
+                        Text("我已阅读并同意 ", color = Color(0xFFFFFFFF), fontSize = 12.sp)
                         Text(
                             "《用户协议》",
-                            color = Color(0xFFE6C765),
+                            color = Color(0xFF3B82F6),
                             fontSize = 12.sp,
                             modifier = Modifier.clickable { onUserAgreementClick() },
                         )
-                        Text(" 与 ", color = Color(0xFFDDE6F7), fontSize = 12.sp)
+                        Text(" 与 ", color = Color(0xFFFFFFFF), fontSize = 12.sp)
                         Text(
                             "《隐私政策》",
-                            color = Color(0xFFE6C765),
+                            color = Color(0xFF3B82F6),
                             fontSize = 12.sp,
                             modifier = Modifier.clickable { onPrivacyPolicyClick() },
                         )
@@ -326,7 +326,7 @@ private fun TabItem(
         Text(
             text = title,
             fontSize = 24.sp,
-            color = if (selected) Color.White else Color(0xFF889CC0),
+            color = if (selected) Color.White else Color(0xFF71717A),
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
         )
         Spacer(modifier = Modifier.height(6.dp))
@@ -335,7 +335,7 @@ private fun TabItem(
                 modifier = Modifier
                     .width(44.dp)
                     .height(3.dp)
-                    .background(Color(0xFFD8B645)),
+                    .background(Color(0xFF3B82F6)),
             )
         }
     }

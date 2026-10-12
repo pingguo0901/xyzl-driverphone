@@ -3,45 +3,89 @@ package com.xyzl.driverphone
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-// 深色主题：后台端同款黑底 + 灰绿色卡片 + 沉稳深绿主色
-private val AppColors = lightColorScheme(
-    primary = Color(0xFF206A4E),
+/**
+ * 全站色板 —— 对齐后台端暗色规格：
+ * 近纯黑背景 + 蓝色主色，表面/卡片分层，文字三级灰阶。
+ */
+object AppPalette {
+    // 背景与表面
+    val Background = Color(0xFF0A0A0A)
+    val Surface = Color(0xFF18181B)
+    val SurfaceVariant = Color(0xFF27272A)
+    val Card = Color(0xFF1C1C1E)
+    val CardAlt = Color(0xFF222226)
+    val Border = Color(0x15FFFFFF)
+
+    // 主色（蓝）
+    val Primary = Color(0xFF3B82F6)
+    val PrimaryDim = Color(0xFF2563EB)
+    val PrimaryBg = Color(0x1A3B82F6)
+
+    // 功能色
+    val Success = Color(0xFF10B981)
+    val Danger = Color(0xFFF43F5E)
+    val Warning = Color(0xFFFBBF24)
+    val Info = Color(0xFF06B6D4)
+
+    // 文字（三级灰阶 + 占位符）
+    val TextPrimary = Color(0xFFFFFFFF)
+    val TextSecondary = Color(0xFFA1A1AA)
+    val TextMuted = Color(0xFF71717A)
+    val TextDisabled = Color(0xFF52525B)
+
+    // 状态徽章
+    val StatusPending = Color(0xFFFBBF24)
+    val StatusConfirmed = Color(0xFF3B82F6)
+    val StatusInProgress = Color(0xFF10B981)
+    val StatusCompleted = Color(0xFF6B7280)
+}
+
+private val AppColors = darkColorScheme(
+    primary = AppPalette.Primary,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFDCEBE2),
-    onPrimaryContainer = Color(0xFF0B3A28),
-    secondary = Color(0xFF206A4E),
+    primaryContainer = Color(0xFF1E3A8A),
+    onPrimaryContainer = Color(0xFFDBEAFE),
+    inversePrimary = AppPalette.PrimaryDim,
+    secondary = AppPalette.Primary,
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFF2A3833),
-    onSecondaryContainer = Color(0xFFE8EDEA),
-    tertiary = Color(0xFF8E8E93),
+    secondaryContainer = AppPalette.SurfaceVariant,
+    onSecondaryContainer = Color(0xFFE4E4E7),
+    tertiary = AppPalette.TextMuted,
     onTertiary = Color.White,
-    background = Color(0xFF0B0F0E),
-    onBackground = Color(0xFFE8EDEA),
-    surface = Color(0xFF2A3833),
-    onSurface = Color(0xFFE8EDEA),
-    surfaceVariant = Color(0xFF2A3833),
-    onSurfaceVariant = Color(0xFF9DB0A8),
-    surfaceContainerLowest = Color(0xFF1E2A26),
-    surfaceContainerLow = Color(0xFF243029),
-    surfaceContainer = Color(0xFF2A3833),
-    surfaceContainerHigh = Color(0xFF31403A),
-    surfaceContainerHighest = Color(0xFF3A4A44),
-    outline = Color(0xFF3A4A44),
-    error = Color(0xFFD93025),
+    background = AppPalette.Background,
+    onBackground = AppPalette.TextPrimary,
+    surface = AppPalette.Surface,
+    onSurface = AppPalette.TextPrimary,
+    surfaceVariant = AppPalette.SurfaceVariant,
+    onSurfaceVariant = AppPalette.TextSecondary,
+    surfaceTint = AppPalette.Primary,
+    surfaceContainerLowest = Color(0xFF0A0A0A),
+    surfaceContainerLow = AppPalette.Surface,
+    surfaceContainer = AppPalette.Card,
+    surfaceContainerHigh = AppPalette.CardAlt,
+    surfaceContainerHighest = AppPalette.SurfaceVariant,
+    inverseSurface = Color(0xFFE4E4E7),
+    inverseOnSurface = Color(0xFF18181B),
+    error = AppPalette.Danger,
     onError = Color.White,
+    errorContainer = Color(0xFF7F1D1D),
+    onErrorContainer = Color(0xFFFECDD3),
+    outline = Color(0x33FFFFFF),
+    outlineVariant = AppPalette.Border,
+    scrim = Color(0xCC000000),
 )
 
 private val AppShapes = Shapes(
     extraSmall = RoundedCornerShape(10.dp),
     small = RoundedCornerShape(14.dp),
-    medium = RoundedCornerShape(18.dp),
-    large = RoundedCornerShape(22.dp),
-    extraLarge = RoundedCornerShape(30.dp),
+    medium = RoundedCornerShape(16.dp),
+    large = RoundedCornerShape(20.dp),
+    extraLarge = RoundedCornerShape(26.dp),
 )
 
 @Composable
