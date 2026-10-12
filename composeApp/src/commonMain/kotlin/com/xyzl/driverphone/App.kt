@@ -61,6 +61,13 @@ import com.xyzl.driverphone.screens.LedgerScreen
 import com.xyzl.driverphone.screens.ChatScreen
 import com.xyzl.driverphone.screens.NotificationsScreen
 import com.xyzl.driverphone.screens.ChangePasswordScreen
+import com.xyzl.driverphone.screens.DataRetentionPolicyScreen
+import com.xyzl.driverphone.screens.DisclaimerScreen
+import com.xyzl.driverphone.screens.FinalComplianceScreen
+import com.xyzl.driverphone.screens.KycPolicyScreen
+import com.xyzl.driverphone.screens.PrivacyPolicyScreen
+import com.xyzl.driverphone.screens.RefundPolicyScreen
+import com.xyzl.driverphone.screens.UserServiceAgreementScreen
 import com.xyzl.driverphone.screens.ChatRecordsScreen
 import com.xyzl.driverphone.screens.ChatSettingsScreen
 import com.xyzl.driverphone.screens.MyReviewsScreen
@@ -146,6 +153,7 @@ fun App(
         var showChatSettings by remember { mutableStateOf(false) }
         var showChatRecords by remember { mutableStateOf(false) }
         var showMyReviews by remember { mutableStateOf(false) }
+        var policyIndex by remember { mutableStateOf(-1) }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
         var updateInfo by remember { mutableStateOf<VersionInfo?>(null) }
@@ -326,6 +334,7 @@ fun App(
                         onOpenChatSettings = { showChatSettings = true },
                         onOpenChatRecords = { showChatRecords = true },
                         onOpenMyReviews = { showMyReviews = true },
+                        onOpenPolicy = { policyIndex = it },
                         onLogout = {
                             loggedIn = false
                             showEntry = false
@@ -645,6 +654,26 @@ fun App(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     MyReviewsScreen(onBack = { showMyReviews = false })
+                }
+            }
+
+            // 政策与协议页（覆盖层）
+            if (policyIndex >= 0) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    val closePolicy = { policyIndex = -1 }
+                    when (policyIndex) {
+                        0 -> UserServiceAgreementScreen(onBack = closePolicy)
+                        1 -> PrivacyPolicyScreen(onBack = closePolicy)
+                        2 -> KycPolicyScreen(onBack = closePolicy)
+                        3 -> RefundPolicyScreen(onBack = closePolicy)
+                        4 -> DataRetentionPolicyScreen(onBack = closePolicy)
+                        5 -> DisclaimerScreen(onBack = closePolicy)
+                        else -> FinalComplianceScreen(onBack = closePolicy)
+                    }
                 }
             }
         }

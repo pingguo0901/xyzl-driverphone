@@ -82,6 +82,7 @@ fun ProfileScreen(
     onOpenChatSettings: () -> Unit = {},
     onOpenChatRecords: () -> Unit = {},
     onOpenMyReviews: () -> Unit = {},
+    onOpenPolicy: (Int) -> Unit = {},
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -98,6 +99,13 @@ fun ProfileScreen(
             "聊天" -> onOpenChatSettings()
             "聊天记录管理" -> onOpenChatRecords()
             "我的评价" -> onOpenMyReviews()
+            "用户服务协议" -> onOpenPolicy(0)
+            "隐私政策" -> onOpenPolicy(1)
+            "KYC实名认证合规条款" -> onOpenPolicy(2)
+            "退款与交易合规政策" -> onOpenPolicy(3)
+            "数据留存与审计合规政策" -> onOpenPolicy(4)
+            "免责声明" -> onOpenPolicy(5)
+            "合规最终说明" -> onOpenPolicy(6)
             else -> { }
         }
     }
