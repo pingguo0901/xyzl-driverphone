@@ -79,6 +79,9 @@ fun ProfileScreen(
     onOpenSecurity: () -> Unit = {},
     onOpenNotificationSettings: () -> Unit = {},
     onOpenDisplay: () -> Unit = {},
+    onOpenChatSettings: () -> Unit = {},
+    onOpenChatRecords: () -> Unit = {},
+    onOpenMyReviews: () -> Unit = {},
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -92,6 +95,9 @@ fun ProfileScreen(
             "司机端密码" -> onOpenChangePassword()
             "登录设备管理" -> onOpenDeviceManage()
             "更多安全设置" -> onOpenSecurity()
+            "聊天" -> onOpenChatSettings()
+            "聊天记录管理" -> onOpenChatRecords()
+            "我的评价" -> onOpenMyReviews()
             else -> { }
         }
     }

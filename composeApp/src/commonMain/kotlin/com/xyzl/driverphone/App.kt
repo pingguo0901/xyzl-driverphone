@@ -61,6 +61,9 @@ import com.xyzl.driverphone.screens.LedgerScreen
 import com.xyzl.driverphone.screens.ChatScreen
 import com.xyzl.driverphone.screens.NotificationsScreen
 import com.xyzl.driverphone.screens.ChangePasswordScreen
+import com.xyzl.driverphone.screens.ChatRecordsScreen
+import com.xyzl.driverphone.screens.ChatSettingsScreen
+import com.xyzl.driverphone.screens.MyReviewsScreen
 import com.xyzl.driverphone.screens.DarkModeScreen
 import com.xyzl.driverphone.screens.DisplayScreen
 import com.xyzl.driverphone.screens.FontSizeScreen
@@ -140,6 +143,9 @@ fun App(
         var showLanguage by remember { mutableStateOf(false) }
         var showTranslation by remember { mutableStateOf(false) }
         var showTranslateTo by remember { mutableStateOf(false) }
+        var showChatSettings by remember { mutableStateOf(false) }
+        var showChatRecords by remember { mutableStateOf(false) }
+        var showMyReviews by remember { mutableStateOf(false) }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
         var updateInfo by remember { mutableStateOf<VersionInfo?>(null) }
@@ -317,6 +323,9 @@ fun App(
                         onOpenSecurity = { showSecurity = true },
                         onOpenNotificationSettings = { showNotificationSettings = true },
                         onOpenDisplay = { showDisplay = true },
+                        onOpenChatSettings = { showChatSettings = true },
+                        onOpenChatRecords = { showChatRecords = true },
+                        onOpenMyReviews = { showMyReviews = true },
                         onLogout = {
                             loggedIn = false
                             showEntry = false
@@ -603,6 +612,39 @@ fun App(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     TranslateToScreen(onBack = { showTranslateTo = false })
+                }
+            }
+
+            // 聊天设置页（覆盖层）
+            if (showChatSettings) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    ChatSettingsScreen(onBack = { showChatSettings = false })
+                }
+            }
+
+            // 聊天记录管理页（覆盖层）
+            if (showChatRecords) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    ChatRecordsScreen(onBack = { showChatRecords = false })
+                }
+            }
+
+            // 我的评价页（覆盖层）
+            if (showMyReviews) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    MyReviewsScreen(onBack = { showMyReviews = false })
                 }
             }
         }
