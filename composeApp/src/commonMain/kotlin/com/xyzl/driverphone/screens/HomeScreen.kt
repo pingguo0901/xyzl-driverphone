@@ -64,8 +64,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.NavigationApp
+import com.xyzl.driverphone.PermissionScene
 import com.xyzl.driverphone.brandLogoPainter
 import com.xyzl.driverphone.openNavigation
+import com.xyzl.driverphone.requestScenePermission
 import com.xyzl.driverphone.openUrl
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
@@ -397,6 +399,7 @@ private fun CurrentTaskCard() {
             address = address,
             onDismiss = { navAddress = null },
             onPick = { app ->
+                requestScenePermission(PermissionScene.Location)
                 openNavigation(app, address)
                 navAddress = null
             },

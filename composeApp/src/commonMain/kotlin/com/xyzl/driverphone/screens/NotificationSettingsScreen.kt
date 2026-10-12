@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.xyzl.driverphone.PermissionScene
+import com.xyzl.driverphone.requestScenePermission
 
 /** 通知设置页：司机端未打开时 / 司机端打开时 */
 @Composable
@@ -26,6 +29,9 @@ fun NotificationSettingsScreen(onBack: () -> Unit = {}) {
     var messageSound by remember { mutableStateOf(true) }
     var callWhenOpen by remember { mutableStateOf(true) }
     var vibrate by remember { mutableStateOf(true) }
+
+    // 进通知设置时申请通知权限（Android 13+ 才需要）
+    LaunchedEffect(Unit) { requestScenePermission(PermissionScene.Notification) }
 
     Column(
         Modifier

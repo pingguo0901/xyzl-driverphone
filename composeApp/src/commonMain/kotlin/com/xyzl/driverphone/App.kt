@@ -171,6 +171,14 @@ fun App(
         var updateError by remember { mutableStateOf<String?>(null) }
         val scope = rememberCoroutineScope()
 
+        // 按场景申请权限：拍照 → 相机；相册 → 照片和视频
+        val requestPick: (ImageSource, (String) -> Unit) -> Unit = { source, cb ->
+            requestScenePermission(
+                if (source == ImageSource.Camera) PermissionScene.Camera else PermissionScene.Photos
+            )
+            pickImage(source, cb)
+        }
+
         // 启动时检查更新
         LaunchedEffect(Unit) {
             onCheckUpdate?.let { checkFn ->
@@ -299,7 +307,7 @@ fun App(
                         onBack = { showRegister = false; showEntry = true },
                         onSubmit = { loggedIn = true },
                         onPickBirthday = { cb -> pickBirthday(cb) },
-                        onPickImage = { source, cb -> pickImage(source, cb) },
+                        onPickImage = { source, cb -> requestPick(source, cb) },
                         onOpenPolicy = { preAuthPolicy = it },
                     )
                     else -> LoginScreen(
@@ -453,7 +461,7 @@ fun App(
                 ) {
                     ExpenseSubmitScreen(
                         onBack = { showExpense = false },
-                        onPickImage = { source, cb -> pickImage(source, cb) },
+                        onPickImage = { source, cb -> requestPick(source, cb) },
                         onPickDocument = { cb -> pickDocument(cb) },
                         onSubmit = { showExpense = false },
                     )
@@ -480,7 +488,7 @@ fun App(
                 ) {
                     PersonalInfoScreen(
                         onBack = { showPersonalInfo = false },
-                        onPickImage = { source, cb -> pickImage(source, cb) },
+                        onPickImage = { source, cb -> requestPick(source, cb) },
                     )
                 }
             }
@@ -508,7 +516,7 @@ fun App(
                 ) {
                     VehicleInfoScreen(
                         onBack = { showVehicleInfo = false },
-                        onPickImage = { source, cb -> pickImage(source, cb) },
+                        onPickImage = { source, cb -> requestPick(source, cb) },
                         onPickDocument = { cb -> pickDocument(cb) },
                     )
                 }
