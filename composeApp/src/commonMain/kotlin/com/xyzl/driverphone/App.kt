@@ -61,6 +61,14 @@ import com.xyzl.driverphone.screens.LedgerScreen
 import com.xyzl.driverphone.screens.ChatScreen
 import com.xyzl.driverphone.screens.NotificationsScreen
 import com.xyzl.driverphone.screens.ChangePasswordScreen
+import com.xyzl.driverphone.screens.DarkModeScreen
+import com.xyzl.driverphone.screens.DisplayScreen
+import com.xyzl.driverphone.screens.FontSizeScreen
+import com.xyzl.driverphone.screens.LanguageScreen
+import com.xyzl.driverphone.screens.NotificationSettingsScreen
+import com.xyzl.driverphone.screens.SecuritySettingsScreen
+import com.xyzl.driverphone.screens.TranslateToScreen
+import com.xyzl.driverphone.screens.TranslationScreen
 import com.xyzl.driverphone.screens.DeviceManageScreen
 import com.xyzl.driverphone.screens.ForgotPasswordScreen
 import com.xyzl.driverphone.screens.PersonalInfoScreen
@@ -124,6 +132,14 @@ fun App(
         var showResetPassword by remember { mutableStateOf(false) }
         var showDeviceManage by remember { mutableStateOf(false) }
         var verifyEmail by remember { mutableStateOf("") }
+        var showSecurity by remember { mutableStateOf(false) }
+        var showNotificationSettings by remember { mutableStateOf(false) }
+        var showDisplay by remember { mutableStateOf(false) }
+        var showDarkMode by remember { mutableStateOf(false) }
+        var showFontSize by remember { mutableStateOf(false) }
+        var showLanguage by remember { mutableStateOf(false) }
+        var showTranslation by remember { mutableStateOf(false) }
+        var showTranslateTo by remember { mutableStateOf(false) }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
         var updateInfo by remember { mutableStateOf<VersionInfo?>(null) }
@@ -298,6 +314,9 @@ fun App(
                         onOpenVehicleInfo = { showVehicleInfo = true },
                         onOpenChangePassword = { showChangePassword = true },
                         onOpenDeviceManage = { showDeviceManage = true },
+                        onOpenSecurity = { showSecurity = true },
+                        onOpenNotificationSettings = { showNotificationSettings = true },
+                        onOpenDisplay = { showDisplay = true },
                         onLogout = {
                             loggedIn = false
                             showEntry = false
@@ -487,6 +506,103 @@ fun App(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     DeviceManageScreen(onBack = { showDeviceManage = false })
+                }
+            }
+
+            // 更多安全设置页（覆盖层）
+            if (showSecurity) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    SecuritySettingsScreen(onBack = { showSecurity = false })
+                }
+            }
+
+            // 通知设置页（覆盖层）
+            if (showNotificationSettings) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    NotificationSettingsScreen(onBack = { showNotificationSettings = false })
+                }
+            }
+
+            // 界面与显示页（覆盖层）
+            if (showDisplay) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    DisplayScreen(
+                        onBack = { showDisplay = false },
+                        onOpenDarkMode = { showDarkMode = true },
+                        onOpenFontSize = { showFontSize = true },
+                        onOpenLanguage = { showLanguage = true },
+                        onOpenTranslation = { showTranslation = true },
+                    )
+                }
+            }
+
+            // 深色模式页（覆盖层）
+            if (showDarkMode) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    DarkModeScreen(onBack = { showDarkMode = false })
+                }
+            }
+
+            // 设置字体大小页（覆盖层）
+            if (showFontSize) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    FontSizeScreen(onBack = { showFontSize = false })
+                }
+            }
+
+            // 多语言设置页（覆盖层）
+            if (showLanguage) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    LanguageScreen(onBack = { showLanguage = false })
+                }
+            }
+
+            // 翻译页（覆盖层）
+            if (showTranslation) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    TranslationScreen(
+                        onBack = { showTranslation = false },
+                        onOpenTranslateTo = { showTranslateTo = true },
+                    )
+                }
+            }
+
+            // 将文字翻译为页（覆盖层）
+            if (showTranslateTo) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    TranslateToScreen(onBack = { showTranslateTo = false })
                 }
             }
         }

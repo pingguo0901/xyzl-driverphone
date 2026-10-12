@@ -16,17 +16,22 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -529,6 +534,148 @@ fun FormPageHeaderAction(
             contentAlignment = Alignment.Center,
         ) {
             Text(actionLabel, fontSize = 14.sp, color = FormGreen, fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+/** 开关行（设置类页面） */
+@Composable
+fun FormSwitchRow(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth().padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, fontSize = 15.sp, color = FormInk, modifier = Modifier.weight(1f))
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = FormGreen,
+                uncheckedThumbColor = FormMuted,
+                uncheckedTrackColor = FormChip,
+                uncheckedBorderColor = FormDivide,
+            ),
+        )
+    }
+}
+
+/** 值行（可点，如「字体大小」「多语言」、当前模式） */
+@Composable
+fun FormValueRow(
+    label: String,
+    value: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth().clickable { onClick() }.padding(vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, fontSize = 15.sp, color = FormInk, modifier = Modifier.weight(1f))
+        Text(value, fontSize = 14.sp, color = FormMuted)
+        Spacer(Modifier.width(6.dp))
+        Icon(
+            imageVector = Icons.Filled.ChevronRight,
+            contentDescription = null,
+            tint = FormMuted,
+            modifier = Modifier.size(18.dp),
+        )
+    }
+}
+
+/** 语言/单选列表行：右侧绿色打勾 */
+@Composable
+fun FormCheckRow(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth().clickable { onClick() }.padding(vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, fontSize = 15.sp, color = FormInk, modifier = Modifier.weight(1f))
+        if (selected) {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = "已选择",
+                tint = FormGreen,
+                modifier = Modifier.size(20.dp),
+            )
+        }
+    }
+}
+
+/** 小字说明文字 */
+@Composable
+fun FormNote(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text,
+        fontSize = 12.sp,
+        color = FormMuted,
+        lineHeight = 18.sp,
+        modifier = modifier.padding(start = 2.dp, bottom = 6.dp),
+    )
+}
+
+/** 分组卡片容器 */
+@Composable
+fun FormGroup(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Card(
+        modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = FormCard),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) { content() }
+    }
+}
+
+/** 左上角取消 + 居中标题 + 右上角完成 */
+@Composable
+fun FormPageHeaderCancelDone(
+    title: String,
+    onCancel: () -> Unit,
+    onDone: () -> Unit,
+) {
+    Box(Modifier.fillMaxWidth().height(44.dp)) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .height(36.dp)
+                .clip(RoundedCornerShape(50))
+                .background(FormChip)
+                .clickable { onCancel() }
+                .padding(horizontal = 14.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("取消", fontSize = 14.sp, color = FormMuted, fontWeight = FontWeight.SemiBold)
+        }
+        Text(
+            text = title,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = FormInk,
+            modifier = Modifier.align(Alignment.Center),
+        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .height(36.dp)
+                .clip(RoundedCornerShape(50))
+                .background(FormChip)
+                .clickable { onDone() }
+                .padding(horizontal = 14.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("完成", fontSize = 14.sp, color = FormGreen, fontWeight = FontWeight.SemiBold)
         }
     }
 }
