@@ -56,6 +56,10 @@ fun VehicleInfoScreen(
     var model by remember { mutableStateOf("") }
     var seats by remember { mutableStateOf("") }
     var plate by remember { mutableStateOf("") }
+    var frontViewUri by remember { mutableStateOf<String?>(null) }
+    var rearViewUri by remember { mutableStateOf<String?>(null) }
+    var frontSeatUri by remember { mutableStateOf<String?>(null) }
+    var rearSeatUri by remember { mutableStateOf<String?>(null) }
     var roadTaxUri by remember { mutableStateOf<String?>(null) }
     var carCardUri by remember { mutableStateOf<String?>(null) }
     var insuranceUri by remember { mutableStateOf<String?>(null) }
@@ -101,6 +105,68 @@ fun VehicleInfoScreen(
             placeholder = "例：JXY 8888",
             onValueChange = { plate = sanitizePlate(it) },
         )
+
+        FormSectionTitle("车外观照片")
+        Text(
+            "上传车辆外观前后照片",
+            fontSize = 13.sp,
+            color = FormMuted,
+            modifier = Modifier.padding(start = 2.dp, bottom = 10.dp),
+        )
+        Row(
+            Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            FormUploadTile(
+                label = "车前",
+                hint = "车前",
+                uri = frontViewUri,
+                onPicked = { frontViewUri = it },
+                onPickImage = onPickImage,
+                onPickDocument = onPickDocument,
+                modifier = Modifier.weight(1f),
+            )
+            FormUploadTile(
+                label = "车后",
+                hint = "车后",
+                uri = rearViewUri,
+                onPicked = { rearViewUri = it },
+                onPickImage = onPickImage,
+                onPickDocument = onPickDocument,
+                modifier = Modifier.weight(1f),
+            )
+        }
+
+        FormSectionTitle("车辆内饰照片")
+        Text(
+            "上传车辆内饰前后排照片",
+            fontSize = 13.sp,
+            color = FormMuted,
+            modifier = Modifier.padding(start = 2.dp, bottom = 10.dp),
+        )
+        Row(
+            Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            FormUploadTile(
+                label = "车前排",
+                hint = "车前排",
+                uri = frontSeatUri,
+                onPicked = { frontSeatUri = it },
+                onPickImage = onPickImage,
+                onPickDocument = onPickDocument,
+                modifier = Modifier.weight(1f),
+            )
+            FormUploadTile(
+                label = "车后排",
+                hint = "车后排",
+                uri = rearSeatUri,
+                onPicked = { rearSeatUri = it },
+                onPickImage = onPickImage,
+                onPickDocument = onPickDocument,
+                modifier = Modifier.weight(1f),
+            )
+        }
 
         FormSectionTitle("车辆证明")
         FormUpload(

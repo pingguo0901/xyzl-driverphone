@@ -332,7 +332,7 @@ fun FormChoiceChip(
     }
 }
 
-/** 上传框：拍照 / 相册 / 文档（可分别开关） */
+/** 上传框：拍照 / 相册 / 文档（可分别开关），带上方标题 */
 @Composable
 fun FormUpload(
     label: String,
@@ -346,39 +346,68 @@ fun FormUpload(
     allowGallery: Boolean = true,
     allowDocument: Boolean = true,
 ) {
-    var showSheet by remember { mutableStateOf(false) }
-
     Column(modifier.fillMaxWidth().padding(bottom = 16.dp)) {
         FormLabel(label)
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(124.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(FormCard)
-                .clickable { showSheet = true },
-            contentAlignment = Alignment.Center,
-        ) {
-            if (uri == null) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        Icons.Filled.CameraAlt,
-                        contentDescription = null,
-                        tint = FormGreen,
-                        modifier = Modifier.size(28.dp),
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(hint, color = FormMuted, fontSize = 12.sp)
-                }
-            } else {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.Check, contentDescription = null, tint = FormGreen)
-                    Spacer(Modifier.width(8.dp))
-                    Text("已上传", color = FormInk, fontSize = 14.sp)
-                }
+        FormUploadTile(
+            label = label,
+            hint = hint,
+            uri = uri,
+            onPicked = onPicked,
+            onPickImage = onPickImage,
+            onPickDocument = onPickDocument,
+            modifier = Modifier.fillMaxWidth(),
+            allowCamera = allowCamera,
+            allowGallery = allowGallery,
+            allowDocument = allowDocument,
+        )
+    }
+}
+
+/** 上传框（不带标题，可放一排两个框）：拍照 / 相册 / 文档 */
+@Composable
+fun FormUploadTile(
+    label: String,
+    hint: String,
+    uri: String?,
+    onPicked: (String) -> Unit,
+    onPickImage: (ImageSource, (String) -> Unit) -> Unit,
+    onPickDocument: ((String) -> Unit) -> Unit,
+    modifier: Modifier = Modifier,
+    allowCamera: Boolean = true,
+    allowGallery: Boolean = true,
+    allowDocument: Boolean = true,
+) {
+    var showSheet by remember { mutableStateOf(false) }
+
+    Box(
+        modifier
+            .height(124.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(FormCard)
+            .clickable { showSheet = true },
+        contentAlignment = Alignment.Center,
+    ) {
+        if (uri == null) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    Icons.Filled.CameraAlt,
+                    contentDescription = null,
+                    tint = FormGreen,
+                    modifier = Modifier.size(26.dp),
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(hint, color = FormMuted, fontSize = 13.sp)
+            }
+        } else {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(Icons.Filled.Check, contentDescription = null, tint = FormGreen)
+                Spacer(Modifier.height(4.dp))
+                Text("$hint 已上传", color = FormInk, fontSize = 12.sp)
             }
         }
     }
+            Modifier
+        }
 
     if (showSheet) {
         Dialog(onDismissRequest = { showSheet = false }) {
