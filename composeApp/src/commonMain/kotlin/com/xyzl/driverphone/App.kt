@@ -274,7 +274,17 @@ fun App(
                         onSubmitExpense = { showExpense = true },
                         onOpenNotifications = { showNotifications = true },
                     )
-                    AppTab.Profile -> ProfileScreen(onOpenNotifications = { showNotifications = true })
+                    AppTab.Profile -> ProfileScreen(
+                        onOpenNotifications = { showNotifications = true },
+                        onLogout = {
+                            loggedIn = false
+                            showEntry = false
+                            showLogin = true
+                            showRegister = false
+                            showPolicy = false
+                            selectedTab = AppTab.Home
+                        },
+                    )
                 }
             }
 
