@@ -57,7 +57,8 @@ fun PersonalInfoScreen(
     onPickImage: (ImageSource, (String) -> Unit) -> Unit = { _, _ -> },
 ) {
     var avatarUri by remember { mutableStateOf<String?>(null) }
-    var nickname by remember { mutableStateOf("") }
+    // 昵称与 ID 存在 DriverProfile 里（我的页面同一个 ID）
+    val nickname = DriverProfile.nickname
     var dialCode by remember { mutableStateOf(DialCodes.first()) }
     var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -117,7 +118,17 @@ fun PersonalInfoScreen(
             label = "昵称",
             value = nickname,
             placeholder = "中文 / 英文 / 数字 / 标点",
-            onValueChange = { nickname = sanitizeNickname(it) },
+            onValueChange = { DriverProfile.nickname = sanitizeNickname(it) },
+        )
+
+        // ID：未自定义前自动生成随机唯一 ID，可直接改
+        FormTextField(
+            label = "ID",
+            value = DriverProfile.driverId,
+            placeholder = "自动生成，可自定义",
+            onValueChange = { input ->
+                DriverProfile.driverId = input.filter { it.isLetterOrDigit() || it == '-' }.take(20)
+            },
         )
 
         FormLabel("手机号")

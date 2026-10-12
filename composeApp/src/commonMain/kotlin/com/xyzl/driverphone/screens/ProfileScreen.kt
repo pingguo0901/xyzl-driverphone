@@ -175,10 +175,10 @@ fun ProfileScreen(
                 }
                 Spacer(Modifier.width(16.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("陈师傅", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ProfileInk)
+                    Text(DriverProfile.nickname, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ProfileInk)
                     Spacer(Modifier.height(4.dp))
-                    Text("车牌：JXY 8888", fontSize = 13.sp, color = ProfileMuted)
-                    Text("手机：+60 12-345 6789", fontSize = 13.sp, color = ProfileMuted)
+                    Text("ID：" + DriverProfile.driverId, fontSize = 13.sp, color = ProfileMuted)
+                    Text("所属公司：" + DriverProfile.company, fontSize = 13.sp, color = ProfileMuted)
                 }
                 Spacer(Modifier.width(12.dp))
                 Box(
