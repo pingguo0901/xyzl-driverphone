@@ -60,6 +60,9 @@ import com.xyzl.driverphone.screens.FinanceScreen
 import com.xyzl.driverphone.screens.LedgerScreen
 import com.xyzl.driverphone.screens.ChatScreen
 import com.xyzl.driverphone.screens.NotificationsScreen
+import com.xyzl.driverphone.screens.PersonalInfoScreen
+import com.xyzl.driverphone.screens.PrivacyInfoScreen
+import com.xyzl.driverphone.screens.VehicleInfoScreen
 import com.xyzl.driverphone.screens.HomeScreen
 import com.xyzl.driverphone.screens.EntryScreen
 import com.xyzl.driverphone.screens.LoginScreen
@@ -107,6 +110,9 @@ fun App(
         var showLedger by remember { mutableStateOf(false) }
         var showExpense by remember { mutableStateOf(false) }
         var showNotifications by remember { mutableStateOf(false) }
+        var showPersonalInfo by remember { mutableStateOf(false) }
+        var showPrivacyInfo by remember { mutableStateOf(false) }
+        var showVehicleInfo by remember { mutableStateOf(false) }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
         var updateInfo by remember { mutableStateOf<VersionInfo?>(null) }
@@ -276,6 +282,9 @@ fun App(
                     )
                     AppTab.Profile -> ProfileScreen(
                         onOpenNotifications = { showNotifications = true },
+                        onOpenPersonalInfo = { showPersonalInfo = true },
+                        onOpenPrivacyInfo = { showPrivacyInfo = true },
+                        onOpenVehicleInfo = { showVehicleInfo = true },
                         onLogout = {
                             loggedIn = false
                             showEntry = false
@@ -333,6 +342,49 @@ fun App(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     NotificationsScreen(onBack = { showNotifications = false })
+                }
+            }
+
+            // 个人信息页（覆盖层）
+            if (showPersonalInfo) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    PersonalInfoScreen(
+                        onBack = { showPersonalInfo = false },
+                        onPickImage = { source, cb -> pickImage(source, cb) },
+                    )
+                }
+            }
+
+            // 隐私信息页（覆盖层）
+            if (showPrivacyInfo) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    PrivacyInfoScreen(
+                        onBack = { showPrivacyInfo = false },
+                        onPickBirthday = { cb -> pickBirthday(cb) },
+                    )
+                }
+            }
+
+            // 车辆信息页（覆盖层）
+            if (showVehicleInfo) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    VehicleInfoScreen(
+                        onBack = { showVehicleInfo = false },
+                        onPickImage = { source, cb -> pickImage(source, cb) },
+                        onPickDocument = { cb -> pickDocument(cb) },
+                    )
                 }
             }
         }

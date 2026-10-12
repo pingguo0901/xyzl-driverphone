@@ -2,12 +2,15 @@ package com.xyzl.driverphone
 
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.graphics.BitmapFactory
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.content.FileProvider
 import java.io.File
 import java.text.SimpleDateFormat
@@ -100,6 +103,26 @@ actual fun pickImage(source: ImageSource, onPicked: (String) -> Unit) {
 actual fun pickDocument(onPicked: (String) -> Unit) {
     pendingDocumentCallback = onPicked
     documentLauncher?.launch(arrayOf("application/pdf", "image/*"))
+}
+
+actual fun loadImageBitmap(uri: String): ImageBitmap? {
+    if (!::pickerActivity.isInitialized) return null
+    return try {
+        val parsed = Uri.parse(uri)
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        pickerActivity.contentResolver.openInputStream(parsed)?.use {
+            BitmapFactory.decodeStream(it, null, bounds)
+        }
+        var sample = 1
+        val longest = maxOf(bounds.outWidth, bounds.outHeight)
+        while (longest / (sample * 2) >= 512) sample *= 2
+        val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+        pickerActivity.contentResolver.openInputStream(parsed)?.use { stream ->
+            BitmapFactory.decodeStream(stream, null, opts)?.asImageBitmap()
+        }
+    } catch (_: Exception) {
+        null
+    }
 }
 
 private fun createImageUri(context: Context): Uri {

@@ -1,5 +1,7 @@
 package com.xyzl.driverphone
 
+import androidx.compose.ui.graphics.ImageBitmap
+
 /** 图片来源 */
 enum class ImageSource { Camera, Gallery }
 
@@ -11,3 +13,6 @@ expect fun pickImage(source: ImageSource, onPicked: (String) -> Unit)
 
 /** 选择文档（PDF / 图片等），回调本地 uri 字符串 */
 expect fun pickDocument(onPicked: (String) -> Unit)
+
+/** 读取本地 uri 的图片（用于头像预览），失败返回 null */
+expect fun loadImageBitmap(uri: String): ImageBitmap?

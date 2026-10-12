@@ -71,8 +71,21 @@ private val sections: List<Pair<String, List<String>>> = listOf(
 fun ProfileScreen(
     onOpenNotifications: () -> Unit = {},
     onLogout: () -> Unit = {},
+    onOpenPersonalInfo: () -> Unit = {},
+    onOpenPrivacyInfo: () -> Unit = {},
+    onOpenVehicleInfo: () -> Unit = {},
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
+
+    val onItemClick: (String) -> Unit = { label ->
+        when (label) {
+            "个人信息" -> onOpenPersonalInfo()
+            "隐私信息" -> onOpenPrivacyInfo()
+            "车辆信息" -> onOpenVehicleInfo()
+            "通知" -> onOpenNotifications()
+            else -> { }
+        }
+    }
 
     if (showLogoutDialog) {
         AlertDialog(
@@ -179,6 +192,7 @@ fun ProfileScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .clickable { onItemClick(label) }
                                 .padding(horizontal = 20.dp, vertical = 16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
