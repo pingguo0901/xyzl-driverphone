@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
@@ -32,6 +33,7 @@ import com.xyzl.driverphone.brandLogoPainter
 // =====================  星域臻旅 登录页面  =====================
 @Composable
 fun LoginScreen(
+    onBack: () -> Unit = {},
     onLoginSuccess: () -> Unit = {},
     onRegister: () -> Unit = {},
     onForgetPassword: () -> Unit = {},
@@ -40,7 +42,6 @@ fun LoginScreen(
     onUserAgreementClick: () -> Unit = {},
     onPrivacyPolicyClick: () -> Unit = {},
 ) {
-    var selectedTabIndex by remember { mutableStateOf(0) } // 0 登录， 1 注册
     var accountText by remember { mutableStateOf("") }
     var passwordText by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -100,19 +101,13 @@ fun LoginScreen(
                         .fillMaxWidth()
                         .padding(26.dp),
                 ) {
-                    // Tab 登录 / 注册
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        TabItem(
-                            title = "登录",
-                            selected = selectedTabIndex == 0,
-                            modifier = Modifier.weight(1f),
-                            onClick = { selectedTabIndex = 0 },
-                        )
-                        TabItem(
-                            title = "注册",
-                            selected = selectedTabIndex == 1,
-                            modifier = Modifier.weight(1f),
-                            onClick = { selectedTabIndex = 1 },
+                    // 标题：登录（注册入口移到「其他登录方式」下面）
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "登录",
+                            fontSize = 24.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
                         )
                     }
 
@@ -186,13 +181,7 @@ fun LoginScreen(
 
                     // 金色大登录按钮
                     Button(
-                        onClick = {
-                            if (selectedTabIndex == 0) {
-                                onLoginSuccess()
-                            } else {
-                                onRegister()
-                            }
-                        },
+                        onClick = { onLoginSuccess() },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
@@ -203,7 +192,7 @@ fun LoginScreen(
                         enabled = agreedPolicy,
                     ) {
                         Text(
-                            if (selectedTabIndex == 0) "登录" else "注册",
+                            "登录",
                             fontSize = 20.sp,
                             color = Color(0xFFFFFFFF),
                             fontWeight = FontWeight.Bold,
@@ -247,7 +236,21 @@ fun LoginScreen(
                         AppleButton(onClick = { onAppleLogin() }, size = 64.dp, logoSize = 34.dp)
                     }
 
-                    Spacer(modifier = Modifier.height(26.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    // 没有帐号？注册
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("没有帐号？", color = Color(0xFFA1A1AA), fontSize = 13.sp)
+                        Text(
+                            "注册",
+                            color = Color(0xFF3B82F6),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.clickable { onRegister() },
+                        )
+                    }
+
+                    Spacer(Modifier.height(18.dp))
 
                     // 复选框 用户协议、隐私政策
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -280,36 +283,19 @@ fun LoginScreen(
 
             Spacer(Modifier.height(40.dp))
         }
-    }
-}
 
-// 登录 / 注册 Tab 子组件
-@Composable
-private fun TabItem(
-    title: String,
-    selected: Boolean,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
-    Column(
-        modifier = modifier
-            .clickable { onClick() }
-            .padding(vertical = 6.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = title,
-            fontSize = 24.sp,
-            color = if (selected) Color.White else Color(0xFF71717A),
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        if (selected) {
-            Box(
-                modifier = Modifier
-                    .width(44.dp)
-                    .height(3.dp)
-                    .background(Color(0xFF3B82F6)),
+        // 右上角返回
+        IconButton(
+            onClick = onBack,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .statusBarsPadding()
+                .padding(top = 4.dp, end = 8.dp),
+        ) {
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "返回",
+                tint = Color.White,
             )
         }
     }

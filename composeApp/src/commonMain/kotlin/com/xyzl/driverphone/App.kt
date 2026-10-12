@@ -301,8 +301,10 @@ fun App(
                     onPolicyClick = { showPolicy = true },
                 )
                 else -> LoginScreen(
+                    onBack = { showLogin = false; showEntry = true },
                     onLoginSuccess = { loggedIn = true },
                     onRegister = { showLogin = false; showRegister = true },
+                    onForgetPassword = { showLogin = false; showForgotPassword = true },
                 )
             }
             return@DriverPhoneTheme
