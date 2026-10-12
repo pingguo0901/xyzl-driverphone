@@ -62,6 +62,17 @@ internal val FormGreen = Color(0xFF3B82F6)
 internal val FormDivide = Color(0xFF27272A)
 internal val FormRed = Color(0xFFF43F5E)
 
+/** 协议链接文字（蓝色可点，未登录也能打开） */
+@Composable
+internal fun PolicyLink(text: String, onClick: () -> Unit) {
+    Text(
+        text = text,
+        color = FormGreen,
+        fontSize = 12.sp,
+        modifier = Modifier.clickable { onClick() },
+    )
+}
+
 @Composable
 internal fun formFieldColors() = OutlinedTextFieldDefaults.colors(
     focusedBorderColor = FormGreen,

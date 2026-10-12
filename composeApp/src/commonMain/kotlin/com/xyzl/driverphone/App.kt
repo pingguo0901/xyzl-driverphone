@@ -133,6 +133,7 @@ fun App(
         var showLogin by remember { mutableStateOf(false) }
         var showRegister by remember { mutableStateOf(false) }
         var showPolicy by remember { mutableStateOf(false) }
+        var preAuthPolicy by remember { mutableStateOf(-1) }
         var loggedIn by remember { mutableStateOf(false) }
         var selectedTab by remember { mutableStateOf(AppTab.Home) }
         var showLedger by remember { mutableStateOf(false) }
@@ -287,25 +288,88 @@ fun App(
         }
 
         if (!loggedIn) {
-            when {
-                showPolicy -> PolicyScreen(onBack = { showPolicy = false })
-                showEntry -> EntryScreen(
-                    onLoginClick = { showEntry = false; showLogin = true },
-                    onRegisterClick = { showEntry = false; showRegister = true },
-                )
-                showRegister -> RegisterScreen(
-                    onBack = { showRegister = false; showEntry = true },
-                    onSubmit = { loggedIn = true },
-                    onPickBirthday = { cb -> pickBirthday(cb) },
-                    onPickImage = { source, cb -> pickImage(source, cb) },
-                    onPolicyClick = { showPolicy = true },
-                )
-                else -> LoginScreen(
-                    onBack = { showLogin = false; showEntry = true },
-                    onLoginSuccess = { loggedIn = true },
-                    onRegister = { showLogin = false; showRegister = true },
-                    onForgetPassword = { showLogin = false; showForgotPassword = true },
-                )
+            Box(Modifier.fillMaxSize()) {
+                when {
+                    showPolicy -> PolicyScreen(onBack = { showPolicy = false })
+                    showEntry -> EntryScreen(
+                        onLoginClick = { showEntry = false; showLogin = true },
+                        onRegisterClick = { showEntry = false; showRegister = true },
+                    )
+                    showRegister -> RegisterScreen(
+                        onBack = { showRegister = false; showEntry = true },
+                        onSubmit = { loggedIn = true },
+                        onPickBirthday = { cb -> pickBirthday(cb) },
+                        onPickImage = { source, cb -> pickImage(source, cb) },
+                        onOpenPolicy = { preAuthPolicy = it },
+                    )
+                    else -> LoginScreen(
+                        onBack = { showLogin = false; showEntry = true },
+                        onLoginSuccess = { loggedIn = true },
+                        onRegister = { showLogin = false; showRegister = true },
+                        onForgetPassword = { showLogin = false; showForgotPassword = true },
+                        onOpenPolicy = { preAuthPolicy = it },
+                    )
+                }
+
+                // 协议与政策页：登录前也能看，返回回到刚才那一页
+                if (preAuthPolicy >= 0) {
+                    Box(
+                        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                    ) {
+                        val closePreAuthPolicy = { preAuthPolicy = -1 }
+                        when (preAuthPolicy) {
+                            0 -> UserServiceAgreementScreen(onBack = closePreAuthPolicy)
+                            1 -> PrivacyPolicyScreen(onBack = closePreAuthPolicy)
+                            2 -> KycPolicyScreen(onBack = closePreAuthPolicy)
+                            3 -> RefundPolicyScreen(onBack = closePreAuthPolicy)
+                            4 -> DataRetentionPolicyScreen(onBack = closePreAuthPolicy)
+                            5 -> DisclaimerScreen(onBack = closePreAuthPolicy)
+                            6 -> FinalComplianceScreen(onBack = closePreAuthPolicy)
+                            7 -> EulaScreen(onBack = closePreAuthPolicy)
+                            else -> FinalComplianceScreen(onBack = closePreAuthPolicy)
+                        }
+                    }
+                }
+
+                // 忘记密码 → 验证码 → 重建密码：登录前也能走
+                if (showForgotPassword || showVerifyCode || showResetPassword) {
+                    Box(
+                        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                    ) {
+                        when {
+                            showResetPassword -> ResetPasswordScreen(
+                                onBack = { showResetPassword = false },
+                                onDone = {
+                                    showResetPassword = false
+                                    showVerifyCode = false
+                                    showForgotPassword = false
+                                    showLogin = true
+                                    showEntry = false
+                                    showRegister = false
+                                },
+                            )
+                            showVerifyCode -> VerifyCodeScreen(
+                                email = verifyEmail,
+                                onBack = {
+                                    showVerifyCode = false
+                                    showForgotPassword = true
+                                },
+                                onConfirm = {
+                                    showVerifyCode = false
+                                    showResetPassword = true
+                                },
+                            )
+                            else -> ForgotPasswordScreen(
+                                onBack = { showForgotPassword = false },
+                                onSendCode = { email ->
+                                    verifyEmail = email
+                                    showForgotPassword = false
+                                    showVerifyCode = true
+                                },
+                            )
+                        }
+                    }
+                }
             }
             return@DriverPhoneTheme
         }

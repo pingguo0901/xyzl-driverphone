@@ -39,8 +39,7 @@ fun LoginScreen(
     onForgetPassword: () -> Unit = {},
     onWechatLogin: () -> Unit = {},
     onAppleLogin: () -> Unit = {},
-    onUserAgreementClick: () -> Unit = {},
-    onPrivacyPolicyClick: () -> Unit = {},
+    onOpenPolicy: (Int) -> Unit = {},
 ) {
     var accountText by remember { mutableStateOf("") }
     var passwordText by remember { mutableStateOf("") }
@@ -263,20 +262,19 @@ fun LoginScreen(
                                 checkmarkColor = Color(0xFFFFFFFF),
                             ),
                         )
-                        Text("我已阅读并同意 ", color = Color(0xFFFFFFFF), fontSize = 12.sp)
-                        Text(
-                            "《用户协议》",
-                            color = Color(0xFF3B82F6),
-                            fontSize = 12.sp,
-                            modifier = Modifier.clickable { onUserAgreementClick() },
-                        )
-                        Text(" 与 ", color = Color(0xFFFFFFFF), fontSize = 12.sp)
-                        Text(
-                            "《隐私政策》",
-                            color = Color(0xFF3B82F6),
-                            fontSize = 12.sp,
-                            modifier = Modifier.clickable { onPrivacyPolicyClick() },
-                        )
+                        Text("我已阅读并同意", color = Color(0xFFFFFFFF), fontSize = 12.sp)
+                    }
+                    Column(Modifier.padding(start = 2.dp, top = 2.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            PolicyLink("《用户服务协议》") { onOpenPolicy(0) }
+                            Text("、", color = Color(0xFFFFFFFF), fontSize = 12.sp)
+                            PolicyLink("《隐私政策》") { onOpenPolicy(1) }
+                        }
+                        Spacer(Modifier.height(2.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("与", color = Color(0xFFFFFFFF), fontSize = 12.sp)
+                            PolicyLink("《终端用户软件许可》") { onOpenPolicy(7) }
+                        }
                     }
                 }
             }
@@ -288,9 +286,9 @@ fun LoginScreen(
         IconButton(
             onClick = onBack,
             modifier = Modifier
-                .align(Alignment.TopEnd)
+                .align(Alignment.TopStart)
                 .statusBarsPadding()
-                .padding(top = 4.dp, end = 8.dp),
+                .padding(top = 4.dp, start = 8.dp),
         ) {
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack,

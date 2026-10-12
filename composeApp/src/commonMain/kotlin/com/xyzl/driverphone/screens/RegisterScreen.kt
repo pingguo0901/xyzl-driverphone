@@ -75,7 +75,7 @@ fun RegisterScreen(
     onSubmit: () -> Unit = {},
     onPickBirthday: (onPicked: (String) -> Unit) -> Unit = {},
     onPickImage: (source: ImageSource, onPicked: (String) -> Unit) -> Unit = { _, _ -> },
-    onPolicyClick: () -> Unit = {},
+    onOpenPolicy: (Int) -> Unit = {},
 ) {
     var accountType by remember { mutableStateOf(AccountTypes.first()) }
     var nickname by remember { mutableStateOf("") }
@@ -273,11 +273,19 @@ fun RegisterScreen(
                     ),
                 )
                 Text("我已阅读并同意", color = Color(0xFFFFFFFF), fontSize = 12.sp)
-                Text(
-                    "《司机入驻KYC实名认证服务政策》",
-                    color = GoldLight, fontSize = 12.sp,
-                    modifier = Modifier.clickable { onPolicyClick() },
-                )
+            }
+            Column(Modifier.padding(start = 2.dp, top = 2.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    PolicyLink("《KYC实名认证合规条款》") { onOpenPolicy(2) }
+                    Text("、", color = Color(0xFFFFFFFF), fontSize = 12.sp)
+                    PolicyLink("《用户服务协议》") { onOpenPolicy(0) }
+                }
+                Spacer(Modifier.height(2.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    PolicyLink("《隐私政策》") { onOpenPolicy(1) }
+                    Text("与", color = Color(0xFFFFFFFF), fontSize = 12.sp)
+                    PolicyLink("《终端用户软件许可》") { onOpenPolicy(7) }
+                }
             }
 
             Spacer(Modifier.height(20.dp))
