@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.PhotoCamera
@@ -659,17 +661,17 @@ fun FormPageHeaderCancelDone(
     onDone: () -> Unit,
 ) {
     Box(Modifier.fillMaxWidth().height(44.dp)) {
+        // 左上角：打叉圆形取消
         Box(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .height(36.dp)
-                .clip(RoundedCornerShape(50))
+                .size(40.dp)
+                .clip(CircleShape)
                 .background(FormChip)
-                .clickable { onCancel() }
-                .padding(horizontal = 14.dp),
+                .clickable { onCancel() },
             contentAlignment = Alignment.Center,
         ) {
-            Text("取消", fontSize = 14.sp, color = FormMuted, fontWeight = FontWeight.SemiBold)
+            Icon(Icons.Filled.Close, "取消", tint = FormInk, modifier = Modifier.size(20.dp))
         }
         Text(
             text = title,
@@ -678,17 +680,17 @@ fun FormPageHeaderCancelDone(
             color = FormInk,
             modifier = Modifier.align(Alignment.Center),
         )
+        // 右上角：绿色打勾圆形完成
         Box(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .height(36.dp)
-                .clip(RoundedCornerShape(50))
-                .background(FormChip)
-                .clickable { onDone() }
-                .padding(horizontal = 14.dp),
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(Color(0xFF22C55E))
+                .clickable { onDone() },
             contentAlignment = Alignment.Center,
         ) {
-            Text("完成", fontSize = 14.sp, color = FormGreen, fontWeight = FontWeight.SemiBold)
+            Icon(Icons.Filled.Check, "完成", tint = Color.White, modifier = Modifier.size(20.dp))
         }
     }
 }

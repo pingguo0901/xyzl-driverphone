@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
@@ -74,17 +74,19 @@ fun ScreenHeader(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .offset(x = 6.dp, y = (-6).dp)
-                            .defaultMinSize(minWidth = 18.dp, minHeight = 16.dp)
+                            .height(16.dp)
+                            .widthIn(min = 26.dp)
                             .clip(RoundedCornerShape(50))
                             .background(HeaderBadge)
-                            .padding(horizontal = 5.dp, vertical = 1.dp),
+                            .padding(horizontal = 7.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             text = if (unread > 99) "99+" else unread.toString(),
                             color = Color.White,
-                            fontSize = 10.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
                         )
                     }
                 }
