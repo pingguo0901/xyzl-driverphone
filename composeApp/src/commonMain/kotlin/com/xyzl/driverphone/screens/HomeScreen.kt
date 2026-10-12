@@ -79,7 +79,7 @@ private val WhatsAppGreen = Color(0xFF25D366)
 private val WeChatGreen = Color(0xFF07C160)
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onOpenNotifications: () -> Unit = {}) {
     var online by remember { mutableStateOf(false) }
 
     Column(
@@ -90,14 +90,7 @@ fun HomeScreen() {
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Text(
-            "首页",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = InkDark,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        ScreenHeader(title = "首页", onOpenNotifications = onOpenNotifications)
 
         GreenDivider()
 

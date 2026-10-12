@@ -46,7 +46,7 @@ private enum class TripFilter(val label: String) {
 }
 
 @Composable
-fun TripsScreen() {
+fun TripsScreen(onOpenNotifications: () -> Unit = {}) {
     var selectedTrip by remember { mutableStateOf<Trip?>(null) }
     val trip = selectedTrip
     if (trip != null) {
@@ -66,14 +66,7 @@ fun TripsScreen() {
     }
 
     Column(Modifier.fillMaxSize().statusBarsPadding().padding(horizontal = 20.dp, vertical = 12.dp)) {
-        Text(
-            "行程",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = InkDark,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        ScreenHeader(title = "行程", onOpenNotifications = onOpenNotifications)
 
         Spacer(Modifier.height(12.dp))
         HorizontalDivider(color = OnlineGreen.copy(alpha = 0.55f), thickness = 1.5.dp)

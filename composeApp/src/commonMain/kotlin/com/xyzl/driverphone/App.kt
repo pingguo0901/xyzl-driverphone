@@ -25,7 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
@@ -58,7 +58,8 @@ import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.screens.ExpenseSubmitScreen
 import com.xyzl.driverphone.screens.FinanceScreen
 import com.xyzl.driverphone.screens.LedgerScreen
-import com.xyzl.driverphone.screens.HistoryScreen
+import com.xyzl.driverphone.screens.ChatScreen
+import com.xyzl.driverphone.screens.NotificationsScreen
 import com.xyzl.driverphone.screens.HomeScreen
 import com.xyzl.driverphone.screens.EntryScreen
 import com.xyzl.driverphone.screens.LoginScreen
@@ -77,7 +78,7 @@ import kotlinx.coroutines.launch
 enum class AppTab(val label: String) {
     Home("首页"),
     Trips("行程"),
-    History("历史"),
+    Chat("聊天"),
     Finance("财务"),
     Profile("我"),
 }
@@ -85,7 +86,7 @@ enum class AppTab(val label: String) {
 private fun tabIcon(tab: AppTab): ImageVector = when (tab) {
     AppTab.Home -> Icons.Filled.Home
     AppTab.Trips -> Icons.Filled.DirectionsCar
-    AppTab.History -> Icons.Filled.History
+    AppTab.Chat -> Icons.AutoMirrored.Filled.Chat
     AppTab.Finance -> Icons.Filled.AccountBalanceWallet
     AppTab.Profile -> Icons.Filled.Person
 }
@@ -105,6 +106,7 @@ fun App(
         var selectedTab by remember { mutableStateOf(AppTab.Home) }
         var showLedger by remember { mutableStateOf(false) }
         var showExpense by remember { mutableStateOf(false) }
+        var showNotifications by remember { mutableStateOf(false) }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
         var updateInfo by remember { mutableStateOf<VersionInfo?>(null) }
@@ -264,14 +266,15 @@ fun App(
                     .hazeSource(state = hazeState)
             ) {
                 when (selectedTab) {
-                    AppTab.Home -> HomeScreen()
-                    AppTab.Trips -> TripsScreen()
-                    AppTab.History -> HistoryScreen()
+                    AppTab.Home -> HomeScreen(onOpenNotifications = { showNotifications = true })
+                    AppTab.Trips -> TripsScreen(onOpenNotifications = { showNotifications = true })
+                    AppTab.Chat -> ChatScreen(onOpenNotifications = { showNotifications = true })
                     AppTab.Finance -> FinanceScreen(
                         onOpenLedger = { showLedger = true },
                         onSubmitExpense = { showExpense = true },
+                        onOpenNotifications = { showNotifications = true },
                     )
-                    AppTab.Profile -> ProfileScreen()
+                    AppTab.Profile -> ProfileScreen(onOpenNotifications = { showNotifications = true })
                 }
             }
 
@@ -309,6 +312,17 @@ fun App(
                         onPickDocument = { cb -> pickDocument(cb) },
                         onSubmit = { showExpense = false },
                     )
+                }
+            }
+
+            // 通知页（覆盖层）
+            if (showNotifications) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    NotificationsScreen(onBack = { showNotifications = false })
                 }
             }
         }
@@ -358,7 +372,7 @@ private fun CapsuleBottomBar(
                 .width(animatedW)
                 .fillMaxHeight()
                 .shadow(2.dp, RoundedCornerShape(50))
-                .background(Color(0xFF3A4A44), RoundedCornerShape(50)),
+                .background(Color.White, RoundedCornerShape(50)),
         )
 
         Row(
@@ -388,7 +402,7 @@ private fun CapsuleBarItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val contentColor = if (selected) Color(0xFF206A4E) else Color(0xFF9AA0A6)
+    val contentColor = if (selected) Color(0xFF111113) else Color(0xFF9AA0A6)
 
     Row(
         modifier = modifier

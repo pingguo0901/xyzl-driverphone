@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(onOpenNotifications: () -> Unit = {}) {
     Column(
         Modifier
             .fillMaxSize()
@@ -40,14 +40,7 @@ fun ProfileScreen() {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        Text(
-            "我的",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color(0xFFE8EDEA),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        ScreenHeader(title = "我的", onOpenNotifications = onOpenNotifications)
         Spacer(Modifier.height(14.dp))
 
         Card(

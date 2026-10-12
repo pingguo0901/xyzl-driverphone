@@ -41,6 +41,7 @@ private val CardGray = Color(0xFF31403A)
 fun FinanceScreen(
     onOpenLedger: () -> Unit = {},
     onSubmitExpense: () -> Unit = {},
+    onOpenNotifications: () -> Unit = {},
 ) {
     Column(
         Modifier
@@ -48,32 +49,28 @@ fun FinanceScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        // 标题居中 + 右上角流水按钮
-        Box(Modifier.fillMaxWidth().height(44.dp)) {
-            Text(
-                "财务",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = InkDark,
-                modifier = Modifier.align(Alignment.Center),
-            )
-            Box(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(CardGray)
-                    .clickable { onOpenLedger() },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
-                    contentDescription = "流水记录",
-                    tint = OnlineGreen,
-                    modifier = Modifier.size(22.dp),
-                )
-            }
-        }
+        // 标题居中 + 右上角流水按钮 + 通知铃铛
+        ScreenHeader(
+            title = "财务",
+            onOpenNotifications = onOpenNotifications,
+            extraEnd = {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(CardGray)
+                        .clickable { onOpenLedger() },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
+                        contentDescription = "流水记录",
+                        tint = OnlineGreen,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+            },
+        )
 
         Spacer(Modifier.height(16.dp))
 
