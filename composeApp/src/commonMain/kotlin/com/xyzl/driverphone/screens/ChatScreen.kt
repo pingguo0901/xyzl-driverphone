@@ -1,6 +1,7 @@
 package com.xyzl.driverphone.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -63,7 +64,10 @@ private val officialChats = listOf(
 
 /** 聊天页：胶囊式左右选项（聊天 / 官方通知）+ 聊天列表 */
 @Composable
-fun ChatScreen(onOpenNotifications: () -> Unit = {}) {
+fun ChatScreen(
+    onOpenNotifications: () -> Unit = {},
+    onOpenChat: (String) -> Unit = {},
+) {
     var tab by remember { mutableStateOf(0) }
 
     Column(
@@ -87,19 +91,20 @@ fun ChatScreen(onOpenNotifications: () -> Unit = {}) {
             contentPadding = PaddingValues(bottom = 96.dp),
         ) {
             items(list, key = { it.name + it.time + it.message }) { item ->
-                ChatRow(item)
+                ChatRow(item, onClick = { onOpenChat(item.name) })
             }
         }
     }
 }
 
 @Composable
-private fun ChatRow(item: ChatItem) {
+private fun ChatRow(item: ChatItem, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(18.dp))
             .background(ChatCard)
+            .clickable { onClick() }
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

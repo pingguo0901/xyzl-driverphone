@@ -28,7 +28,7 @@ actual fun requestScenePermission(scene: PermissionScene) {
     permissionLauncher?.launch(needed.toTypedArray())
 }
 
-/** 场景 → 权限：相机用相机；相册用照片和视频；导航用位置信息；通知用通知 */
+/** 场景 → 权限：相机用相机；相册用照片和视频；导航用位置信息；通知用通知；语音用麦克风 */
 private fun scenePermissions(scene: PermissionScene): List<String> = when (scene) {
     PermissionScene.Camera -> listOf(Manifest.permission.CAMERA)
     PermissionScene.Photos -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -46,4 +46,5 @@ private fun scenePermissions(scene: PermissionScene): List<String> = when (scene
         } else {
             emptyList()
         }
+    PermissionScene.Voice -> listOf(Manifest.permission.RECORD_AUDIO)
 }

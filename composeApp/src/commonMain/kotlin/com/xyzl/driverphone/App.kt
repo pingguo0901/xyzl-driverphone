@@ -58,7 +58,12 @@ import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.screens.ExpenseSubmitScreen
 import com.xyzl.driverphone.screens.FinanceScreen
 import com.xyzl.driverphone.screens.LedgerScreen
+import com.xyzl.driverphone.screens.CallScreen
+import com.xyzl.driverphone.screens.ChatConversationScreen
+import com.xyzl.driverphone.screens.ChatDetailScreen
+import com.xyzl.driverphone.screens.ChatSearchScreen
 import com.xyzl.driverphone.screens.ChatScreen
+import com.xyzl.driverphone.screens.PersonDetailScreen
 import com.xyzl.driverphone.screens.NotificationsScreen
 import com.xyzl.driverphone.screens.ChangePasswordScreen
 import com.xyzl.driverphone.screens.DataRetentionPolicyScreen
@@ -158,6 +163,12 @@ fun App(
         var showTranslateTo by remember { mutableStateOf(false) }
         var showChatSettings by remember { mutableStateOf(false) }
         var showChatRecords by remember { mutableStateOf(false) }
+        var chatPeer by remember { mutableStateOf<String?>(null) }
+        var chatPerson by remember { mutableStateOf<String?>(null) }
+        var chatCallPeer by remember { mutableStateOf<String?>(null) }
+        var chatCallVideo by remember { mutableStateOf(false) }
+        var showChatDetail by remember { mutableStateOf(false) }
+        var showChatSearch by remember { mutableStateOf(false) }
         var showMyReviews by remember { mutableStateOf(false) }
         var policyIndex by remember { mutableStateOf(-1) }
         var showQrCode by remember { mutableStateOf(false) }
@@ -397,7 +408,10 @@ fun App(
                 when (selectedTab) {
                     AppTab.Home -> HomeScreen(onOpenNotifications = { showNotifications = true })
                     AppTab.Trips -> TripsScreen(onOpenNotifications = { showNotifications = true })
-                    AppTab.Chat -> ChatScreen(onOpenNotifications = { showNotifications = true })
+                    AppTab.Chat -> ChatScreen(
+                        onOpenNotifications = { showNotifications = true },
+                        onOpenChat = { name -> chatPeer = name },
+                    )
                     AppTab.Finance -> FinanceScreen(
                         onOpenLedger = { showLedger = true },
                         onSubmitExpense = { showExpense = true },
@@ -728,6 +742,87 @@ fun App(
                 ) {
                     ChatRecordsScreen(onBack = { showChatRecords = false })
                 }
+            }
+
+            // 聊天窗（覆盖层）
+            val peer = chatPeer
+            if (peer != null) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    ChatConversationScreen(
+                        peerName = peer,
+                        onBack = { chatPeer = null },
+                        onOpenChatDetail = { showChatDetail = true },
+                        onOpenPerson = { name -> chatPerson = name },
+                        onOpenCall = { video ->
+                            chatCallVideo = video
+                            chatCallPeer = peer
+                        },
+                    )
+                }
+            }
+
+            // 聊天详情（三个点）
+            if (showChatDetail && peer != null) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    ChatDetailScreen(
+                        peerName = peer,
+                        onBack = { showChatDetail = false },
+                        onOpenSearch = { showChatSearch = true },
+                        onCleared = { showChatDetail = false },
+                    )
+                }
+            }
+
+            // 查找聊天内容
+            if (showChatSearch && peer != null) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    ChatSearchScreen(
+                        peerName = peer,
+                        onBack = { showChatSearch = false },
+                        onOpenMessage = { showChatSearch = false },
+                    )
+                }
+            }
+
+            // 个人详情
+            val person = chatPerson
+            if (person != null) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    PersonDetailScreen(
+                        personName = person,
+                        onBack = { chatPerson = null },
+                        onSendMessage = {
+                            chatPerson = null
+                            chatPeer = person
+                        },
+                    )
+                }
+            }
+
+            // 通话页（语音 / 视频）
+            val callPeer = chatCallPeer
+            if (callPeer != null) {
+                CallScreen(
+                    peerName = callPeer,
+                    video = chatCallVideo,
+                    onEnd = { chatCallPeer = null },
+                )
             }
 
             // 我的评价页（覆盖层）

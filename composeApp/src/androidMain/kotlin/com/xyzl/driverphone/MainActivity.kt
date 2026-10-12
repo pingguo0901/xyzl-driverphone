@@ -13,6 +13,7 @@ class MainActivity : ComponentActivity() {
         initNavigationContext(this)
         initPermissionPlatform(this)
         initImagePicker(this)
+        initChatPlatform(this)
         initQrPlatform(this)
         setContent {
             App(
