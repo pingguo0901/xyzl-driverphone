@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,33 +41,12 @@ private val ChatGreen = Color(0xFF3B82F6)
 private val ChatInk = Color(0xFFFFFFFF)
 private val ChatMuted = Color(0xFFA1A1AA)
 
-private data class ChatItem(
-    val name: String,
-    val message: String,
-    val time: String,
-    val unread: Int,
-)
-
-private val driverChats = listOf(
-    ChatItem("调度 · 陈师傅", "明早 8 点机场接机单已派给你，记得确认", "14:32", 2),
-    ChatItem("张先生", "好的，我 5 分钟后到楼下", "14:20", 0),
-    ChatItem("李女士", "行李有点多，麻烦后备箱留个位置", "13:58", 1),
-    ChatItem("林女士", "师傅，发票可以开吗？", "12:31", 0),
-    ChatItem("客服小星", "您的证件审核已经通过了 ✅", "11:05", 0),
-    ChatItem("王先生", "我在 3 号门等你", "09:47", 0),
-)
-
-private val officialChats = listOf(
-    ChatItem("星域臻旅", "【政策】司机服务规范 V2.1 已更新，请查阅", "16:10", 1),
-    ChatItem("星域臻旅", "【结算】上周薪资已打入你的账户", "10:22", 0),
-    ChatItem("星域臻旅", "【活动】本月接单满 100 单奖励 RM200", "昨天", 0),
-)
-
 /** 聊天页：胶囊式左右选项（聊天 / 官方通知）+ 聊天列表 */
 @Composable
 fun ChatScreen(
     onOpenNotifications: () -> Unit = {},
     onOpenChat: (String) -> Unit = {},
+    onOpenOfficial: (String) -> Unit = {},
 ) {
     var tab by remember { mutableStateOf(0) }
 
@@ -85,13 +65,15 @@ fun ChatScreen(
         )
         Spacer(Modifier.height(14.dp))
 
-        val list = if (tab == 0) driverChats else officialChats
+        val list = if (tab == 0) ChatListStore.driver else ChatListStore.official
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(bottom = 96.dp),
         ) {
             items(list, key = { it.name + it.time + it.message }) { item ->
-                ChatRow(item, onClick = { onOpenChat(item.name) })
+                ChatRow(item, onClick = {
+                    if (tab == 0) onOpenChat(item.name) else onOpenOfficial(item.name)
+                })
             }
         }
     }
@@ -119,7 +101,7 @@ private fun ChatRow(item: ChatItem, onClick: () -> Unit) {
                 color = ChatInk,
             )
         }
-        Spacer(Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Text(
                 item.name,
@@ -129,7 +111,7 @@ private fun ChatRow(item: ChatItem, onClick: () -> Unit) {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Spacer(Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 item.message,
                 fontSize = 13.sp,
@@ -138,17 +120,22 @@ private fun ChatRow(item: ChatItem, onClick: () -> Unit) {
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        Spacer(Modifier.width(10.dp))
+        Spacer(modifier = Modifier.width(10.dp))
         Column(horizontalAlignment = Alignment.End) {
             Text(item.time, fontSize = 12.sp, color = ChatMuted)
             if (item.unread > 0) {
-                Spacer(Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(6.dp))
+                // 未读：胶囊式（原来是小圆点）
                 Box(
-                    modifier = Modifier.size(18.dp).clip(CircleShape).background(ChatGreen),
+                    modifier = Modifier
+                        .defaultMinSize(minWidth = 20.dp, minHeight = 18.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(ChatGreen)
+                        .padding(horizontal = 7.dp, vertical = 1.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        item.unread.toString(),
+                        if (item.unread > 99) "99+" else item.unread.toString(),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White,

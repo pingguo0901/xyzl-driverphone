@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,6 +27,7 @@ import androidx.compose.ui.unit.sp
 
 private val HeaderInk = Color(0xFFFFFFFF)
 private val HeaderChip = Color(0xFF27272A)
+private val HeaderBadge = Color(0xFF3B82F6)
 
 /** 通用页面标题栏：标题居中，右上角通知铃铛（可插入额外按钮） */
 @Composable
@@ -47,20 +51,43 @@ fun ScreenHeader(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             extraEnd()
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(HeaderChip)
-                    .clickable { onOpenNotifications() },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Notifications,
-                    contentDescription = "通知",
-                    tint = HeaderInk,
-                    modifier = Modifier.size(20.dp),
-                )
+            // 铃铛 + 右上角未读胶囊（实时未读数）
+            Box {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(HeaderChip)
+                        .clickable { onOpenNotifications() },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Notifications,
+                        contentDescription = "通知",
+                        tint = HeaderInk,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+                val unread = ChatListStore.totalUnread()
+                if (unread > 0) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = 6.dp, y = (-6).dp)
+                            .defaultMinSize(minWidth = 18.dp, minHeight = 16.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(HeaderBadge)
+                            .padding(horizontal = 5.dp, vertical = 1.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = if (unread > 99) "99+" else unread.toString(),
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
             }
         }
     }

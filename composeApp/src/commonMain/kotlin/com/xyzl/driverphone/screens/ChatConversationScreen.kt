@@ -86,6 +86,7 @@ private val TickBlue = Color(0xFF3B82F6)
 @Composable
 fun ChatConversationScreen(
     peerName: String,
+    readOnly: Boolean = false,
     onBack: () -> Unit = {},
     onOpenChatDetail: () -> Unit = {},
     onOpenPerson: (String) -> Unit = {},
@@ -132,8 +133,10 @@ fun ChatConversationScreen(
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
             )
-            IconButton(onClick = onOpenChatDetail) {
-                Icon(Icons.Filled.MoreVert, "聊天详情", tint = Color.White)
+            if (!readOnly) {
+                IconButton(onClick = onOpenChatDetail) {
+                    Icon(Icons.Filled.MoreVert, "聊天详情", tint = Color.White)
+                }
             }
         }
 
@@ -149,7 +152,8 @@ fun ChatConversationScreen(
             }
         }
 
-        // 底部：+ / 输入 / 发送·语音
+        // 底部：+ / 输入 / 发送·语音（只读模式整条隐藏）
+        if (!readOnly) {
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -295,6 +299,7 @@ fun ChatConversationScreen(
                 }
                 Spacer(Modifier.height(6.dp))
             }
+        }
         }
     }
 

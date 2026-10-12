@@ -60,6 +60,7 @@ import com.xyzl.driverphone.screens.FinanceScreen
 import com.xyzl.driverphone.screens.LedgerScreen
 import com.xyzl.driverphone.screens.CallScreen
 import com.xyzl.driverphone.screens.ChatConversationScreen
+import com.xyzl.driverphone.screens.ChatListStore
 import com.xyzl.driverphone.screens.ChatDetailScreen
 import com.xyzl.driverphone.screens.ChatSearchScreen
 import com.xyzl.driverphone.screens.ChatScreen
@@ -164,6 +165,7 @@ fun App(
         var showChatSettings by remember { mutableStateOf(false) }
         var showChatRecords by remember { mutableStateOf(false) }
         var chatPeer by remember { mutableStateOf<String?>(null) }
+        var chatReadOnly by remember { mutableStateOf(false) }
         var chatPerson by remember { mutableStateOf<String?>(null) }
         var chatCallPeer by remember { mutableStateOf<String?>(null) }
         var chatCallVideo by remember { mutableStateOf(false) }
@@ -410,7 +412,16 @@ fun App(
                     AppTab.Trips -> TripsScreen(onOpenNotifications = { showNotifications = true })
                     AppTab.Chat -> ChatScreen(
                         onOpenNotifications = { showNotifications = true },
-                        onOpenChat = { name -> chatPeer = name },
+                        onOpenChat = { name ->
+                            ChatListStore.clearUnread(name)
+                            chatReadOnly = false
+                            chatPeer = name
+                        },
+                        onOpenOfficial = { name ->
+                            ChatListStore.clearUnread(name)
+                            chatReadOnly = true
+                            chatPeer = name
+                        },
                     )
                     AppTab.Finance -> FinanceScreen(
                         onOpenLedger = { showLedger = true },
@@ -754,6 +765,7 @@ fun App(
                 ) {
                     ChatConversationScreen(
                         peerName = peer,
+                        readOnly = chatReadOnly,
                         onBack = { chatPeer = null },
                         onOpenChatDetail = { showChatDetail = true },
                         onOpenPerson = { name -> chatPerson = name },
@@ -809,6 +821,7 @@ fun App(
                         onBack = { chatPerson = null },
                         onSendMessage = {
                             chatPerson = null
+                            chatReadOnly = false
                             chatPeer = person
                         },
                     )
