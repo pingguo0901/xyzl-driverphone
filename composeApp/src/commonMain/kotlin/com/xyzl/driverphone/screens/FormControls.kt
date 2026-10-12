@@ -406,8 +406,6 @@ fun FormUploadTile(
             }
         }
     }
-            Modifier
-        }
 
     if (showSheet) {
         Dialog(onDismissRequest = { showSheet = false }) {
