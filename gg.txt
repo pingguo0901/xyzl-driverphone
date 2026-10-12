@@ -1,0 +1,23 @@
+./iosMain/kotlin/com/xyzl/driverphone/BrandPainter.ios.kt:8:actual fun brandLogoPainter(isWhatsApp: Boolean): Painter =
+./iosMain/kotlin/com/xyzl/driverphone/BrandPainter.ios.kt:9:    rememberVectorPainter(if (isWhatsApp) WhatsAppLogo else WeChatLogo)
+./commonMain/kotlin/com/xyzl/driverphone/screens/TripDetailScreen.kt:37:import com.xyzl.driverphone.brandLogoPainter
+./commonMain/kotlin/com/xyzl/driverphone/screens/TripDetailScreen.kt:178:                painter = brandLogoPainter(isWhatsApp),
+./commonMain/kotlin/com/xyzl/driverphone/screens/QrCodeScreen.kt:59:import com.xyzl.driverphone.WeChatLogo
+./commonMain/kotlin/com/xyzl/driverphone/screens/QrCodeScreen.kt:60:import com.xyzl.driverphone.WhatsAppLogo
+./commonMain/kotlin/com/xyzl/driverphone/screens/QrCodeScreen.kt:211:                ShareActionItem(label = "WhatsApp", icon = WhatsAppLogo) {
+./commonMain/kotlin/com/xyzl/driverphone/screens/QrCodeScreen.kt:215:                ShareActionItem(label = "微信", icon = WeChatLogo) {
+./commonMain/kotlin/com/xyzl/driverphone/screens/LoginScreen.kt:30:import com.xyzl.driverphone.brandLogoPainter
+./commonMain/kotlin/com/xyzl/driverphone/screens/LoginScreen.kt:38:    onWechatLogin: () -> Unit = {},
+./commonMain/kotlin/com/xyzl/driverphone/screens/LoginScreen.kt:39:    onAppleLogin: () -> Unit = {},
+./commonMain/kotlin/com/xyzl/driverphone/screens/LoginScreen.kt:250:                                .clickable { onWechatLogin() },
+./commonMain/kotlin/com/xyzl/driverphone/screens/LoginScreen.kt:254:                                painter = brandLogoPainter(isWhatsApp = false),
+./commonMain/kotlin/com/xyzl/driverphone/screens/LoginScreen.kt:266:                                .clickable { onAppleLogin() },
+./commonMain/kotlin/com/xyzl/driverphone/screens/LoginScreen.kt:269:                            AppleLogo(
+./commonMain/kotlin/com/xyzl/driverphone/screens/LoginScreen.kt:346:private fun AppleLogo(modifier: Modifier = Modifier, tint: Color = Color.White) {
+./commonMain/kotlin/com/xyzl/driverphone/screens/HomeScreen.kt:67:import com.xyzl.driverphone.brandLogoPainter
+./commonMain/kotlin/com/xyzl/driverphone/screens/HomeScreen.kt:370:                    painter = brandLogoPainter(isWhatsApp = true),
+./commonMain/kotlin/com/xyzl/driverphone/screens/HomeScreen.kt:376:                    painter = brandLogoPainter(isWhatsApp = false),
+./commonMain/kotlin/com/xyzl/driverphone/BrandPainter.kt:11:expect fun brandLogoPainter(isWhatsApp: Boolean): Painter
+./commonMain/kotlin/com/xyzl/driverphone/BrandIcons.kt:8:val WhatsAppLogo: ImageVector = ImageVector.Builder(
+./commonMain/kotlin/com/xyzl/driverphone/BrandIcons.kt:29:val WeChatLogo: ImageVector = ImageVector.Builder(
+./androidMain/kotlin/com/xyzl/driverphone/BrandPainter.android.kt:8:actual fun brandLogoPainter(isWhatsApp: Boolean): Painter =

@@ -236,41 +236,15 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(22.dp))
 
-                    // 微信 + Apple 登录
+                    // 微信 + Apple 登录（Canvas 圆形按钮）
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        // 微信
-                        Box(
-                            modifier = Modifier
-                                .size(64.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF07C160))
-                                .clickable { onWechatLogin() },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Image(
-                                painter = brandLogoPainter(isWhatsApp = false),
-                                contentDescription = "微信",
-                                modifier = Modifier.size(36.dp),
-                            )
-                        }
+                        WeChatButton(onClick = { onWechatLogin() }, size = 64.dp, logoSize = 34.dp)
                         Spacer(modifier = Modifier.width(36.dp))
-                        // Apple
-                        Box(
-                            modifier = Modifier
-                                .size(64.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF18181B))
-                                .clickable { onAppleLogin() },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            AppleLogo(
-                                modifier = Modifier.size(30.dp),
-                                tint = Color.White,
-                            )
-                        }
+                        AppleButton(onClick = { onAppleLogin() }, size = 64.dp, logoSize = 34.dp)
                     }
 
                     Spacer(modifier = Modifier.height(26.dp))
@@ -341,30 +315,3 @@ private fun TabItem(
     }
 }
 
-/** Apple 品牌 Logo（矢量） */
-@Composable
-private fun AppleLogo(modifier: Modifier = Modifier, tint: Color = Color.White) {
-    androidx.compose.foundation.Canvas(modifier = modifier) {
-        val w = size.width
-        val h = size.height
-        val path = androidx.compose.ui.graphics.Path().apply {
-            // 苹果主体
-            moveTo(w * 0.50f, h * 0.28f)
-            cubicTo(w * 0.42f, h * 0.28f, w * 0.36f, h * 0.34f, w * 0.36f, h * 0.44f)
-            cubicTo(w * 0.36f, h * 0.62f, w * 0.46f, h * 0.80f, w * 0.56f, h * 0.80f)
-            cubicTo(w * 0.62f, h * 0.80f, w * 0.66f, h * 0.76f, w * 0.70f, h * 0.76f)
-            cubicTo(w * 0.74f, h * 0.76f, w * 0.78f, h * 0.80f, w * 0.84f, h * 0.80f)
-            cubicTo(w * 0.94f, h * 0.80f, w * 1.00f, h * 0.62f, w * 1.00f, h * 0.50f)
-            cubicTo(w * 1.00f, h * 0.36f, w * 0.90f, h * 0.30f, w * 0.82f, h * 0.30f)
-            cubicTo(w * 0.76f, h * 0.30f, w * 0.72f, h * 0.34f, w * 0.68f, h * 0.34f)
-            cubicTo(w * 0.64f, h * 0.34f, w * 0.58f, h * 0.28f, w * 0.50f, h * 0.28f)
-            close()
-            // 叶子
-            moveTo(w * 0.52f, h * 0.24f)
-            cubicTo(w * 0.52f, h * 0.16f, w * 0.58f, h * 0.08f, w * 0.68f, h * 0.06f)
-            cubicTo(w * 0.68f, h * 0.16f, w * 0.62f, h * 0.24f, w * 0.52f, h * 0.24f)
-            close()
-        }
-        drawPath(path, color = tint)
-    }
-}

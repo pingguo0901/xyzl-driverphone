@@ -199,27 +199,56 @@ private fun ShareQrTab() {
                     clipboard.setText(AnnotatedString(InviteLink))
                     hint = "链接已复制"
                 }
-                ShareActionItem(label = "Instagram", glyph = "IG") {
-                    clipboard.setText(AnnotatedString(InviteLink))
-                    hint = "链接已复制，正在打开 Instagram"
-                    openUrl("https://www.instagram.com/")
+                ShareBrandItem(label = "Instagram") {
+                    InstagramButton(
+                        onClick = {
+                            clipboard.setText(AnnotatedString(InviteLink))
+                            hint = "链接已复制，正在打开 Instagram"
+                            openUrl("https://www.instagram.com/")
+                        },
+                        size = 44.dp,
+                        logoSize = 24.dp,
+                    )
                 }
-                ShareActionItem(label = "Facebook", glyph = "f") {
-                    clipboard.setText(AnnotatedString(InviteLink))
-                    openUrl("https://www.facebook.com/sharer/sharer.php?u=" + InviteLink)
+                ShareBrandItem(label = "Facebook") {
+                    FacebookButton(
+                        onClick = {
+                            clipboard.setText(AnnotatedString(InviteLink))
+                            openUrl("https://www.facebook.com/sharer/sharer.php?u=" + InviteLink)
+                        },
+                        size = 44.dp,
+                    )
                 }
-                ShareActionItem(label = "WhatsApp", icon = WhatsAppLogo) {
-                    clipboard.setText(AnnotatedString(InviteLink))
-                    openUrl("https://wa.me/?text=" + InviteLink)
+                ShareBrandItem(label = "WhatsApp") {
+                    WhatsAppButton(
+                        onClick = {
+                            clipboard.setText(AnnotatedString(InviteLink))
+                            openUrl("https://wa.me/?text=" + InviteLink)
+                        },
+                        size = 44.dp,
+                        logoSize = 24.dp,
+                    )
                 }
-                ShareActionItem(label = "微信", icon = WeChatLogo) {
-                    clipboard.setText(AnnotatedString(InviteLink))
-                    hint = "链接已复制，正在打开微信"
-                    openUrl("weixin://")
+                ShareBrandItem(label = "微信") {
+                    WeChatButton(
+                        onClick = {
+                            clipboard.setText(AnnotatedString(InviteLink))
+                            hint = "链接已复制，正在打开微信"
+                            openUrl("weixin://")
+                        },
+                        size = 44.dp,
+                        logoSize = 24.dp,
+                    )
                 }
-                ShareActionItem(label = "邮件", icon = Icons.Filled.Mail) {
-                    clipboard.setText(AnnotatedString(InviteLink))
-                    openUrl("mailto:?subject=" + "星域臻旅 司机邀请" + "&body=" + InviteLink)
+                ShareBrandItem(label = "邮件") {
+                    EmailButton(
+                        onClick = {
+                            clipboard.setText(AnnotatedString(InviteLink))
+                            openUrl("mailto:?subject=" + "星域臻旅 司机邀请" + "&body=" + InviteLink)
+                        },
+                        size = 44.dp,
+                        logoSize = 24.dp,
+                    )
                 }
             }
         }
@@ -262,6 +291,15 @@ private fun QrCanvas(modifier: Modifier = Modifier) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ShareBrandItem(label: String, button: @Composable () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        button()
+        Spacer(Modifier.height(6.dp))
+        Text(label, fontSize = 9.sp, color = FormMuted, maxLines = 1)
     }
 }
 

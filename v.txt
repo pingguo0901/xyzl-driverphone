@@ -1,0 +1,11 @@
+=== origin/main version.json ===
+{
+  "versionCode": 10063,
+  "versionName": "1.0.63",
+  "apkUrl": "https://github.com/pingguo0901/xyzl-driverphone/releases/download/v1.0.63/composeApp-release.apk",
+  "changelog": "- 新版本 1.0.63",
+  "buildDate": "2026-10-12"
+}
+=== apk ===
+HTTP/2 404 
+content-length: 9
