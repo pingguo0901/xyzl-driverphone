@@ -45,6 +45,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.model.LedgerEntries
+import com.xyzl.driverphone.model.LedgerKind
 
 private val WalletCard = Color(0xFF1C1C1E)
 private val WalletChip = Color(0xFF27272A)
@@ -52,10 +54,45 @@ private val WalletInk = Color(0xFFFFFFFF)
 private val WalletMuted = Color(0xFFA1A1AA)
 private val WalletGreen = Color(0xFF3B82F6)
 
+/** 账户索引：0 钱包余额 / 1 代收 SGD / 2 代收 MYR */
+private fun walletAccount(index: Int): WalletAccount = when (index) {
+    0 -> WalletAccount(
+        title = "钱包余额",
+        accountNo = "8821 0000 1234 5678",
+        currency = "MYR",
+        available = "MYR 1,672.90",
+        current = "MYR 1,758.90",
+        entries = LedgerEntries,
+    )
+    1 -> WalletAccount(
+        title = "代收 SGD",
+        accountNo = "8821 0000 5678 1234",
+        currency = "SGD",
+        available = "SGD 386.50",
+        current = "SGD 386.50",
+        entries = LedgerEntries.filter { it.currency == "SGD" && it.kind == LedgerKind.TRANSFER },
+    )
+    else -> WalletAccount(
+        title = "代收 MYR",
+        accountNo = "8821 0000 4321 8765",
+        currency = "MYR",
+        available = "MYR 1,286.40",
+        current = "MYR 1,286.40",
+        entries = LedgerEntries.filter { it.currency == "MYR" && it.kind == LedgerKind.TRANSFER },
+    )
+}
+
 /** 我的钱包：首页 / 概述 / 扫码 / 流水 / 申请 五个板块 */
 @Composable
 fun WalletScreen(onBack: () -> Unit = {}) {
     var tab by remember { mutableStateOf(0) }
+    var accountIndex by remember { mutableStateOf<Int?>(null) }
+
+    val openIndex = accountIndex
+    if (openIndex != null) {
+        WalletAccountScreen(account = walletAccount(openIndex), onBack = { accountIndex = null })
+        return
+    }
 
     Column(
         Modifier
@@ -67,8 +104,8 @@ fun WalletScreen(onBack: () -> Unit = {}) {
 
         Box(Modifier.fillMaxWidth().weight(1f)) {
             when (tab) {
-                0 -> WalletHomeTab()
-                1 -> WalletOverviewTab(onOpen = { tab = it })
+                0 -> WalletHomeTab(onOpenAccount = { accountIndex = it })
+                1 -> WalletOverviewTab(onOpenAccount = { accountIndex = it })
                 2 -> WalletScanTab()
                 3 -> LedgerScreen(onBack = onBack, embedded = true)
                 4 -> WalletApplyTab()
@@ -81,30 +118,30 @@ fun WalletScreen(onBack: () -> Unit = {}) {
 
 /** 首页：钱包余额 + 代收SGD / 代收MYR 两张并排卡片 */
 @Composable
-private fun WalletHomeTab() {
+private fun WalletHomeTab(onOpenAccount: (Int) -> Unit) {
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(8.dp))
-        BalanceCard(label = "钱包余额", amount = "MYR 1,672.90", big = true)
+        BalanceCard(label = "钱包余额", amount = "MYR 1,672.90", big = true, onClick = { onOpenAccount(0) })
         Spacer(Modifier.height(14.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            BalanceCard("代收 SGD", "SGD 386.50", modifier = Modifier.weight(1f))
-            BalanceCard("代收 MYR", "MYR 1,286.40", modifier = Modifier.weight(1f))
+            BalanceCard("代收 SGD", "SGD 386.50", modifier = Modifier.weight(1f), onClick = { onOpenAccount(1) })
+            BalanceCard("代收 MYR", "MYR 1,286.40", modifier = Modifier.weight(1f), onClick = { onOpenAccount(2) })
         }
         Spacer(Modifier.height(24.dp))
     }
 }
 
-/** 概述：三张卡片，点击进入对应页面 */
+/** 概述：三张卡片，点击进入对应账户页 */
 @Composable
-private fun WalletOverviewTab(onOpen: (Int) -> Unit) {
+private fun WalletOverviewTab(onOpenAccount: (Int) -> Unit) {
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(8.dp))
         FormSectionTitle("钱包概览")
-        BalanceCard(label = "钱包余额", amount = "MYR 1,672.90", big = true, onClick = { onOpen(0) })
+        BalanceCard(label = "钱包余额", amount = "MYR 1,672.90", big = true, onClick = { onOpenAccount(0) })
         Spacer(Modifier.height(14.dp))
-        BalanceCard(label = "代收 SGD", amount = "SGD 386.50", onClick = { onOpen(0) })
+        BalanceCard(label = "代收 SGD", amount = "SGD 386.50", onClick = { onOpenAccount(1) })
         Spacer(Modifier.height(14.dp))
-        BalanceCard(label = "代收 MYR", amount = "MYR 1,286.40", onClick = { onOpen(0) })
+        BalanceCard(label = "代收 MYR", amount = "MYR 1,286.40", onClick = { onOpenAccount(2) })
         Spacer(Modifier.height(24.dp))
     }
 }
