@@ -117,6 +117,10 @@ import kotlinx.coroutines.launch
 /** 司机类型（示例：个人）。接后端后由登录资料返回（注册时填了邀请码 = 公司司机） */
 private const val DriverIsCompany = false
 
+/** 司机邀请码 / 归属公司（接后端后由注册资料返回；个人为空） */
+private const val DriverInviteCode = "XYZL-8821"
+private const val DriverCompanyName = "星域臻旅车服有限公司"
+
 enum class AppTab(val label: String) {
     Home("首页"),
     Trips("行程"),
@@ -540,6 +544,8 @@ fun App(
                     PrivacyInfoScreen(
                         onBack = { showPrivacyInfo = false },
                         onPickBirthday = { cb -> pickBirthday(cb) },
+                        inviteCode = if (DriverIsCompany) DriverInviteCode else "",
+                        companyName = if (DriverIsCompany) DriverCompanyName else "",
                     )
                 }
             }

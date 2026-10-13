@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.xyzl.driverphone.AccountTypes
 import com.xyzl.driverphone.GenderOptions
 import com.xyzl.driverphone.sanitizeDigits
 import com.xyzl.driverphone.sanitizeEnglish
@@ -41,8 +40,9 @@ import com.xyzl.driverphone.sanitizeEnglishPunct
 fun PrivacyInfoScreen(
     onBack: () -> Unit = {},
     onPickBirthday: ((String) -> Unit) -> Unit = {},
+    inviteCode: String = "",
+    companyName: String = "",
 ) {
-    var accountType by remember { mutableStateOf(AccountTypes.first()) }
     var fullName by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf(GenderOptions.first()) }
     var birthday by remember { mutableStateOf("") }
@@ -51,9 +51,6 @@ fun PrivacyInfoScreen(
     var postcode by remember { mutableStateOf("") }
     var city by remember { mutableStateOf("") }
     var state by remember { mutableStateOf("") }
-    var icStatus by remember { mutableStateOf(0) }
-    var licenseStatus by remember { mutableStateOf(1) }
-    var passportStatus by remember { mutableStateOf(1) }
     var showSaved by remember { mutableStateOf(false) }
 
     Column(
@@ -66,13 +63,22 @@ fun PrivacyInfoScreen(
         FormPageHeader(title = "隐私信息", onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
-        FormSectionTitle("类型")
-        SegmentedTabs(
-            options = AccountTypes,
-            selectedIndex = AccountTypes.indexOf(accountType).coerceAtLeast(0),
-            onSelect = { accountType = AccountTypes[it] },
-        )
-        Spacer(Modifier.height(18.dp))
+        // 有邀请码（公司司机）才显示邀请码 + 归属公司；个人不显示
+        if (inviteCode.isNotBlank()) {
+            FormSectionTitle("邀请码")
+            Card(
+                Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = FormCard),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            ) {
+                Column(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
+                    ReadOnlyRow("邀请码", inviteCode)
+                    ReadOnlyRow("归属公司", companyName.ifBlank { "-" })
+                }
+            }
+            Spacer(Modifier.height(18.dp))
+        }
 
         FormTextField(
             label = "姓名",
@@ -136,9 +142,9 @@ fun PrivacyInfoScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
-                KycStatusRow("身份证", icStatus) { icStatus = it }
-                KycStatusRow("驾照", licenseStatus) { licenseStatus = it }
-                KycStatusRow("护照", passportStatus) { passportStatus = it }
+                KycDocs.forEach { doc ->
+                    KycStatusRow(doc.name, doc.status)
+                }
             }
         }
 
@@ -165,26 +171,37 @@ fun PrivacyInfoScreen(
     }
 }
 
-/** KYC 证件状态行：已过期 / 有效 */
+/** 只读信息行（标签 + 值） */
 @Composable
-private fun KycStatusRow(name: String, status: Int, onChange: (Int) -> Unit) {
+private fun ReadOnlyRow(label: String, value: String) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, fontSize = 13.sp, color = FormMuted, modifier = Modifier.weight(1f))
+        Text(value, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = FormInk)
+    }
+}
+
+/** KYC 证件状态（示例数据，接后端后由后端返回的状态驱动）0=已过期 1=有效 */
+private data class KycDoc(val name: String, val status: Int)
+
+private val KycDocs = listOf(
+    KycDoc("身份证", 1),
+    KycDoc("驾照", 1),
+    KycDoc("护照", 1),
+)
+
+/** KYC 证件状态行：只显示状态（有效 / 已过期），无按钮，状态来自数据 */
+@Composable
+private fun KycStatusRow(name: String, status: Int) {
     Row(
-        Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        Modifier.fillMaxWidth().padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(name, fontSize = 15.sp, color = FormInk, modifier = Modifier.weight(1f))
-        FormChoiceChip(
-            text = "已过期",
-            selected = status == 0,
-            onClick = { onChange(0) },
-            modifier = Modifier.width(76.dp),
-        )
-        FormChoiceChip(
-            text = "有效",
-            selected = status == 1,
-            onClick = { onChange(1) },
-            modifier = Modifier.width(68.dp),
+        Text(
+            if (status == 1) "有效" else "已过期",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = if (status == 1) FormGreen else androidx.compose.ui.graphics.Color(0xFFF43F5E),
         )
     }
 }

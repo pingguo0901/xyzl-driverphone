@@ -321,7 +321,7 @@ private fun CurrentTaskCard() {
     ) {
         Column(Modifier.padding(20.dp)) {
             // 接单时间
-            InfoRow("接单时间", "今天 · 14:30")
+            InfoRow("接单时间", "14/10/2026 14:30")
 
             Spacer(Modifier.height(16.dp))
             HorizontalDivider(color = DividerGray, thickness = 1.dp)
@@ -346,40 +346,19 @@ private fun CurrentTaskCard() {
             Spacer(Modifier.height(16.dp))
             HorizontalDivider(color = DividerGray, thickness = 1.dp)
 
-            // 乘客联系方式
+            // 乘客联系方式：名称 · WhatsApp号码 / 名称 · 微信号（按钮同行）
             Spacer(Modifier.height(16.dp))
-            InfoRow("乘客联系方式", "张先生 · +60 12-345 6789")
-
-            Spacer(Modifier.height(16.dp))
-            HorizontalDivider(color = DividerGray, thickness = 1.dp)
-
-            // WhatsApp / 微信圆形联系按钮（右下角）
-            Spacer(Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    "联系乘客",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    letterSpacing = 0.5.sp,
-                    color = MutedGray,
-                )
-                Spacer(Modifier.weight(1f))
-                RoundContactButton(
-                    painter = brandLogoPainter(isWhatsApp = true),
-                    contentDescription = "WhatsApp",
-                    onClick = { openUrl("https://wa.me/60123456789?text=Hi%2C%20I%20am%20driver.") },
-                )
-                Spacer(Modifier.width(10.dp))
-                RoundContactButton(
-                    painter = brandLogoPainter(isWhatsApp = false),
-                    contentDescription = "微信",
-                    onClick = { openUrl("weixin://") },
-                )
-            }
+            ContactRow(
+                text = "张先生 · +60 12-345 6789",
+                isWhatsApp = true,
+                onClick = { openUrl("https://wa.me/60123456789?text=Hi%2C%20I%20am%20driver.") },
+            )
+            Spacer(Modifier.height(10.dp))
+            ContactRow(
+                text = "张先生 · wxid_zhang888",
+                isWhatsApp = false,
+                onClick = { openUrl("weixin://") },
+            )
 
             // 滑动确认滑块
             Spacer(Modifier.height(16.dp))
@@ -403,6 +382,25 @@ private fun CurrentTaskCard() {
                 openNavigation(app, address)
                 navAddress = null
             },
+        )
+    }
+}
+
+/** 乘客联系方式一行：名称 · 号码 + 对应品牌按钮（同行） */
+@Composable
+private fun ContactRow(text: String, isWhatsApp: Boolean, onClick: () -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            color = InkDark,
+            modifier = Modifier.weight(1f),
+        )
+        RoundContactButton(
+            painter = brandLogoPainter(isWhatsApp = isWhatsApp),
+            contentDescription = if (isWhatsApp) "WhatsApp" else "微信",
+            onClick = onClick,
         )
     }
 }
