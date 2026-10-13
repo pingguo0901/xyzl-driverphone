@@ -1,5 +1,6 @@
 package com.xyzl.driverphone.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,8 +13,11 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -45,9 +49,214 @@ private val SeatOptions = listOf("5座", "7座", "8座", "10座")
 private fun sanitizePlate(input: String): String =
     input.uppercase().filter { (it.isLetterOrDigit() && it.code < 128) || it == ' ' }
 
-/** 车辆信息页：车辆资料 + 三份证明上传 + 车主确认 */
+/** 一条车辆记录 */
+private data class VehicleRecord(
+    val brand: String,
+    val model: String,
+    val trim: String,
+    val plate: String,
+    val verifyTime: String = "",
+    val passTime: String = "",
+    val status: String = "",
+)
+
+/** 已授权车辆（公司司机，示例数据，待后端下发；为空则提示向公司索取） */
+private val AuthorizedVehicles = listOf(
+    VehicleRecord("Toyota", "Alphard", "8座", "JXY 8888"),
+)
+
+/** 我的车辆（已验证，示例数据） */
+private val MyVerifiedVehicles = listOf(
+    VehicleRecord("Toyota", "Alphard", "8座", "JXY 8888"),
+)
+
+/** 待通过验证车辆（示例数据） */
+private val PendingVehicles = listOf(
+    VehicleRecord("Honda", "CR-V", "7座", "WMB 2233", verifyTime = "12/10/2026 14:20", passTime = "-", status = "审核中"),
+)
+
+/** 车辆信息页：公司司机=已授权车辆 + 申请授权；个人=我的车辆 + 待通过验证 + 增加车辆 */
 @Composable
 fun VehicleInfoScreen(
+    onBack: () -> Unit = {},
+    isCompanyDriver: Boolean = false,
+    onPickImage: (ImageSource, (String) -> Unit) -> Unit = { _, _ -> },
+    onPickDocument: ((String) -> Unit) -> Unit = {},
+) {
+    var showAdd by remember { mutableStateOf(false) }
+
+    when {
+        isCompanyDriver -> CompanyVehicleView(onBack = onBack)
+        showAdd -> AddVehicleScreen(
+            onBack = { showAdd = false },
+            onPickImage = onPickImage,
+            onPickDocument = onPickDocument,
+        )
+        else -> MyVehiclesView(onBack = onBack, onAdd = { showAdd = true })
+    }
+}
+
+/** 公司司机：已授权车辆 + 申请授权车辆 */
+@Composable
+private fun CompanyVehicleView(onBack: () -> Unit) {
+    var vehicleId by remember { mutableStateOf("") }
+    var requested by remember { mutableStateOf(false) }
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+    ) {
+        FormPageHeader(title = "车辆信息", onBack = onBack)
+        Spacer(Modifier.height(16.dp))
+
+        Card(
+            Modifier.fillMaxWidth(),
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = FormCard),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        ) {
+            Column(Modifier.fillMaxWidth().padding(18.dp)) {
+                Text("已授权车辆", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
+                Spacer(Modifier.height(12.dp))
+                if (AuthorizedVehicles.isEmpty()) {
+                    Text("请向所属公司索取授权车辆", fontSize = 14.sp, color = FormMuted)
+                } else {
+                    AuthorizedVehicles.forEachIndexed { index, vehicle ->
+                        VehicleInfoLines(vehicle)
+                        if (index != AuthorizedVehicles.lastIndex) {
+                            Spacer(Modifier.height(12.dp))
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(20.dp))
+        HorizontalDivider(color = FormChip, thickness = 1.dp)
+        Spacer(Modifier.height(20.dp))
+
+        FormSectionTitle("申请授权车辆")
+        FormTextField(
+            label = "车辆ID",
+            value = vehicleId,
+            placeholder = "请输入公司下发的车辆ID",
+            onValueChange = { vehicleId = it },
+        )
+        Spacer(Modifier.height(8.dp))
+        FormPrimaryButton(
+            text = "确认请求授权",
+            enabled = vehicleId.isNotBlank(),
+            onClick = { requested = true },
+        )
+        Spacer(Modifier.height(110.dp))
+    }
+
+    if (requested) {
+        AlertDialog(
+            onDismissRequest = { requested = false },
+            containerColor = FormCard,
+            title = { Text("请求已提交", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            text = { Text("授权车辆请求已发送给所属公司，请等待公司授权。", fontSize = 14.sp, color = FormMuted) },
+            confirmButton = {
+                TextButton(onClick = { requested = false }) {
+                    Text("知道了", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                }
+            },
+        )
+    }
+}
+
+/** 个人司机：我的车辆 + 待通过验证车辆；右上角「增加车辆」 */
+@Composable
+private fun MyVehiclesView(onBack: () -> Unit, onAdd: () -> Unit) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+    ) {
+        FormPageHeaderAction(title = "车辆信息", actionLabel = "增加车辆", onBack = onBack, onAction = onAdd)
+        Spacer(Modifier.height(16.dp))
+
+        Card(
+            Modifier.fillMaxWidth(),
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = FormCard),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        ) {
+            Column(Modifier.fillMaxWidth().padding(18.dp)) {
+                Text("我的车辆", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
+                Spacer(Modifier.height(12.dp))
+                if (MyVerifiedVehicles.isEmpty()) {
+                    Text("暂无已验证车辆", fontSize = 14.sp, color = FormMuted)
+                } else {
+                    MyVerifiedVehicles.forEachIndexed { index, vehicle ->
+                        VehicleInfoLines(vehicle)
+                        if (index != MyVerifiedVehicles.lastIndex) {
+                            Spacer(Modifier.height(12.dp))
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(20.dp))
+        HorizontalDivider(color = FormChip, thickness = 1.dp)
+        Spacer(Modifier.height(20.dp))
+
+        Card(
+            Modifier.fillMaxWidth(),
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = FormCard),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        ) {
+            Column(Modifier.fillMaxWidth().padding(18.dp)) {
+                Text("待通过验证车辆", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
+                Spacer(Modifier.height(12.dp))
+                if (PendingVehicles.isEmpty()) {
+                    Text("暂无待验证车辆", fontSize = 14.sp, color = FormMuted)
+                } else {
+                    PendingVehicles.forEachIndexed { index, vehicle ->
+                        VehicleInfoLines(vehicle)
+                        Spacer(Modifier.height(8.dp))
+                        InfoLine("验证日期时间", vehicle.verifyTime)
+                        InfoLine("通过日期时间", vehicle.passTime)
+                        InfoLine("状态", vehicle.status)
+                        if (index != PendingVehicles.lastIndex) {
+                            Spacer(Modifier.height(14.dp))
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(110.dp))
+    }
+}
+
+@Composable
+private fun VehicleInfoLines(vehicle: VehicleRecord) {
+    InfoLine("品牌", vehicle.brand)
+    InfoLine("型号", vehicle.model)
+    InfoLine("车款", vehicle.trim)
+    InfoLine("车牌", vehicle.plate)
+}
+
+@Composable
+private fun InfoLine(label: String, value: String) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, fontSize = 13.sp, color = FormMuted, modifier = Modifier.weight(1f))
+        Text(value, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = FormInk)
+    }
+}
+
+/** 增加车辆页：车辆资料 + 三份证明上传 + 车主确认 */
+@Composable
+fun AddVehicleScreen(
     onBack: () -> Unit = {},
     onPickImage: (ImageSource, (String) -> Unit) -> Unit = { _, _ -> },
     onPickDocument: ((String) -> Unit) -> Unit = {},
@@ -75,7 +284,7 @@ fun VehicleInfoScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "车辆信息", onBack = onBack)
+        FormPageHeader(title = "增加车辆", onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
         FormSelect(

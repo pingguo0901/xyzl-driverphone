@@ -114,6 +114,9 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
+/** 司机类型（示例：个人）。接后端后由登录资料返回（注册时填了邀请码 = 公司司机） */
+private const val DriverIsCompany = false
+
 enum class AppTab(val label: String) {
     Home("首页"),
     Trips("行程"),
@@ -550,6 +553,7 @@ fun App(
                 ) {
                     VehicleInfoScreen(
                         onBack = { showVehicleInfo = false },
+                        isCompanyDriver = DriverIsCompany,
                         onPickImage = { source, cb -> requestPick(source, cb) },
                         onPickDocument = { cb -> pickDocument(cb) },
                     )
