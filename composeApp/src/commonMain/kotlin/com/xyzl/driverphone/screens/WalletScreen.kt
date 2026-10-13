@@ -107,7 +107,7 @@ fun WalletScreen(onBack: () -> Unit = {}) {
                 0 -> WalletHomeTab(onOpenAccount = { accountIndex = it })
                 1 -> WalletTransferTab()
                 2 -> WalletScanTab()
-                3 -> LedgerScreen(onBack = onBack, embedded = true)
+                3 -> LedgerScreen(onBack = onBack, embedded = true, showPrint = true)
                 4 -> WalletApplyTab()
             }
         }

@@ -18,10 +18,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Print
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +41,8 @@ import com.xyzl.driverphone.model.LedgerEntries
 import com.xyzl.driverphone.model.LedgerEntry
 import com.xyzl.driverphone.model.LedgerKind
 import com.xyzl.driverphone.model.formatMoney
+import com.xyzl.driverphone.model.signedMoney
+import com.xyzl.driverphone.saveStatementToDevice
 
 private val OnlineGreen = Color(0xFF3B82F6)
 private val InkDark = Color(0xFFFFFFFF)
@@ -53,7 +58,7 @@ private enum class LedgerFilter(val label: String) {
 
 /** 流水记录页：报销 / 薪资 / 转账 全部流水 */
 @Composable
-fun LedgerScreen(onBack: () -> Unit = {}, embedded: Boolean = false) {
+fun LedgerScreen(onBack: () -> Unit = {}, embedded: Boolean = false, showPrint: Boolean = false) {
     var filter by remember { mutableStateOf(LedgerFilter.ALL) }
     var selected by remember { mutableStateOf<LedgerEntry?>(null) }
 
@@ -64,6 +69,7 @@ fun LedgerScreen(onBack: () -> Unit = {}, embedded: Boolean = false) {
     }
 
     val entries = remember { LedgerEntries }
+    var savedInfo by remember { mutableStateOf<String?>(null) }
 
     val filtered = entries.filter { e ->
         when (filter) {
@@ -103,6 +109,27 @@ fun LedgerScreen(onBack: () -> Unit = {}, embedded: Boolean = false) {
         }
         }
 
+        if (showPrint) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Row(
+                    Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(FieldGray)
+                        .clickable {
+                            val ok = saveStatementToDevice(statementFileName(), statementText(entries))
+                            savedInfo = if (ok) "e-statement 已生成并保存到手机（下载/XYZL）" else "保存失败，请检查存储权限后重试"
+                        }
+                        .padding(horizontal = 14.dp, vertical = 9.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Icons.Filled.Print, contentDescription = "打印", tint = OnlineGreen, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("打印 e-statement", fontSize = 12.sp, color = OnlineGreen, fontWeight = FontWeight.Medium)
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+        }
+
         Spacer(Modifier.height(14.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             LedgerFilter.entries.forEach { f ->
@@ -117,6 +144,43 @@ fun LedgerScreen(onBack: () -> Unit = {}, embedded: Boolean = false) {
             }
         }
     }
+
+    val info = savedInfo
+    if (info != null) {
+        AlertDialog(
+            onDismissRequest = { savedInfo = null },
+            containerColor = Color(0xFF1C1C1E),
+            title = { Text("e-statement", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = InkDark) },
+            text = { Text(info, fontSize = 14.sp, color = MutedGray) },
+            confirmButton = { TextButton(onClick = { savedInfo = null }) { Text("确定", color = OnlineGreen) } },
+        )
+    }
+}
+
+private fun statementFileName(): String {
+    val d = currentTimeParts().first.replace("-", "")
+    return "e-statement_" + d + ".txt"
+}
+
+private fun statementText(entries: List<LedgerEntry>): String {
+    val sb = StringBuilder()
+    sb.appendLine("星域臻旅 司机端 · e-Statement（电子对账单）")
+    val now = currentTimeParts()
+    sb.appendLine("生成时间：" + now.first + " " + now.second)
+    sb.appendLine("交易笔数：" + entries.size)
+    sb.appendLine("--------------------------------------------------")
+    entries.forEach { e ->
+        sb.appendLine("交易编号：" + e.id)
+        sb.appendLine("日期时间：" + e.date)
+        sb.appendLine("类型：" + e.kind.label + (e.expenseType?.let { "（" + it + "）" } ?: ""))
+        sb.appendLine("来自：" + e.from)
+        if (e.orderNo != null) sb.appendLine("订单编号：" + e.orderNo)
+        sb.appendLine("金额：" + signedMoney(e.currency, e.amount, e.income))
+        sb.appendLine("状态：" + e.status)
+        if (e.remark.isNotBlank()) sb.appendLine("备注：" + e.remark)
+        sb.appendLine("--------------------------------------------------")
+    }
+    return sb.toString()
 }
 
 @Composable

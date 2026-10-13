@@ -47,3 +47,36 @@ actual fun saveQrToGallery(text: String): Boolean {
         false
     }
 }
+
+actual fun saveStatementToDevice(fileName: String, content: String): Boolean {
+    val context = platformAppContext() ?: return false
+    return try {
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+            if (Build.VERSION.SDK_INT >= 29) {
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/XYZL")
+            } else {
+                @Suppress("DEPRECATION")
+                put(
+                    MediaStore.MediaColumns.DATA,
+                    File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName).absolutePath,
+                )
+            }
+        }
+        val resolver = context.contentResolver
+        val collection = if (Build.VERSION.SDK_INT >= 29) {
+            MediaStore.Downloads.EXTERNAL_CONTENT_URI
+        } else {
+            MediaStore.Files.getContentUri("external")
+        }
+        val uri = resolver.insert(collection, values) ?: return false
+        resolver.openOutputStream(uri)?.use { out ->
+            out.write(content.toByteArray(Charsets.UTF_8))
+            out.flush()
+        } ?: return false
+        true
+    } catch (_: Exception) {
+        false
+    }
+}
