@@ -98,6 +98,7 @@ import com.xyzl.driverphone.screens.LoginScreen
 import com.xyzl.driverphone.screens.RegisterScreen
 import com.xyzl.driverphone.screens.PolicyScreen
 import com.xyzl.driverphone.screens.AboutScreen
+import com.xyzl.driverphone.screens.AboutUsScreen
 import com.xyzl.driverphone.screens.EulaScreen
 import com.xyzl.driverphone.screens.QrCodeScreen
 import com.xyzl.driverphone.screens.VersionUpdateScreen
@@ -175,6 +176,7 @@ fun App(
         var policyIndex by remember { mutableStateOf(-1) }
         var showQrCode by remember { mutableStateOf(false) }
         var showAbout by remember { mutableStateOf(false) }
+        var showAboutUs by remember { mutableStateOf(false) }
         var showVersionUpdate by remember { mutableStateOf(false) }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
@@ -444,6 +446,7 @@ fun App(
                         onOpenPolicy = { policyIndex = it },
                         onOpenQr = { showQrCode = true },
                         onOpenAbout = { showAbout = true },
+                        onOpenAboutUs = { showAboutUs = true },
                         onLogout = {
                             loggedIn = false
                             showEntry = false
@@ -862,6 +865,17 @@ fun App(
                         onOpenEula = { policyIndex = 7 },
                         onBack = { showAbout = false },
                     )
+                }
+            }
+
+            // 关于我们页（覆盖层）
+            if (showAboutUs) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    AboutUsScreen(onBack = { showAboutUs = false })
                 }
             }
 
