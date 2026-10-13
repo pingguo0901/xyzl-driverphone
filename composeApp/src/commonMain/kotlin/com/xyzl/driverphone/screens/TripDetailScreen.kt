@@ -3,6 +3,7 @@ package com.xyzl.driverphone.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -106,10 +107,10 @@ fun TripDetailScreen(trip: Trip, onBack: () -> Unit) {
 
                 DetailDivider()
 
-                // 起点 / 目的地
-                DetailRow("起点", trip.origin)
+                // 起点 / 目的地（多个时按序号列出，各上限 10）
+                PlaceList("起点", trip.origins)
                 Spacer(Modifier.height(12.dp))
-                DetailRow("目的地", trip.destination)
+                PlaceList("目的地", trip.destinations)
 
                 DetailDivider()
 
@@ -144,6 +145,29 @@ private fun DetailRow(label: String, value: String, modifier: Modifier = Modifie
         Text(label, fontSize = 12.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.5.sp, color = MutedGray)
         Spacer(Modifier.height(4.dp))
         Text(value, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = InkDark)
+    }
+}
+
+@Composable
+private fun PlaceList(label: String, places: List<String>, modifier: Modifier = Modifier) {
+    val shown = places.take(10)
+    Column(modifier) {
+        Text(label, fontSize = 12.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.5.sp, color = MutedGray)
+        Spacer(Modifier.height(4.dp))
+        if (shown.size <= 1) {
+            Text(shown.firstOrNull() ?: "—", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = InkDark)
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                shown.forEachIndexed { index, place ->
+                    Text(
+                        "${index + 1}. $place",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = InkDark,
+                    )
+                }
+            }
+        }
     }
 }
 
