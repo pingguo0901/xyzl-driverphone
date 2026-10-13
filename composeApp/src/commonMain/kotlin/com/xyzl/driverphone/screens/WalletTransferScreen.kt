@@ -1,6 +1,7 @@
 package com.xyzl.driverphone.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,12 +18,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -72,6 +71,14 @@ private val PastPayees = listOf(
     "王先生" to "8821 0000 6666 7777",
 )
 
+/** 金额（分）→ 始终两位小数，如 1234 → 12.34 */
+private fun formatCents(cents: Long): String {
+    val c = if (cents < 0) 0L else cents
+    return (c / 100).toString() + "." + (c % 100).toString().padStart(2, '0')
+}
+
+private fun centsLabel(currency: String, cents: Long): String = currency + " " + formatCents(cents)
+
 /** 转账：表单（4 步）→ 确认详情 → 时间线 */
 @Composable
 fun WalletTransferTab() {
@@ -81,11 +88,13 @@ fun WalletTransferTab() {
     var toName by remember { mutableStateOf<String?>(null) }
     var toNo by remember { mutableStateOf<String?>(null) }
     var currency by remember { mutableStateOf("MYR") }
-    var amount by remember { mutableStateOf("") }
+    var amountCents by remember { mutableStateOf(0L) }
     var remark by remember { mutableStateOf("") }
-    var payDate by remember { mutableStateOf("") }
+    var payDate by remember { mutableStateOf(currentTimeParts().first) }
     var showNewTransfer by remember { mutableStateOf(false) }
     var doneSteps by remember { mutableStateOf(false) }
+
+    val canComplete = payDate.isNotBlank() && toNo != null && fromIndex != null && amountCents > 0
 
     if (phase == 0 && showNewTransfer) {
         NewTransferView(
@@ -108,77 +117,88 @@ fun WalletTransferTab() {
                 colors = CardDefaults.cardColors(containerColor = TrCard),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             ) {
-                Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
-                    if (doneSteps) {
-                        TransferSummary(
-                            from = fromIndex,
-                            toNo = toNo,
-                            currency = currency,
-                            amount = amount,
-                            remark = remark,
-                            payDate = payDate,
-                            onEdit = { doneSteps = false; step = 1 },
-                        )
-                    } else {
-                        StepRow(1, "从", fromSummary(fromIndex), step == 1, { step = if (step == 1) 0 else 1 }) {
-                            TransferAccounts.forEachIndexed { index, acc ->
-                                PayeeRow(
-                                    title = acc.label,
-                                    subtitle = acc.currency + " ｜ " + acc.amount,
-                                ) {
-                                    fromIndex = index
-                                    currency = acc.currency
-                                    step = 2
-                                }
-                            }
-                        }
-                        StepRow(2, "给", toSummary(toName), step == 2, { step = if (step == 2) 0 else 2 }) {
-                            Row(
-                                Modifier.fillMaxWidth().clickable { showNewTransfer = true }.padding(vertical = 14.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Icon(Icons.Filled.Add, contentDescription = null, tint = TrGreen, modifier = Modifier.size(18.dp))
-                                Spacer(Modifier.width(8.dp))
-                                Text("新转账", fontSize = 14.sp, color = TrGreen, fontWeight = FontWeight.Medium)
-                            }
-                            PastPayees.forEach { (name, no) ->
-                                PayeeRow(title = name, subtitle = no) {
-                                    toName = name
-                                    toNo = no
-                                    step = 3
-                                }
-                            }
-                        }
-                        StepRow(3, "转账金额", amountSummary(currency, amount), step == 3, { step = if (step == 3) 0 else 3 }) {
-                            TransferAmountPad(
+                Column(Modifier.fillMaxSize()) {
+                    Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
+                        if (doneSteps) {
+                            TransferSummary(
+                                from = fromIndex,
+                                toNo = toNo,
                                 currency = currency,
-                                amount = amount,
-                                onDigit = { d -> amount += d },
-                                onDelete = { amount = amount.dropLast(1) },
-                                onDone = { if (amount.isNotBlank()) step = 4 },
+                                amountCents = amountCents,
+                                remark = remark,
+                                payDate = payDate,
+                                onEdit = { doneSteps = false; step = 1 },
                             )
-                        }
-                        StepRow(4, "其他详情", if (payDate.isBlank()) null else payDate, step == 4, { step = if (step == 4) 0 else 4 }) {
-                            FormTextField(
-                                label = "备注",
-                                value = remark,
-                                placeholder = "请输入备注（选填）",
-                                onValueChange = { remark = it },
-                            )
-                            Row(
-                                Modifier.fillMaxWidth().clickable { pickBirthday { payDate = it } }.padding(vertical = 14.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text("付款日期", fontSize = 15.sp, color = TrInk, modifier = Modifier.weight(1f))
-                                Text(if (payDate.isBlank()) "选择日期" else payDate, fontSize = 14.sp, color = TrMuted)
+                        } else {
+                            StepRow(1, "从", fromSummary(fromIndex), step == 1, { step = if (step == 1) 0 else 1 }) {
+                                TransferAccounts.forEachIndexed { index, acc ->
+                                    PayeeRow(
+                                        title = acc.label,
+                                        subtitle = acc.currency + " ｜ " + acc.amount,
+                                    ) {
+                                        fromIndex = index
+                                        currency = acc.currency
+                                        step = 2
+                                    }
+                                }
                             }
-                            FormPrimaryButton(
-                                text = "完成",
-                                enabled = payDate.isNotBlank() && toNo != null && fromIndex != null,
-                                onClick = { doneSteps = true; step = 0 },
-                            )
-                            Spacer(Modifier.height(10.dp))
+                            StepRow(2, "给", toSummary(toName), step == 2, { step = if (step == 2) 0 else 2 }) {
+                                Row(
+                                    Modifier.fillMaxWidth().clickable { showNewTransfer = true }.padding(vertical = 14.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(Icons.Filled.Add, contentDescription = null, tint = TrGreen, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("新转账", fontSize = 14.sp, color = TrGreen, fontWeight = FontWeight.Medium)
+                                }
+                                PastPayees.forEach { (name, no) ->
+                                    PayeeRow(title = name, subtitle = no) {
+                                        toName = name
+                                        toNo = no
+                                        step = 3
+                                    }
+                                }
+                            }
+                            StepRow(3, "转账金额", amountSummary(currency, amountCents), step == 3, { step = if (step == 3) 0 else 3 }) {
+                                TransferAmountPad(
+                                    currency = currency,
+                                    amountCents = amountCents,
+                                    onDigit = { d -> amountCents = (amountCents * 10 + d).coerceAtMost(99_999_999L) },
+                                    onDelete = { amountCents /= 10 },
+                                    onDone = { if (amountCents > 0) step = 4 },
+                                )
+                            }
+                            StepRow(4, "其他详情", payDate, step == 4, { step = if (step == 4) 0 else 4 }) {
+                                FormTextField(
+                                    label = "备注",
+                                    value = remark,
+                                    placeholder = "请输入备注（选填）",
+                                    onValueChange = { remark = it },
+                                )
+                                Row(
+                                    Modifier.fillMaxWidth().clickable { pickBirthday { payDate = it } }.padding(vertical = 14.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text("付款日期", fontSize = 15.sp, color = TrInk, modifier = Modifier.weight(1f))
+                                    Text(
+                                        payDate.ifBlank { "选择日期" },
+                                        fontSize = 14.sp,
+                                        color = if (payDate.isBlank()) TrMuted else TrInk,
+                                    )
+                                }
+                                Spacer(Modifier.height(6.dp))
+                            }
                         }
+                    }
+                    // 其他详情的完成按钮：固定在卡片最底部
+                    if (!doneSteps && step == 4) {
+                        FormPrimaryButton(
+                            text = "完成",
+                            enabled = canComplete,
+                            onClick = { doneSteps = true; step = 0 },
+                            modifier = Modifier.padding(horizontal = 6.dp),
+                        )
+                        Spacer(Modifier.height(12.dp))
                     }
                 }
             }
@@ -193,17 +213,10 @@ fun WalletTransferTab() {
             toName = toName,
             toNo = toNo,
             currency = currency,
-            amount = amount,
-            onBack = { phase = 0 },
+            amountCents = amountCents,
             onConfirm = { phase = 2 },
         )
         else -> TransferTimeline(
-            from = fromIndex,
-            toName = toName,
-            toNo = toNo,
-            currency = currency,
-            amount = amount,
-            onBack = { phase = 1 },
             onFinish = {
                 phase = 0
                 doneSteps = false
@@ -211,9 +224,9 @@ fun WalletTransferTab() {
                 fromIndex = null
                 toName = null
                 toNo = null
-                amount = ""
+                amountCents = 0
                 remark = ""
-                payDate = ""
+                payDate = currentTimeParts().first
                 currency = "MYR"
             },
         )
@@ -225,8 +238,22 @@ private fun fromSummary(index: Int?): String? =
 
 private fun toSummary(name: String?): String? = name
 
-private fun amountSummary(currency: String, amount: String): String? =
-    if (amount.isBlank()) null else currency + " " + amount
+private fun amountSummary(currency: String, cents: Long): String? =
+    if (cents <= 0) null else centsLabel(currency, cents)
+
+@Composable
+private fun StepNumber(index: Int) {
+    Box(
+        Modifier
+            .size(24.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(TrChip)
+            .border(1.dp, TrGreen, RoundedCornerShape(8.dp)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text("$index", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = TrGreen)
+    }
+}
 
 @Composable
 private fun StepRow(
@@ -242,7 +269,8 @@ private fun StepRow(
             Modifier.fillMaxWidth().clickable { onToggle() }.padding(vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("$index", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TrGreen, modifier = Modifier.width(22.dp))
+            StepNumber(index)
+            Spacer(Modifier.width(12.dp))
             Text(title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = TrInk, modifier = Modifier.weight(1f))
             if (summary != null) {
                 Text(summary, fontSize = 13.sp, color = TrMuted)
@@ -276,12 +304,12 @@ private fun PayeeRow(title: String, subtitle: String, onClick: () -> Unit) {
     }
 }
 
-/** 步骤3 数字键盘 */
+/** 步骤3 数字键盘：从右到左输入，金额始终两位小数 */
 @Composable
 private fun TransferAmountPad(
     currency: String,
-    amount: String,
-    onDigit: (String) -> Unit,
+    amountCents: Long,
+    onDigit: (Long) -> Unit,
     onDelete: () -> Unit,
     onDone: () -> Unit,
 ) {
@@ -292,7 +320,7 @@ private fun TransferAmountPad(
         Spacer(Modifier.height(12.dp))
         Text("金额", fontSize = 12.sp, color = TrMuted)
         Spacer(Modifier.height(4.dp))
-        Text(if (amount.isBlank()) "0.00" else amount, fontSize = 26.sp, fontWeight = FontWeight.SemiBold, color = TrInk)
+        Text(formatCents(amountCents), fontSize = 26.sp, fontWeight = FontWeight.SemiBold, color = TrInk)
         Spacer(Modifier.height(10.dp))
         HorizontalDivider(color = TrDivide, thickness = 1.dp)
         Spacer(Modifier.height(10.dp))
@@ -315,7 +343,7 @@ private fun TransferAmountPad(
                                 when (key) {
                                     "<" -> onDelete()
                                     "OK" -> onDone()
-                                    else -> onDigit(key)
+                                    else -> onDigit(key.toLong())
                                 }
                             },
                         contentAlignment = Alignment.Center,
@@ -380,7 +408,7 @@ private fun TransferSummary(
     from: Int?,
     toNo: String?,
     currency: String,
-    amount: String,
+    amountCents: Long,
     remark: String,
     payDate: String,
     onEdit: () -> Unit,
@@ -388,7 +416,7 @@ private fun TransferSummary(
     Column(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
         SummaryRow("1  从", listOfNotNull(from?.let { TransferAccounts.getOrNull(it)?.label }, from?.let { TransferAccounts.getOrNull(it)?.accountNo }))
         SummaryRow("2  给", listOfNotNull(toNo))
-        SummaryRow("3  转账金额", listOf("$currency $amount"))
+        SummaryRow("3  转账金额", listOf(centsLabel(currency, amountCents)))
         SummaryRow("4  其他详情", listOfNotNull(remark.takeIf { it.isNotBlank() }, payDate.takeIf { it.isNotBlank() }))
         Spacer(Modifier.height(6.dp))
         TextButton(onClick = onEdit) { Text("修改", color = TrGreen) }
@@ -416,8 +444,7 @@ private fun TransferConfirm(
     toName: String?,
     toNo: String?,
     currency: String,
-    amount: String,
-    onBack: () -> Unit,
+    amountCents: Long,
     onConfirm: () -> Unit,
 ) {
     val fromAcc = from?.let { TransferAccounts.getOrNull(it) }
@@ -436,7 +463,7 @@ private fun TransferConfirm(
             }
             Row(Modifier.fillMaxWidth().padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("转账金额", fontSize = 14.sp, color = TrMuted, modifier = Modifier.weight(1f))
-                Text("$currency $amount", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TrInk)
+                Text(centsLabel(currency, amountCents), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TrInk)
             }
         }
         FormPrimaryButton(text = "确认转账", onClick = onConfirm)
@@ -460,15 +487,7 @@ private fun ConfirmRow(left: String, right: String, sub: String?) {
 
 /** 转账时间线页 */
 @Composable
-private fun TransferTimeline(
-    from: Int?,
-    toName: String?,
-    toNo: String?,
-    currency: String,
-    amount: String,
-    onBack: () -> Unit,
-    onFinish: () -> Unit,
-) {
+private fun TransferTimeline(onFinish: () -> Unit) {
     var progress by remember { mutableStateOf(0) }
     LaunchedEffect(Unit) {
         while (progress < 4) {
