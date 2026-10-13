@@ -71,7 +71,7 @@ fun TripCard(trip: Trip, onClick: () -> Unit = {}) {
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    "${trip.origin} → ${trip.destination}",
+                    "${trip.origins.joinToString("、")} → ${trip.destinations.joinToString("、")}",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = InkDark,
