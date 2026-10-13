@@ -44,10 +44,10 @@ import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.openUrl
 import com.xyzl.driverphone.shareText
 
-private val InviteCardColor = Color(0xFF1C1C1E)
-private val InviteChipColor = Color(0xFF27272A)
-private val InviteInk = Color(0xFFFFFFFF)
-private val InviteMuted = Color(0xFFA1A1AA)
+private val InviteCardColor = Color(0xFFF7F7F9)
+private val InviteChipColor = Color(0xFFEFEFF3)
+private val InviteInk = Color(0xFF111111)
+private val InviteMuted = Color(0xFF6B7280)
 private val InviteGreen = Color(0xFF3B82F6)
 
 /** 我的邀请码 + 邀请下载链接（示例数据，待后端下发） */

@@ -41,11 +41,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val ProfileCard = Color(0xFF1C1C1E)
-private val ProfileChip = Color(0xFF27272A)
-private val ProfileInk = Color(0xFFFFFFFF)
-private val ProfileMuted = Color(0xFFA1A1AA)
-private val ProfileDivider = Color(0xFF27272A)
+private val ProfileCard = Color(0xFFF7F7F9)
+private val ProfileChip = Color(0xFFEFEFF3)
+private val ProfileInk = Color(0xFF111111)
+private val ProfileMuted = Color(0xFF6B7280)
+private val ProfileDivider = Color(0xFFEFEFF3)
 private val ProfileRed = Color(0xFFF43F5E)
 
 private val sections: List<Pair<String, List<String>>> = listOf(

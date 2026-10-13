@@ -48,10 +48,10 @@ import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.model.LedgerEntries
 import com.xyzl.driverphone.model.LedgerKind
 
-private val WalletCard = Color(0xFF1C1C1E)
-private val WalletChip = Color(0xFF27272A)
-private val WalletInk = Color(0xFFFFFFFF)
-private val WalletMuted = Color(0xFFA1A1AA)
+private val WalletCard = Color(0xFFF7F7F9)
+private val WalletChip = Color(0xFFEFEFF3)
+private val WalletInk = Color(0xFF111111)
+private val WalletMuted = Color(0xFF6B7280)
 private val WalletGreen = Color(0xFF3B82F6)
 
 /** 账户索引：0 钱包余额 / 1 代收 SGD / 2 代收 MYR */

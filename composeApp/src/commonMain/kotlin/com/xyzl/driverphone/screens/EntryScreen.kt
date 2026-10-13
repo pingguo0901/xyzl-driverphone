@@ -34,7 +34,7 @@ fun EntryScreen(
     onLoginClick: () -> Unit = {},
     onRegisterClick: () -> Unit = {},
 ) {
-    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF0A0A0A))) {
+    Box(modifier = Modifier.fillMaxSize().background(Color(0xFFFFFFFF))) {
         // 背景图（Android 用真实图片，iOS 回退纯色）
         entryBackgroundPainter()?.let { painter ->
             Image(
@@ -80,7 +80,7 @@ fun EntryScreen(
                     .fillMaxWidth()
                     .height(54.dp)
                     .clip(RoundedCornerShape(999.dp))
-                    .background(Color(0x15FFFFFF))
+                    .background(Color(0x1A000000))
                     .clickable { onRegisterClick() },
                 contentAlignment = Alignment.Center,
             ) {

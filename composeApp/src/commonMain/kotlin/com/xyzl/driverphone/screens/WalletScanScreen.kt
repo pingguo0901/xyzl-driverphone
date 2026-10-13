@@ -51,10 +51,10 @@ import com.xyzl.driverphone.saveQrToGallery
 import com.xyzl.driverphone.setTorchEnabled
 import kotlinx.coroutines.delay
 
-private val ScanCard = Color(0xFF1C1C1E)
-private val ScanChip = Color(0xFF27272A)
-private val ScanInk = Color(0xFFFFFFFF)
-private val ScanMuted = Color(0xFFA1A1AA)
+private val ScanCard = Color(0xFFF7F7F9)
+private val ScanChip = Color(0xFFEFEFF3)
+private val ScanInk = Color(0xFF111111)
+private val ScanMuted = Color(0xFF6B7280)
 private val ScanGreen = Color(0xFF3B82F6)
 
 private const val WalletDriverName = "陈师傅"
@@ -185,7 +185,7 @@ private fun ScanFrameView() {
         Modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(22.dp))
-            .background(Color(0xFF0A0A0A)),
+            .background(Color(0xFFFFFFFF)),
         contentAlignment = Alignment.Center,
     ) {
         Box(Modifier.fillMaxWidth(0.72f).aspectRatio(1f)) {

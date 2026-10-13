@@ -35,11 +35,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val ChatCard = Color(0xFF1C1C1E)
-private val ChatAvatar = Color(0xFF27272A)
+private val ChatCard = Color(0xFFF7F7F9)
+private val ChatAvatar = Color(0xFFEFEFF3)
 private val ChatGreen = Color(0xFF3B82F6)
-private val ChatInk = Color(0xFFFFFFFF)
-private val ChatMuted = Color(0xFFA1A1AA)
+private val ChatInk = Color(0xFF111111)
+private val ChatMuted = Color(0xFF6B7280)
 
 /** 聊天页：胶囊式左右选项（聊天 / 官方通知）+ 聊天列表 */
 @Composable

@@ -27,12 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 private val GoldLight = Color(0xFF3B82F6)
-private val BodyGray = Color(0xFFA1A1AA)
+private val BodyGray = Color(0xFF6B7280)
 
 /** 《司机入驻KYC实名认证服务政策》全文页 */
 @Composable
 fun PolicyScreen(onBack: () -> Unit = {}) {
-    val bg = Brush.verticalGradient(listOf(Color(0xFF0A0A0A), Color(0xFF0A0A0A), Color(0xFF0A0A0A)))
+    val bg = Brush.verticalGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(0xFFFFFFFF)))
     Box(Modifier.fillMaxSize().background(bg)) {
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())

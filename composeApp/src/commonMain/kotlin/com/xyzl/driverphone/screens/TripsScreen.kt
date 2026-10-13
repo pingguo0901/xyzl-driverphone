@@ -35,8 +35,8 @@ import com.xyzl.driverphone.model.Trip
 import com.xyzl.driverphone.model.TripStatus
 
 private val OnlineGreen = Color(0xFF3B82F6)
-private val InkDark = Color(0xFFFFFFFF)
-private val MutedGray = Color(0xFFA1A1AA)
+private val InkDark = Color(0xFF111111)
+private val MutedGray = Color(0xFF6B7280)
 
 private enum class TripFilter(val label: String) {
     ALL("全部"),
@@ -97,7 +97,7 @@ fun TripsScreen(onOpenNotifications: () -> Unit = {}) {
 
 @Composable
 private fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
-    val bg = if (selected) OnlineGreen else Color(0xFF27272A)
+    val bg = if (selected) OnlineGreen else Color(0xFFEFEFF3)
     val fg = if (selected) Color.White else MutedGray
     Box(
         modifier = Modifier

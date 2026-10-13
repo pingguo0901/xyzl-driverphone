@@ -54,10 +54,10 @@ import com.xyzl.driverphone.model.ExpenseTypes
 import com.xyzl.driverphone.model.currencyForType
 
 private val OnlineGreen = Color(0xFF3B82F6)
-private val InkDark = Color(0xFFFFFFFF)
-private val MutedGray = Color(0xFFA1A1AA)
-private val FieldGray = Color(0xFF27272A)
-private val DividerGray = Color(0xFF27272A)
+private val InkDark = Color(0xFF111111)
+private val MutedGray = Color(0xFF6B7280)
+private val FieldGray = Color(0xFFEFEFF3)
+private val DividerGray = Color(0xFFEFEFF3)
 
 /** 提交报销页 */
 @Composable
@@ -206,7 +206,7 @@ fun ExpenseSubmitScreen(
                 .fillMaxWidth()
                 .height(54.dp)
                 .clip(RoundedCornerShape(999.dp))
-                .background(if (canSubmit) OnlineGreen else Color(0xFF27272A))
+                .background(if (canSubmit) OnlineGreen else Color(0xFFEFEFF3))
                 .clickable(enabled = canSubmit) { onSubmit() },
             contentAlignment = Alignment.Center,
         ) {
@@ -214,7 +214,7 @@ fun ExpenseSubmitScreen(
                 "确认提交",
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = if (canSubmit) Color.White else Color(0xFF71717A),
+                color = if (canSubmit) Color.White else Color(0xFF9CA3AF),
                 letterSpacing = 2.sp,
             )
         }
@@ -270,7 +270,7 @@ private fun DropdownField(
             ) {
                 Surface(
                     shape = RoundedCornerShape(14.dp),
-                    color = Color(0xFF1C1C1E),
+                    color = Color(0xFFF7F7F9),
                     shadowElevation = 8.dp,
                 ) {
                     Column(Modifier.width(240.dp).padding(vertical = 6.dp)) {
@@ -333,7 +333,7 @@ private fun ReceiptUploadBox(
         Dialog(onDismissRequest = { showSheet = false }) {
             Surface(
                 shape = RoundedCornerShape(20.dp),
-                color = Color(0xFF1C1C1E),
+                color = Color(0xFFF7F7F9),
                 shadowElevation = 12.dp,
             ) {
                 Column(Modifier.fillMaxWidth().padding(20.dp)) {

@@ -45,12 +45,12 @@ import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.pickBirthday
 import kotlinx.coroutines.delay
 
-private val TrCard = Color(0xFF1C1C1E)
-private val TrChip = Color(0xFF27272A)
-private val TrInk = Color(0xFFFFFFFF)
-private val TrMuted = Color(0xFFA1A1AA)
+private val TrCard = Color(0xFFF7F7F9)
+private val TrChip = Color(0xFFEFEFF3)
+private val TrInk = Color(0xFF111111)
+private val TrMuted = Color(0xFF6B7280)
 private val TrGreen = Color(0xFF3B82F6)
-private val TrDivide = Color(0xFF27272A)
+private val TrDivide = Color(0xFFEFEFF3)
 
 private data class TransferAccount(
     val label: String,

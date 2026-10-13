@@ -43,12 +43,12 @@ import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.model.LedgerEntry
 import com.xyzl.driverphone.model.formatMoney
 
-private val AcctCard = Color(0xFF1C1C1E)
-private val AcctChip = Color(0xFF27272A)
-private val AcctInk = Color(0xFFFFFFFF)
-private val AcctMuted = Color(0xFFA1A1AA)
+private val AcctCard = Color(0xFFF7F7F9)
+private val AcctChip = Color(0xFFEFEFF3)
+private val AcctInk = Color(0xFF111111)
+private val AcctMuted = Color(0xFF6B7280)
 private val AcctGreen = Color(0xFF3B82F6)
-private val AcctDivider = Color(0xFF27272A)
+private val AcctDivider = Color(0xFFEFEFF3)
 
 /** 钱包账户（钱包余额 / 代收 SGD / 代收 MYR） */
 data class WalletAccount(

@@ -67,7 +67,7 @@ fun CallScreen(
 
     val timeText = (seconds / 60).toString().padStart(2, '0') + ":" + (seconds % 60).toString().padStart(2, '0')
 
-    Box(Modifier.fillMaxSize().background(Color(0xFF0A0A0A))) {
+    Box(Modifier.fillMaxSize().background(Color(0xFFFFFFFF))) {
         if (video) {
             // 整个页面是对方视频（点击我方小窗可互换）
             Box(Modifier.fillMaxSize().background(Color(0xFF111827)), contentAlignment = Alignment.Center) {
@@ -88,7 +88,7 @@ fun CallScreen(
                     .padding(top = 60.dp, end = 16.dp)
                     .size(width = 96.dp, height = 140.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFF27272A))
+                    .background(Color(0xFFEFEFF3))
                     .pointerInput(Unit) {
                         detectDragGestures { change, drag ->
                             change.consume()
@@ -134,7 +134,7 @@ fun CallScreen(
                 icon = if (muted) Icons.Filled.MicOff else Icons.Filled.Mic,
                 label = if (muted) "已静音" else "静音",
                 tint = if (muted) Color.White else Color.White,
-                bg = if (muted) Color(0xFF4B5563) else Color(0xFF1F2937),
+                bg = if (muted) Color(0xFFD1D5DB) else Color(0xFFEFEFF3),
             ) { muted = !muted }
 
             CallButton(
@@ -149,7 +149,7 @@ fun CallScreen(
                 icon = if (speaker) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff,
                 label = if (speaker) "扬声器" else "听筒",
                 tint = Color.White,
-                bg = if (speaker) Color(0xFF1D4ED8) else Color(0xFF1F2937),
+                bg = if (speaker) Color(0xFF1D4ED8) else Color(0xFFEFEFF3),
             ) { speaker = !speaker }
         }
     }

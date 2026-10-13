@@ -34,10 +34,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 
-private val SegTrack = Color(0xFF27272A)
-private val SegBorder = Color(0x15FFFFFF)
-private val SegInk = Color(0xFF18181B)
-private val SegMuted = Color(0xFFA1A1AA)
+private val SegTrack = Color(0xFFEFEFF3)
+private val SegBorder = Color(0x1A000000)
+private val SegInk = Color(0xFFF7F7F9)
+private val SegMuted = Color(0xFF6B7280)
 
 /** 胶囊式左右选项：整体一个胶囊（不是各自独立胶囊），选中项有白色滑块跟随 */
 @Composable

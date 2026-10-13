@@ -56,12 +56,12 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.xyzl.driverphone.ImageSource
 
-internal val FormCard = Color(0xFF1C1C1E)
-internal val FormChip = Color(0xFF27272A)
-internal val FormInk = Color(0xFFFFFFFF)
-internal val FormMuted = Color(0xFFA1A1AA)
+internal val FormCard = Color(0xFFF7F7F9)
+internal val FormChip = Color(0xFFEFEFF3)
+internal val FormInk = Color(0xFF111111)
+internal val FormMuted = Color(0xFF6B7280)
 internal val FormGreen = Color(0xFF3B82F6)
-internal val FormDivide = Color(0xFF27272A)
+internal val FormDivide = Color(0xFFEFEFF3)
 internal val FormRed = Color(0xFFF43F5E)
 
 /** 协议链接文字（蓝色可点，未登录也能打开） */
@@ -84,8 +84,8 @@ internal fun formFieldColors() = OutlinedTextFieldDefaults.colors(
     cursorColor = FormGreen,
     focusedContainerColor = FormCard,
     unfocusedContainerColor = FormCard,
-    focusedPlaceholderColor = Color(0xFF52525B),
-    unfocusedPlaceholderColor = Color(0xFF52525B),
+    focusedPlaceholderColor = Color(0xFFB0B0B8),
+    unfocusedPlaceholderColor = Color(0xFFB0B0B8),
 )
 
 /** 二级页标题栏：左上角返回 + 居中标题 */

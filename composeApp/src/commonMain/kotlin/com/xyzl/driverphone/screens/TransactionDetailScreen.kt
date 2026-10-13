@@ -25,9 +25,9 @@ import com.xyzl.driverphone.model.formatMoney
 import com.xyzl.driverphone.model.signedMoney
 import com.xyzl.driverphone.shareText
 
-private val InkDark = Color(0xFFFFFFFF)
-private val MutedGray = Color(0xFFA1A1AA)
-private val DividerGray = Color(0xFF27272A)
+private val InkDark = Color(0xFF111111)
+private val MutedGray = Color(0xFF6B7280)
+private val DividerGray = Color(0xFFEFEFF3)
 private val AmountGreen = Color(0xFF3B82F6)
 
 /** 交易详情页：金额 + 明细 + 收据分享 */

@@ -165,8 +165,8 @@ fun AppleButton(
         onClick = onClick,
         modifier = modifier,
         size = size,
-        backgroundColor = Color(0xFF18181B),
-        borderColor = Color(0x15FFFFFF),
+        backgroundColor = Color(0xFFF7F7F9),
+        borderColor = Color(0x1A000000),
     ) {
         AppleLogo(logoSize)
     }
@@ -193,7 +193,7 @@ private fun AppleLogo(logoSize: Dp) {
             close()
         }
         drawPath(leaf, Color.White)
-        drawCircle(Color(0xFF18181B), radius = w * 0.12f, center = Offset(w * 0.78f, h * 0.5f))
+        drawCircle(Color(0xFFF7F7F9), radius = w * 0.12f, center = Offset(w * 0.78f, h * 0.5f))
     }
 }
 

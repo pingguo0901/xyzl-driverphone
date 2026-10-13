@@ -24,9 +24,9 @@ import com.xyzl.driverphone.model.Trip
 import com.xyzl.driverphone.model.TripStatus
 import com.xyzl.driverphone.model.formatRinggit
 
-private val InkDark = Color(0xFFFFFFFF)
-private val MutedGray = Color(0xFFA1A1AA)
-private val FaintGray = Color(0xFF71717A)
+private val InkDark = Color(0xFF111111)
+private val MutedGray = Color(0xFF6B7280)
+private val FaintGray = Color(0xFF9CA3AF)
 
 /** 状态标签颜色（行程列表与详情页共用） */
 internal fun statusColor(status: TripStatus): Color = when (status) {
@@ -56,7 +56,7 @@ fun TripCard(trip: Trip, onClick: () -> Unit = {}) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1C1C1E)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F9)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(

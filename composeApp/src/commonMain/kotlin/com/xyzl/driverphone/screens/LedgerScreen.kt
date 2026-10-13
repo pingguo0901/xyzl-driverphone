@@ -45,9 +45,9 @@ import com.xyzl.driverphone.model.signedMoney
 import com.xyzl.driverphone.saveStatementPdf
 
 private val OnlineGreen = Color(0xFF3B82F6)
-private val InkDark = Color(0xFFFFFFFF)
-private val MutedGray = Color(0xFFA1A1AA)
-private val FieldGray = Color(0xFF27272A)
+private val InkDark = Color(0xFF111111)
+private val MutedGray = Color(0xFF6B7280)
+private val FieldGray = Color(0xFFEFEFF3)
 
 private enum class LedgerFilter(val label: String) {
     ALL("全部"),
@@ -149,7 +149,7 @@ fun LedgerScreen(onBack: () -> Unit = {}, embedded: Boolean = false, showPrint: 
     if (info != null) {
         AlertDialog(
             onDismissRequest = { savedInfo = null },
-            containerColor = Color(0xFF1C1C1E),
+            containerColor = Color(0xFFF7F7F9),
             title = { Text("e-statement", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = InkDark) },
             text = { Text(info, fontSize = 14.sp, color = MutedGray) },
             confirmButton = { TextButton(onClick = { savedInfo = null }) { Text("确定", color = OnlineGreen) } },
@@ -188,7 +188,7 @@ private fun LedgerRow(entry: LedgerEntry, onClick: () -> Unit) {
     Card(
         Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1C1C1E)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F9)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(

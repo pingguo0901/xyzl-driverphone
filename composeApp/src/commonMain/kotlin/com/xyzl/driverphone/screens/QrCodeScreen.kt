@@ -350,7 +350,7 @@ private fun ScanQrTab(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .weight(1f)
                 .clip(RoundedCornerShape(22.dp))
-                .background(Color(0xFF0A0A0A)),
+                .background(Color(0xFFFFFFFF)),
             contentAlignment = Alignment.Center,
         ) {
             Box(Modifier.fillMaxWidth(0.72f).aspectRatio(1f)) {
@@ -371,7 +371,7 @@ private fun ScanQrTab(modifier: Modifier = Modifier) {
             Text(
                 "将二维码放入框内",
                 fontSize = 12.sp,
-                color = Color(0xFFA1A1AA),
+                color = Color(0xFF6B7280),
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 18.dp),
             )
         }
