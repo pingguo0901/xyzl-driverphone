@@ -47,6 +47,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.xyzl.driverphone.ImageSource
+import com.xyzl.driverphone.pickBirthday
 import com.xyzl.driverphone.model.Currencies
 import com.xyzl.driverphone.model.DutyVehicles
 import com.xyzl.driverphone.model.ExpenseTypes
@@ -66,13 +67,14 @@ fun ExpenseSubmitScreen(
     onPickDocument: (onPicked: (String) -> Unit) -> Unit = {},
     onSubmit: () -> Unit = {},
 ) {
+    var expenseDate by remember { mutableStateOf(currentTimeParts().first) }
     var vehicle by remember { mutableStateOf("") }
     var type by remember { mutableStateOf("") }
     var currency by remember { mutableStateOf("MYR") }
     var amount by remember { mutableStateOf("") }
     var receiptUri by remember { mutableStateOf<String?>(null) }
 
-    val canSubmit = vehicle.isNotBlank() && type.isNotBlank() && amount.isNotBlank() && receiptUri != null
+    val canSubmit = expenseDate.isNotBlank() && vehicle.isNotBlank() && type.isNotBlank() && amount.isNotBlank() && receiptUri != null
 
     Column(
         Modifier
@@ -108,6 +110,27 @@ fun ExpenseSubmitScreen(
         }
 
         Spacer(Modifier.height(20.dp))
+
+        // 开销日期（原生日历）
+        FieldLabel("开销日期")
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(54.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(FieldGray)
+                .clickable { pickBirthday { expenseDate = it } }
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            Text(
+                expenseDate.ifBlank { "选择日期" },
+                fontSize = 15.sp,
+                color = if (expenseDate.isBlank()) MutedGray else InkDark,
+            )
+        }
+
+        Spacer(Modifier.height(18.dp))
 
         // 归属车辆
         FieldLabel("归属车辆")
