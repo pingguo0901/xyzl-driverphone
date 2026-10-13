@@ -87,6 +87,7 @@ fun ProfileScreen(
     onOpenQr: () -> Unit = {},
     onOpenAbout: () -> Unit = {},
     onOpenAboutUs: () -> Unit = {},
+    onOpenWallet: () -> Unit = {},
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -113,6 +114,7 @@ fun ProfileScreen(
             "终端用户软件许可协议" -> onOpenPolicy(7)
             "关于平台" -> onOpenAbout()
             "关于我们" -> onOpenAboutUs()
+            "我的钱包" -> onOpenWallet()
             else -> { }
         }
     }

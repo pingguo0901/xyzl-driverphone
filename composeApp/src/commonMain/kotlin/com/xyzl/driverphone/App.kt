@@ -99,6 +99,7 @@ import com.xyzl.driverphone.screens.RegisterScreen
 import com.xyzl.driverphone.screens.PolicyScreen
 import com.xyzl.driverphone.screens.AboutScreen
 import com.xyzl.driverphone.screens.AboutUsScreen
+import com.xyzl.driverphone.screens.WalletScreen
 import com.xyzl.driverphone.screens.EulaScreen
 import com.xyzl.driverphone.screens.QrCodeScreen
 import com.xyzl.driverphone.screens.VersionUpdateScreen
@@ -177,6 +178,7 @@ fun App(
         var showQrCode by remember { mutableStateOf(false) }
         var showAbout by remember { mutableStateOf(false) }
         var showAboutUs by remember { mutableStateOf(false) }
+        var showWallet by remember { mutableStateOf(false) }
         var showVersionUpdate by remember { mutableStateOf(false) }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
@@ -447,6 +449,7 @@ fun App(
                         onOpenQr = { showQrCode = true },
                         onOpenAbout = { showAbout = true },
                         onOpenAboutUs = { showAboutUs = true },
+                        onOpenWallet = { showWallet = true },
                         onLogout = {
                             loggedIn = false
                             showEntry = false
@@ -876,6 +879,17 @@ fun App(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     AboutUsScreen(onBack = { showAboutUs = false })
+                }
+            }
+
+            // 我的钱包页（覆盖层）
+            if (showWallet) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    WalletScreen(onBack = { showWallet = false })
                 }
             }
 

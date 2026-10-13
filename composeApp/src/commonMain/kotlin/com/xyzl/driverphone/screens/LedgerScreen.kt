@@ -52,7 +52,7 @@ private enum class LedgerFilter(val label: String) {
 
 /** 流水记录页：报销 / 薪资 / 转账 全部流水 */
 @Composable
-fun LedgerScreen(onBack: () -> Unit = {}) {
+fun LedgerScreen(onBack: () -> Unit = {}, embedded: Boolean = false) {
     var filter by remember { mutableStateOf(LedgerFilter.ALL) }
     var selected by remember { mutableStateOf<LedgerEntry?>(null) }
 
@@ -167,7 +167,8 @@ fun LedgerScreen(onBack: () -> Unit = {}) {
         }
     }
 
-    Column(Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 12.dp)) {
+    Column(Modifier.fillMaxSize().padding(horizontal = if (embedded) 0.dp else 20.dp, vertical = if (embedded) 0.dp else 12.dp)) {
+        if (!embedded) {
         Box(Modifier.fillMaxWidth().height(44.dp)) {
             Box(
                 modifier = Modifier
@@ -192,6 +193,7 @@ fun LedgerScreen(onBack: () -> Unit = {}) {
                 color = InkDark,
                 modifier = Modifier.align(Alignment.Center),
             )
+        }
         }
 
         Spacer(Modifier.height(14.dp))

@@ -1,0 +1,6 @@
+package com.xyzl.driverphone
+
+actual fun saveQrToGallery(text: String): Boolean {
+    // iOS 端暂未接入保存到相册，留空
+    return false
+}
