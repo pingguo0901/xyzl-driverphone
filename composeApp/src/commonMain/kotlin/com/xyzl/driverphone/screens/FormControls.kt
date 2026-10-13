@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -56,12 +57,12 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.xyzl.driverphone.ImageSource
 
-internal val FormCard = Color(0xFFF7F7F9)
-internal val FormChip = Color(0xFFEFEFF3)
-internal val FormInk = Color(0xFF111111)
-internal val FormMuted = Color(0xFF6B7280)
+internal val FormCard: Color @Composable get() = LocalAppColors.current.card
+internal val FormChip: Color @Composable get() = LocalAppColors.current.surfaceVariant
+internal val FormInk: Color @Composable get() = LocalAppColors.current.ink
+internal val FormMuted: Color @Composable get() = LocalAppColors.current.muted
 internal val FormGreen = Color(0xFF3B82F6)
-internal val FormDivide = Color(0xFFEFEFF3)
+internal val FormDivide: Color @Composable get() = LocalAppColors.current.surfaceVariant
 internal val FormRed = Color(0xFFF43F5E)
 
 /** 协议链接文字（蓝色可点，未登录也能打开） */
@@ -84,8 +85,8 @@ internal fun formFieldColors() = OutlinedTextFieldDefaults.colors(
     cursorColor = FormGreen,
     focusedContainerColor = FormCard,
     unfocusedContainerColor = FormCard,
-    focusedPlaceholderColor = Color(0xFFB0B0B8),
-    unfocusedPlaceholderColor = Color(0xFFB0B0B8),
+    focusedPlaceholderColor = LocalAppColors.current.textDisabled,
+    unfocusedPlaceholderColor = LocalAppColors.current.textDisabled,
 )
 
 /** 二级页标题栏：左上角返回 + 居中标题 */

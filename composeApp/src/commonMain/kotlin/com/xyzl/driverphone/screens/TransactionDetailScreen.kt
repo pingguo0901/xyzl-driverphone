@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,9 +26,9 @@ import com.xyzl.driverphone.model.formatMoney
 import com.xyzl.driverphone.model.signedMoney
 import com.xyzl.driverphone.shareText
 
-private val InkDark = Color(0xFF111111)
-private val MutedGray = Color(0xFF6B7280)
-private val DividerGray = Color(0xFFEFEFF3)
+private val InkDark: Color @Composable get() = LocalAppColors.current.ink
+private val MutedGray: Color @Composable get() = LocalAppColors.current.muted
+private val DividerGray: Color @Composable get() = LocalAppColors.current.surfaceVariant
 private val AmountGreen = Color(0xFF3B82F6)
 
 /** 交易详情页：金额 + 明细 + 收据分享 */

@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,9 +42,9 @@ import com.xyzl.driverphone.model.formatRinggit
 import com.xyzl.driverphone.openUrl
 
 private val OnlineGreen = Color(0xFF3B82F6)
-private val InkDark = Color(0xFF111111)
-private val MutedGray = Color(0xFF6B7280)
-private val DividerGray = Color(0xFFEFEFF3)
+private val InkDark: Color @Composable get() = LocalAppColors.current.ink
+private val MutedGray: Color @Composable get() = LocalAppColors.current.muted
+private val DividerGray: Color @Composable get() = LocalAppColors.current.surfaceVariant
 
 @Composable
 fun TripDetailScreen(trip: Trip, onBack: () -> Unit) {
@@ -59,7 +60,7 @@ fun TripDetailScreen(trip: Trip, onBack: () -> Unit) {
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFEFEFF3))
+                    .background(LocalAppColors.current.surfaceVariant)
                     .clickable(onClick = onBack),
                 contentAlignment = Alignment.Center,
             ) {
@@ -78,7 +79,7 @@ fun TripDetailScreen(trip: Trip, onBack: () -> Unit) {
 
         Card(
             Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F9)),
+            colors = CardDefaults.cardColors(containerColor = LocalAppColors.current.card),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(Modifier.padding(20.dp)) {

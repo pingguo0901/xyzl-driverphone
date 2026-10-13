@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,7 +35,7 @@ fun EntryScreen(
     onLoginClick: () -> Unit = {},
     onRegisterClick: () -> Unit = {},
 ) {
-    Box(modifier = Modifier.fillMaxSize().background(Color(0xFFFFFFFF))) {
+    Box(modifier = Modifier.fillMaxSize().background(LocalAppColors.current.background)) {
         // 背景图（Android 用真实图片，iOS 回退纯色）
         entryBackgroundPainter()?.let { painter ->
             Image(

@@ -45,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
@@ -350,7 +351,7 @@ private fun ScanQrTab(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .weight(1f)
                 .clip(RoundedCornerShape(22.dp))
-                .background(Color(0xFFFFFFFF)),
+                .background(LocalAppColors.current.background),
             contentAlignment = Alignment.Center,
         ) {
             Box(Modifier.fillMaxWidth(0.72f).aspectRatio(1f)) {
@@ -371,7 +372,7 @@ private fun ScanQrTab(modifier: Modifier = Modifier) {
             Text(
                 "将二维码放入框内",
                 fontSize = 12.sp,
-                color = Color(0xFF6B7280),
+                color = LocalAppColors.current.muted,
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 18.dp),
             )
         }

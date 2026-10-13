@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -51,10 +52,10 @@ import com.xyzl.driverphone.saveQrToGallery
 import com.xyzl.driverphone.setTorchEnabled
 import kotlinx.coroutines.delay
 
-private val ScanCard = Color(0xFFF7F7F9)
-private val ScanChip = Color(0xFFEFEFF3)
-private val ScanInk = Color(0xFF111111)
-private val ScanMuted = Color(0xFF6B7280)
+private val ScanCard: Color @Composable get() = LocalAppColors.current.card
+private val ScanChip: Color @Composable get() = LocalAppColors.current.surfaceVariant
+private val ScanInk: Color @Composable get() = LocalAppColors.current.ink
+private val ScanMuted: Color @Composable get() = LocalAppColors.current.muted
 private val ScanGreen = Color(0xFF3B82F6)
 
 private const val WalletDriverName = "陈师傅"
@@ -185,7 +186,7 @@ private fun ScanFrameView() {
         Modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(22.dp))
-            .background(Color(0xFFFFFFFF)),
+            .background(LocalAppColors.current.background),
         contentAlignment = Alignment.Center,
     ) {
         Box(Modifier.fillMaxWidth(0.72f).aspectRatio(1f)) {

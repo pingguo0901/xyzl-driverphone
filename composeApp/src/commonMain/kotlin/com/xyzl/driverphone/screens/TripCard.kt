@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,15 +25,16 @@ import com.xyzl.driverphone.model.Trip
 import com.xyzl.driverphone.model.TripStatus
 import com.xyzl.driverphone.model.formatRinggit
 
-private val InkDark = Color(0xFF111111)
-private val MutedGray = Color(0xFF6B7280)
-private val FaintGray = Color(0xFF9CA3AF)
+private val InkDark: Color @Composable get() = LocalAppColors.current.ink
+private val MutedGray: Color @Composable get() = LocalAppColors.current.muted
+private val FaintGray: Color @Composable get() = LocalAppColors.current.textMuted
 
 /** 状态标签颜色（行程列表与详情页共用） */
+@Composable
 internal fun statusColor(status: TripStatus): Color = when (status) {
     TripStatus.PENDING -> Color(0xFFFBBF24)
     TripStatus.ONGOING -> Color(0xFF3B82F6)
-    TripStatus.COMPLETED -> Color(0xFF6B7280)
+    TripStatus.COMPLETED -> LocalAppColors.current.muted
     TripStatus.CANCELLED -> Color(0xFFF43F5E)
 }
 
@@ -56,7 +58,7 @@ fun TripCard(trip: Trip, onClick: () -> Unit = {}) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F9)),
+        colors = CardDefaults.cardColors(containerColor = LocalAppColors.current.card),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(

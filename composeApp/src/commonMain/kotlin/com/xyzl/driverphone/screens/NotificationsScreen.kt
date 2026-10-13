@@ -41,17 +41,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val NotifCard = Color(0xFFF7F7F9)
-private val NotifChip = Color(0xFFEFEFF3)
+private val NotifCard: Color @Composable get() = LocalAppColors.current.card
+private val NotifChip: Color @Composable get() = LocalAppColors.current.surfaceVariant
 private val NotifGreen = Color(0xFF3B82F6)
 private val NotifDone = Color(0xFF22C55E)
-private val NotifInk = Color(0xFF111111)
-private val NotifMuted = Color(0xFF6B7280)
+private val NotifInk: Color @Composable get() = LocalAppColors.current.ink
+private val NotifMuted: Color @Composable get() = LocalAppColors.current.muted
 
 private data class NoticeItem(
     val title: String,

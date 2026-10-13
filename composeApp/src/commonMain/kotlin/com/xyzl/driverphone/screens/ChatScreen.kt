@@ -30,16 +30,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val ChatCard = Color(0xFFF7F7F9)
-private val ChatAvatar = Color(0xFFEFEFF3)
+private val ChatCard: Color @Composable get() = LocalAppColors.current.card
+private val ChatAvatar: Color @Composable get() = LocalAppColors.current.surfaceVariant
 private val ChatGreen = Color(0xFF3B82F6)
-private val ChatInk = Color(0xFF111111)
-private val ChatMuted = Color(0xFF6B7280)
+private val ChatInk: Color @Composable get() = LocalAppColors.current.ink
+private val ChatMuted: Color @Composable get() = LocalAppColors.current.muted
 
 /** 聊天页：胶囊式左右选项（聊天 / 官方通知）+ 聊天列表 */
 @Composable

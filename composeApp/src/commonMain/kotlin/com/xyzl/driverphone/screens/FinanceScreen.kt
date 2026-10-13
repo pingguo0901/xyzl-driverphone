@@ -27,14 +27,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 private val OnlineGreen = Color(0xFF3B82F6)
-private val InkDark = Color(0xFF111111)
-private val MutedGray = Color(0xFF6B7280)
-private val CardGray = Color(0xFFEFEFF3)
+private val InkDark: Color @Composable get() = LocalAppColors.current.ink
+private val MutedGray: Color @Composable get() = LocalAppColors.current.muted
+private val CardGray: Color @Composable get() = LocalAppColors.current.surfaceVariant
 
 /** 财务页：今日薪资 + 今日报销/今日单数 + 代收新币/代收马币 + 提交报销 */
 @Composable
@@ -142,7 +143,7 @@ private fun StatCard(label: String, value: String, modifier: Modifier = Modifier
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F9)),
+        colors = CardDefaults.cardColors(containerColor = LocalAppColors.current.card),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(Modifier.padding(18.dp)) {

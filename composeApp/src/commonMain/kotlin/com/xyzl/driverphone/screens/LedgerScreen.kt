@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,9 +46,9 @@ import com.xyzl.driverphone.model.signedMoney
 import com.xyzl.driverphone.saveStatementPdf
 
 private val OnlineGreen = Color(0xFF3B82F6)
-private val InkDark = Color(0xFF111111)
-private val MutedGray = Color(0xFF6B7280)
-private val FieldGray = Color(0xFFEFEFF3)
+private val InkDark: Color @Composable get() = LocalAppColors.current.ink
+private val MutedGray: Color @Composable get() = LocalAppColors.current.muted
+private val FieldGray: Color @Composable get() = LocalAppColors.current.surfaceVariant
 
 private enum class LedgerFilter(val label: String) {
     ALL("全部"),
@@ -149,7 +150,7 @@ fun LedgerScreen(onBack: () -> Unit = {}, embedded: Boolean = false, showPrint: 
     if (info != null) {
         AlertDialog(
             onDismissRequest = { savedInfo = null },
-            containerColor = Color(0xFFF7F7F9),
+            containerColor = LocalAppColors.current.card,
             title = { Text("e-statement", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = InkDark) },
             text = { Text(info, fontSize = 14.sp, color = MutedGray) },
             confirmButton = { TextButton(onClick = { savedInfo = null }) { Text("确定", color = OnlineGreen) } },
@@ -188,7 +189,7 @@ private fun LedgerRow(entry: LedgerEntry, onClick: () -> Unit) {
     Card(
         Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F9)),
+        colors = CardDefaults.cardColors(containerColor = LocalAppColors.current.card),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(

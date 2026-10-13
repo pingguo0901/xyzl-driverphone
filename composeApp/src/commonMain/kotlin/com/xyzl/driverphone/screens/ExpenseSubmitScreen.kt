@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -54,10 +55,10 @@ import com.xyzl.driverphone.model.ExpenseTypes
 import com.xyzl.driverphone.model.currencyForType
 
 private val OnlineGreen = Color(0xFF3B82F6)
-private val InkDark = Color(0xFF111111)
-private val MutedGray = Color(0xFF6B7280)
-private val FieldGray = Color(0xFFEFEFF3)
-private val DividerGray = Color(0xFFEFEFF3)
+private val InkDark: Color @Composable get() = LocalAppColors.current.ink
+private val MutedGray: Color @Composable get() = LocalAppColors.current.muted
+private val FieldGray: Color @Composable get() = LocalAppColors.current.surfaceVariant
+private val DividerGray: Color @Composable get() = LocalAppColors.current.surfaceVariant
 
 /** 提交报销页 */
 @Composable
@@ -206,7 +207,7 @@ fun ExpenseSubmitScreen(
                 .fillMaxWidth()
                 .height(54.dp)
                 .clip(RoundedCornerShape(999.dp))
-                .background(if (canSubmit) OnlineGreen else Color(0xFFEFEFF3))
+                .background(if (canSubmit) OnlineGreen else LocalAppColors.current.surfaceVariant)
                 .clickable(enabled = canSubmit) { onSubmit() },
             contentAlignment = Alignment.Center,
         ) {
@@ -214,7 +215,7 @@ fun ExpenseSubmitScreen(
                 "确认提交",
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = if (canSubmit) Color.White else Color(0xFF9CA3AF),
+                color = if (canSubmit) Color.White else LocalAppColors.current.textMuted,
                 letterSpacing = 2.sp,
             )
         }
@@ -270,7 +271,7 @@ private fun DropdownField(
             ) {
                 Surface(
                     shape = RoundedCornerShape(14.dp),
-                    color = Color(0xFFF7F7F9),
+                    color = LocalAppColors.current.card,
                     shadowElevation = 8.dp,
                 ) {
                     Column(Modifier.width(240.dp).padding(vertical = 6.dp)) {
@@ -333,7 +334,7 @@ private fun ReceiptUploadBox(
         Dialog(onDismissRequest = { showSheet = false }) {
             Surface(
                 shape = RoundedCornerShape(20.dp),
-                color = Color(0xFFF7F7F9),
+                color = LocalAppColors.current.card,
                 shadowElevation = 12.dp,
             ) {
                 Column(Modifier.fillMaxWidth().padding(20.dp)) {

@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
@@ -67,7 +68,7 @@ fun CallScreen(
 
     val timeText = (seconds / 60).toString().padStart(2, '0') + ":" + (seconds % 60).toString().padStart(2, '0')
 
-    Box(Modifier.fillMaxSize().background(Color(0xFFFFFFFF))) {
+    Box(Modifier.fillMaxSize().background(LocalAppColors.current.background)) {
         if (video) {
             // 整个页面是对方视频（点击我方小窗可互换）
             Box(Modifier.fillMaxSize().background(Color(0xFF111827)), contentAlignment = Alignment.Center) {
@@ -77,7 +78,7 @@ fun CallScreen(
                         color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold,
                     )
                     Spacer(Modifier.height(6.dp))
-                    Text("视频画面", color = Color(0xFF9CA3AF), fontSize = 13.sp)
+                    Text("视频画面", color = LocalAppColors.current.textMuted, fontSize = 13.sp)
                 }
             }
 
@@ -88,7 +89,7 @@ fun CallScreen(
                     .padding(top = 60.dp, end = 16.dp)
                     .size(width = 96.dp, height = 140.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFFEFEFF3))
+                    .background(LocalAppColors.current.surfaceVariant)
                     .pointerInput(Unit) {
                         detectDragGestures { change, drag ->
                             change.consume()
@@ -104,7 +105,7 @@ fun CallScreen(
 
             Column(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 12.dp)) {
                 Text(peerName, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                Text(timeText, color = Color(0xFF9CA3AF), fontSize = 13.sp)
+                Text(timeText, color = LocalAppColors.current.textMuted, fontSize = 13.sp)
             }
         } else {
             Column(
@@ -117,7 +118,7 @@ fun CallScreen(
                 Spacer(Modifier.height(18.dp))
                 Text(peerName, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(6.dp))
-                Text(timeText, color = Color(0xFF9CA3AF), fontSize = 14.sp)
+                Text(timeText, color = LocalAppColors.current.textMuted, fontSize = 14.sp)
             }
         }
 
@@ -134,7 +135,7 @@ fun CallScreen(
                 icon = if (muted) Icons.Filled.MicOff else Icons.Filled.Mic,
                 label = if (muted) "已静音" else "静音",
                 tint = if (muted) Color.White else Color.White,
-                bg = if (muted) Color(0xFFD1D5DB) else Color(0xFFEFEFF3),
+                bg = if (muted) Color(0xFFD1D5DB) else LocalAppColors.current.surfaceVariant,
             ) { muted = !muted }
 
             CallButton(
@@ -149,7 +150,7 @@ fun CallScreen(
                 icon = if (speaker) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff,
                 label = if (speaker) "扬声器" else "听筒",
                 tint = Color.White,
-                bg = if (speaker) Color(0xFF1D4ED8) else Color(0xFFEFEFF3),
+                bg = if (speaker) Color(0xFF1D4ED8) else LocalAppColors.current.surfaceVariant,
             ) { speaker = !speaker }
         }
     }
@@ -172,6 +173,6 @@ private fun CallButton(
             Icon(icon, label, tint = tint, modifier = Modifier.size(if (size > 60.dp) 28.dp else 24.dp))
         }
         Spacer(Modifier.height(6.dp))
-        Text(label, color = Color(0xFF9CA3AF), fontSize = 11.sp)
+        Text(label, color = LocalAppColors.current.textMuted, fontSize = 11.sp)
     }
 }

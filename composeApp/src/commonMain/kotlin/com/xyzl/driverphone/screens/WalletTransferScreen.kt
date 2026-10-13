@@ -39,18 +39,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.pickBirthday
 import kotlinx.coroutines.delay
 
-private val TrCard = Color(0xFFF7F7F9)
-private val TrChip = Color(0xFFEFEFF3)
-private val TrInk = Color(0xFF111111)
-private val TrMuted = Color(0xFF6B7280)
+private val TrCard: Color @Composable get() = LocalAppColors.current.card
+private val TrChip: Color @Composable get() = LocalAppColors.current.surfaceVariant
+private val TrInk: Color @Composable get() = LocalAppColors.current.ink
+private val TrMuted: Color @Composable get() = LocalAppColors.current.muted
 private val TrGreen = Color(0xFF3B82F6)
-private val TrDivide = Color(0xFFEFEFF3)
+private val TrDivide: Color @Composable get() = LocalAppColors.current.surfaceVariant
 
 private data class TransferAccount(
     val label: String,

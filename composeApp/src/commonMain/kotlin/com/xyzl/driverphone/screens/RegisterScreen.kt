@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -66,8 +67,8 @@ import com.xyzl.driverphone.sanitizeWechat
 
 private val Gold = Color(0xFF3B82F6)
 private val GoldLight = Color(0xFF3B82F6)
-private val FieldBorder = Color(0xFFEFEFF3)
-private val LabelGray = Color(0xFF6B7280)
+private val FieldBorder: Color @Composable get() = LocalAppColors.current.surfaceVariant
+private val LabelGray: Color @Composable get() = LocalAppColors.current.muted
 
 /** 注册页：账号资料 + KYC 认证 */
 @OptIn(ExperimentalLayoutApi::class)
@@ -104,7 +105,7 @@ fun RegisterScreen(
         phone.isNotBlank() && email.isNotBlank() && icUri != null &&
         licenseUri != null && passportUri != null && agreed
 
-    val bg = Brush.verticalGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(0xFFFFFFFF)))
+    val bg = Brush.verticalGradient(listOf(LocalAppColors.current.background, LocalAppColors.current.background, LocalAppColors.current.background))
 
     Box(Modifier.fillMaxSize().background(bg)) {
         Column(
@@ -195,7 +196,7 @@ fun RegisterScreen(
                         ) {
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
-                                color = Color(0xFFEFEFF3),
+                                color = LocalAppColors.current.surfaceVariant,
                                 shadowElevation = 8.dp,
                             ) {
                                 Column(Modifier.width(96.dp).padding(vertical = 4.dp)) {
@@ -218,7 +219,7 @@ fun RegisterScreen(
                     value = phone,
                     onValueChange = { phone = sanitizeDigits(it) },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("仅数字", color = Color(0xFF6B7280)) },
+                    placeholder = { Text("仅数字", color = LocalAppColors.current.muted) },
                     shape = RoundedCornerShape(14.dp),
                     singleLine = true,
                     colors = fieldColors(),
@@ -271,7 +272,7 @@ fun RegisterScreen(
                     onCheckedChange = { agreed = it },
                     colors = CheckboxDefaults.colors(
                         checkedColor = Gold,
-                        uncheckedColor = Color(0xFF9CA3AF),
+                        uncheckedColor = LocalAppColors.current.textMuted,
                         checkmarkColor = Color(0xFFFFFFFF),
                     ),
                 )
@@ -279,13 +280,13 @@ fun RegisterScreen(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    Text("我已阅读并同意", color = Color(0xFFFFFFFF), fontSize = 12.sp)
+                    Text("我已阅读并同意", color = LocalAppColors.current.ink, fontSize = 12.sp)
                     PolicyLink("《KYC实名认证合规条款》") { onOpenPolicy(2) }
-                    Text("、", color = Color(0xFFFFFFFF), fontSize = 12.sp)
+                    Text("、", color = LocalAppColors.current.ink, fontSize = 12.sp)
                     PolicyLink("《用户服务协议》") { onOpenPolicy(0) }
-                    Text("、", color = Color(0xFFFFFFFF), fontSize = 12.sp)
+                    Text("、", color = LocalAppColors.current.ink, fontSize = 12.sp)
                     PolicyLink("《隐私政策》") { onOpenPolicy(1) }
-                    Text("与", color = Color(0xFFFFFFFF), fontSize = 12.sp)
+                    Text("与", color = LocalAppColors.current.ink, fontSize = 12.sp)
                     PolicyLink("《终端用户软件许可》") { onOpenPolicy(7) }
                 }
             }
@@ -299,14 +300,14 @@ fun RegisterScreen(
                 shape = RoundedCornerShape(999.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Gold,
-                    disabledContainerColor = Color(0xFFEFEFF3),
+                    disabledContainerColor = LocalAppColors.current.surfaceVariant,
                 ),
             ) {
                 Text(
                     "注 册",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (canSubmit) Color(0xFFFFFFFF) else Color(0xFFB0B0B8),
+                    color = if (canSubmit) Color(0xFFFFFFFF) else LocalAppColors.current.textDisabled,
                     letterSpacing = 4.sp,
                 )
             }
@@ -339,7 +340,7 @@ private fun LabeledField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(placeholder, color = Color(0xFF6B7280)) },
+            placeholder = { Text(placeholder, color = LocalAppColors.current.muted) },
             shape = RoundedCornerShape(14.dp),
             singleLine = true,
             keyboardOptions = KeyboardOptions(
@@ -375,7 +376,7 @@ private fun ChoiceChip(text: String, selected: Boolean, modifier: Modifier, onCl
     ) {
         Text(
             text,
-            color = if (selected) Color(0xFFFFFFFF) else Color(0xFFFFFFFF),
+            color = if (selected) Color(0xFFFFFFFF) else LocalAppColors.current.ink,
             fontSize = 15.sp,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
         )
@@ -419,7 +420,7 @@ private fun UploadBox(
         Dialog(onDismissRequest = { showSheet = false }) {
             Surface(
                 shape = RoundedCornerShape(20.dp),
-                color = Color(0xFFEFEFF3),
+                color = LocalAppColors.current.surfaceVariant,
                 shadowElevation = 12.dp,
             ) {
                 Column(Modifier.fillMaxWidth().padding(20.dp)) {

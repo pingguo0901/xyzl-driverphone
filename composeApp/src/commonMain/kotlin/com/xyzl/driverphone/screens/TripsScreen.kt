@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,8 +36,8 @@ import com.xyzl.driverphone.model.Trip
 import com.xyzl.driverphone.model.TripStatus
 
 private val OnlineGreen = Color(0xFF3B82F6)
-private val InkDark = Color(0xFF111111)
-private val MutedGray = Color(0xFF6B7280)
+private val InkDark: Color @Composable get() = LocalAppColors.current.ink
+private val MutedGray: Color @Composable get() = LocalAppColors.current.muted
 
 private enum class TripFilter(val label: String) {
     ALL("全部"),
@@ -97,7 +98,7 @@ fun TripsScreen(onOpenNotifications: () -> Unit = {}) {
 
 @Composable
 private fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
-    val bg = if (selected) OnlineGreen else Color(0xFFEFEFF3)
+    val bg = if (selected) OnlineGreen else LocalAppColors.current.surfaceVariant
     val fg = if (selected) Color.White else MutedGray
     Box(
         modifier = Modifier

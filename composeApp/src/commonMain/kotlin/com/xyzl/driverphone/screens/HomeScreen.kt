@@ -53,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -72,11 +73,11 @@ import com.xyzl.driverphone.openUrl
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
-private val RestingGray = Color(0xFFEFEFF3)
+private val RestingGray: Color @Composable get() = LocalAppColors.current.surfaceVariant
 private val OnlineGreen = Color(0xFF3B82F6)
-private val InkDark = Color(0xFF111111)
-private val MutedGray = Color(0xFF6B7280)
-private val DividerGray = Color(0xFFEFEFF3)
+private val InkDark: Color @Composable get() = LocalAppColors.current.ink
+private val MutedGray: Color @Composable get() = LocalAppColors.current.muted
+private val DividerGray: Color @Composable get() = LocalAppColors.current.surfaceVariant
 private val WhatsAppGreen = Color(0xFF25D366)
 private val WeChatGreen = Color(0xFF07C160)
 
@@ -143,7 +144,7 @@ private fun OnlineStatusCard(
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F9)),
+        colors = CardDefaults.cardColors(containerColor = LocalAppColors.current.card),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Box(Modifier.fillMaxWidth().height(92.dp)) {
@@ -203,7 +204,7 @@ private fun DutyVehicleCard() {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F9)),
+        colors = CardDefaults.cardColors(containerColor = LocalAppColors.current.card),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
@@ -267,7 +268,7 @@ private fun DutyVehicleCard() {
         )
         AlertDialog(
             onDismissRequest = { showPicker = false },
-            containerColor = Color(0xFFF7F7F9),
+            containerColor = LocalAppColors.current.card,
             title = {
                 Text(
                     "更换值班车辆",
@@ -316,7 +317,7 @@ private fun CurrentTaskCard() {
                 spotColor = Color.Black.copy(alpha = 0.45f),
             ),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F9)),
+        colors = CardDefaults.cardColors(containerColor = LocalAppColors.current.card),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(Modifier.padding(20.dp)) {
@@ -452,7 +453,7 @@ private fun FieldWithAction(
             RoundActionButton(
                 icon = Icons.Filled.Navigation,
                 tint = InkDark,
-                bg = Color(0xFFEFEFF3),
+                bg = LocalAppColors.current.surfaceVariant,
                 onClick = onAction,
             )
         }
@@ -468,7 +469,7 @@ private fun NavigationDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFFF7F7F9),
+        containerColor = LocalAppColors.current.card,
         title = {
             Text(
                 "导航到",
@@ -586,7 +587,7 @@ private fun SlideToConfirmBar(
             .fillMaxWidth()
             .height(56.dp)
             .clip(RoundedCornerShape(28.dp))
-            .background(Color(0xFFEFEFF3)),
+            .background(LocalAppColors.current.surfaceVariant),
     ) {
         val density = LocalDensity.current
         val ballSize = 48.dp

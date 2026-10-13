@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
@@ -34,10 +35,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 
-private val SegTrack = Color(0xFFEFEFF3)
+private val SegTrack: Color @Composable get() = LocalAppColors.current.surfaceVariant
 private val SegBorder = Color(0x1A000000)
-private val SegInk = Color(0xFFF7F7F9)
-private val SegMuted = Color(0xFF6B7280)
+private val SegInk: Color @Composable get() = LocalAppColors.current.card
+private val SegMuted: Color @Composable get() = LocalAppColors.current.muted
 
 /** 胶囊式左右选项：整体一个胶囊（不是各自独立胶囊），选中项有白色滑块跟随 */
 @Composable

@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -50,9 +51,9 @@ fun LoginScreen(
     // 星空深蓝色渐变
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFFFFFFFF),
-            Color(0xFFFFFFFF),
-            Color(0xFFFFFFFF),
+            LocalAppColors.current.background,
+            LocalAppColors.current.background,
+            LocalAppColors.current.background,
         ),
     )
 
@@ -74,7 +75,7 @@ fun LoginScreen(
             Text(
                 text = "星域臻旅",
                 fontSize = 44.sp,
-                color = Color(0xFFFFFFFF),
+                color = LocalAppColors.current.ink,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 6.sp,
             )
@@ -82,7 +83,7 @@ fun LoginScreen(
             Text(
                 text = "— 尊荣邀制 · 至尊之旅 —",
                 fontSize = 15.sp,
-                color = Color(0xFF6B7280),
+                color = LocalAppColors.current.muted,
                 letterSpacing = 2.sp,
                 modifier = Modifier.padding(bottom = 36.dp),
             )
@@ -94,7 +95,7 @@ fun LoginScreen(
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0x1A3B82F6),
                 ),
-                border = BorderStroke(1.dp, Color(0xFFEFEFF3)),
+                border = BorderStroke(1.dp, LocalAppColors.current.surfaceVariant),
             ) {
                 Column(
                     modifier = Modifier
@@ -118,14 +119,14 @@ fun LoginScreen(
                         value = accountText,
                         onValueChange = { accountText = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("请输入手机号 / 邮箱", color = Color(0xFF6B7280)) },
+                        placeholder = { Text("请输入手机号 / 邮箱", color = LocalAppColors.current.muted) },
                         leadingIcon = {
-                            Icon(Icons.Filled.Person, null, tint = Color(0xFF6B7280))
+                            Icon(Icons.Filled.Person, null, tint = LocalAppColors.current.muted)
                         },
                         shape = RoundedCornerShape(18.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF3B82F6),
-                            unfocusedBorderColor = Color(0xFFEFEFF3),
+                            unfocusedBorderColor = LocalAppColors.current.surfaceVariant,
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
                         ),
@@ -139,15 +140,15 @@ fun LoginScreen(
                         value = passwordText,
                         onValueChange = { passwordText = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("请输入密码", color = Color(0xFF6B7280)) },
+                        placeholder = { Text("请输入密码", color = LocalAppColors.current.muted) },
                         leadingIcon = {
-                            Icon(Icons.Filled.Lock, null, tint = Color(0xFF6B7280))
+                            Icon(Icons.Filled.Lock, null, tint = LocalAppColors.current.muted)
                         },
                         trailingIcon = {
                             val icon = if (passwordVisible) Icons.Filled.Visibility
                             else Icons.Filled.VisibilityOff
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(icon, "切换密码可见", tint = Color(0xFF6B7280))
+                                Icon(icon, "切换密码可见", tint = LocalAppColors.current.muted)
                             }
                         },
                         shape = RoundedCornerShape(18.dp),
@@ -155,7 +156,7 @@ fun LoginScreen(
                         else PasswordVisualTransformation(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF3B82F6),
-                            unfocusedBorderColor = Color(0xFFEFEFF3),
+                            unfocusedBorderColor = LocalAppColors.current.surfaceVariant,
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
                         ),
@@ -207,11 +208,11 @@ fun LoginScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(1.dp)
-                                .background(Color(0xFFF7F7F9)),
+                                .background(LocalAppColors.current.card),
                         )
                         Text(
                             "其他登录方式",
-                            color = Color(0xFF6B7280),
+                            color = LocalAppColors.current.muted,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(horizontal = 12.dp),
                         )
@@ -219,7 +220,7 @@ fun LoginScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(1.dp)
-                                .background(Color(0xFFF7F7F9)),
+                                .background(LocalAppColors.current.card),
                         )
                     }
 
@@ -240,7 +241,7 @@ fun LoginScreen(
 
                     // 没有帐号？注册
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("没有帐号？", color = Color(0xFF6B7280), fontSize = 13.sp)
+                        Text("没有帐号？", color = LocalAppColors.current.muted, fontSize = 13.sp)
                         Text(
                             "注册",
                             color = Color(0xFF3B82F6),
@@ -259,7 +260,7 @@ fun LoginScreen(
                             onCheckedChange = { agreedPolicy = it },
                             colors = CheckboxDefaults.colors(
                                 checkedColor = Color(0xFF3B82F6),
-                                uncheckedColor = Color(0xFF9CA3AF),
+                                uncheckedColor = LocalAppColors.current.textMuted,
                                 checkmarkColor = Color(0xFFFFFFFF),
                             ),
                         )
@@ -267,9 +268,9 @@ fun LoginScreen(
                             modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.Center,
                         ) {
-                            Text("我已阅读并同意", color = Color(0xFFFFFFFF), fontSize = 12.sp)
+                            Text("我已阅读并同意", color = LocalAppColors.current.ink, fontSize = 12.sp)
                             PolicyLink("《用户服务协议》") { onOpenPolicy(0) }
-                            Text("与", color = Color(0xFFFFFFFF), fontSize = 12.sp)
+                            Text("与", color = LocalAppColors.current.ink, fontSize = 12.sp)
                             PolicyLink("《隐私政策》") { onOpenPolicy(1) }
                         }
                     }

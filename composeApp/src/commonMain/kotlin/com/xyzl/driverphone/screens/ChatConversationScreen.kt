@@ -58,6 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -78,7 +79,7 @@ import com.xyzl.driverphone.stopVoiceRecord
 import kotlinx.coroutines.delay
 
 private val BubbleMine = Color(0xFF3B82F6)
-private val BubbleOther = Color(0xFFEFEFF3)
+private val BubbleOther: Color @Composable get() = LocalAppColors.current.surfaceVariant
 private val TickGreen = Color(0xFF22C55E)
 private val TickBlue = Color(0xFF3B82F6)
 
@@ -257,7 +258,7 @@ fun ChatConversationScreen(
 
         // + 面板：相册 / 拍照 / 语音通话 / 视频通话 / 位置 / 名片 / 文件
         if (panelOpen) {
-            Column(Modifier.fillMaxWidth().background(Color(0xFFF7F7F9)).padding(14.dp)) {
+            Column(Modifier.fillMaxWidth().background(LocalAppColors.current.card).padding(14.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                     PanelItem("相册", Icons.Filled.PhotoLibrary) {
                         requestScenePermission(PermissionScene.Photos)

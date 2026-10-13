@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -48,10 +49,10 @@ import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.model.LedgerEntries
 import com.xyzl.driverphone.model.LedgerKind
 
-private val WalletCard = Color(0xFFF7F7F9)
-private val WalletChip = Color(0xFFEFEFF3)
-private val WalletInk = Color(0xFF111111)
-private val WalletMuted = Color(0xFF6B7280)
+private val WalletCard: Color @Composable get() = LocalAppColors.current.card
+private val WalletChip: Color @Composable get() = LocalAppColors.current.surfaceVariant
+private val WalletInk: Color @Composable get() = LocalAppColors.current.ink
+private val WalletMuted: Color @Composable get() = LocalAppColors.current.muted
 private val WalletGreen = Color(0xFF3B82F6)
 
 /** 账户索引：0 钱包余额 / 1 代收 SGD / 2 代收 MYR */

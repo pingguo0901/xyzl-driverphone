@@ -21,12 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val HeaderInk = Color(0xFF111111)
-private val HeaderChip = Color(0xFFEFEFF3)
+private val HeaderInk: Color @Composable get() = LocalAppColors.current.ink
+private val HeaderChip: Color @Composable get() = LocalAppColors.current.surfaceVariant
 private val HeaderBadge = Color(0xFF3B82F6)
 
 /** 通用页面标题栏：标题居中，右上角通知铃铛（可插入额外按钮） */

@@ -1,51 +1,77 @@
 package com.xyzl.driverphone
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.xyzl.driverphone.screens.DisplayPrefs
 
-/**
- * 全站色板 —— 浅色主题：
- * 纯白背景 + 蓝色主色，表面/卡片分层，文字三级灰阶。
- */
+/** 主题色板（随 深色 / 浅色 切换） */
+data class AppThemeColors(
+    val background: Color,
+    val surface: Color,
+    val surfaceVariant: Color,
+    val card: Color,
+    val cardAlt: Color,
+    val border: Color,
+    val ink: Color,
+    val muted: Color,
+    val textMuted: Color,
+    val textDisabled: Color,
+)
+
+private val LightAppColors = AppThemeColors(
+    background = Color(0xFFFFFFFF),
+    surface = Color(0xFFF7F7F9),
+    surfaceVariant = Color(0xFFEFEFF3),
+    card = Color(0xFFF7F7F9),
+    cardAlt = Color(0xFFF2F2F7),
+    border = Color(0x1A000000),
+    ink = Color(0xFF111111),
+    muted = Color(0xFF6B7280),
+    textMuted = Color(0xFF9CA3AF),
+    textDisabled = Color(0xFFB0B0B8),
+)
+
+private val DarkAppColors = AppThemeColors(
+    background = Color(0xFF0A0A0A),
+    surface = Color(0xFF18181B),
+    surfaceVariant = Color(0xFF27272A),
+    card = Color(0xFF1C1C1E),
+    cardAlt = Color(0xFF222226),
+    border = Color(0x15FFFFFF),
+    ink = Color(0xFFFFFFFF),
+    muted = Color(0xFFA1A1AA),
+    textMuted = Color(0xFF71717A),
+    textDisabled = Color(0xFF52525B),
+)
+
+/** 当前生效的色板（浅色 / 深色） */
+val LocalAppColors = staticCompositionLocalOf { LightAppColors }
+
+/** 品牌主色与功能色（深浅色一致） */
 object AppPalette {
-    // 背景与表面
-    val Background = Color(0xFFFFFFFF)
-    val Surface = Color(0xFFF7F7F9)
-    val SurfaceVariant = Color(0xFFEFEFF3)
-    val Card = Color(0xFFF7F7F9)
-    val CardAlt = Color(0xFFF2F2F7)
-    val Border = Color(0x1A000000)
-
-    // 主色（蓝）
     val Primary = Color(0xFF3B82F6)
     val PrimaryDim = Color(0xFF2563EB)
     val PrimaryBg = Color(0x1A3B82F6)
-
-    // 功能色
     val Success = Color(0xFF10B981)
     val Danger = Color(0xFFF43F5E)
     val Warning = Color(0xFFFBBF24)
     val Info = Color(0xFF06B6D4)
-
-    // 文字（三级灰阶 + 占位符）
-    val TextPrimary = Color(0xFF111111)
-    val TextSecondary = Color(0xFF6B7280)
-    val TextMuted = Color(0xFF9CA3AF)
-    val TextDisabled = Color(0xFFB0B0B8)
-
-    // 状态徽章
     val StatusPending = Color(0xFFFBBF24)
     val StatusConfirmed = Color(0xFF3B82F6)
     val StatusInProgress = Color(0xFF10B981)
     val StatusCompleted = Color(0xFF6B7280)
 }
 
-private val AppColors = lightColorScheme(
+private val LightScheme = lightColorScheme(
     primary = AppPalette.Primary,
     onPrimary = Color.White,
     primaryContainer = Color(0xFFDBEAFE),
@@ -53,22 +79,22 @@ private val AppColors = lightColorScheme(
     inversePrimary = AppPalette.PrimaryDim,
     secondary = AppPalette.Primary,
     onSecondary = Color.White,
-    secondaryContainer = AppPalette.SurfaceVariant,
+    secondaryContainer = LightAppColors.surfaceVariant,
     onSecondaryContainer = Color(0xFF3F3F46),
-    tertiary = AppPalette.TextMuted,
+    tertiary = LightAppColors.textMuted,
     onTertiary = Color.White,
-    background = AppPalette.Background,
-    onBackground = AppPalette.TextPrimary,
-    surface = AppPalette.Background,
-    onSurface = AppPalette.TextPrimary,
-    surfaceVariant = AppPalette.SurfaceVariant,
-    onSurfaceVariant = AppPalette.TextSecondary,
+    background = LightAppColors.background,
+    onBackground = LightAppColors.ink,
+    surface = LightAppColors.background,
+    onSurface = LightAppColors.ink,
+    surfaceVariant = LightAppColors.surfaceVariant,
+    onSurfaceVariant = LightAppColors.muted,
     surfaceTint = AppPalette.Primary,
     surfaceContainerLowest = Color(0xFFFFFFFF),
-    surfaceContainerLow = AppPalette.Surface,
-    surfaceContainer = AppPalette.Card,
-    surfaceContainerHigh = AppPalette.CardAlt,
-    surfaceContainerHighest = AppPalette.SurfaceVariant,
+    surfaceContainerLow = LightAppColors.surface,
+    surfaceContainer = LightAppColors.card,
+    surfaceContainerHigh = LightAppColors.cardAlt,
+    surfaceContainerHighest = LightAppColors.surfaceVariant,
     inverseSurface = Color(0xFF27272A),
     inverseOnSurface = Color(0xFFF4F4F5),
     error = AppPalette.Danger,
@@ -76,7 +102,42 @@ private val AppColors = lightColorScheme(
     errorContainer = Color(0xFFFEE2E2),
     onErrorContainer = Color(0xFF7F1D1D),
     outline = Color(0x33000000),
-    outlineVariant = AppPalette.Border,
+    outlineVariant = LightAppColors.border,
+    scrim = Color(0xCC000000),
+)
+
+private val DarkScheme = darkColorScheme(
+    primary = AppPalette.Primary,
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFF1E3A8A),
+    onPrimaryContainer = Color(0xFFDBEAFE),
+    inversePrimary = AppPalette.PrimaryDim,
+    secondary = AppPalette.Primary,
+    onSecondary = Color.White,
+    secondaryContainer = DarkAppColors.surfaceVariant,
+    onSecondaryContainer = Color(0xFFE4E4E7),
+    tertiary = DarkAppColors.textMuted,
+    onTertiary = Color.White,
+    background = DarkAppColors.background,
+    onBackground = DarkAppColors.ink,
+    surface = DarkAppColors.surface,
+    onSurface = DarkAppColors.ink,
+    surfaceVariant = DarkAppColors.surfaceVariant,
+    onSurfaceVariant = DarkAppColors.muted,
+    surfaceTint = AppPalette.Primary,
+    surfaceContainerLowest = Color(0xFF0A0A0A),
+    surfaceContainerLow = DarkAppColors.surface,
+    surfaceContainer = DarkAppColors.card,
+    surfaceContainerHigh = DarkAppColors.cardAlt,
+    surfaceContainerHighest = DarkAppColors.surfaceVariant,
+    inverseSurface = Color(0xFFE4E4E7),
+    inverseOnSurface = Color(0xFF18181B),
+    error = AppPalette.Danger,
+    onError = Color.White,
+    errorContainer = Color(0xFF7F1D1D),
+    onErrorContainer = Color(0xFFFECDD3),
+    outline = Color(0x33FFFFFF),
+    outlineVariant = DarkAppColors.border,
     scrim = Color(0xCC000000),
 )
 
@@ -88,11 +149,15 @@ private val AppShapes = Shapes(
     extraLarge = RoundedCornerShape(26.dp),
 )
 
+/** 主题：跟随系统 → 用系统深浅色；否则用手动选择 */
 @Composable
 fun DriverPhoneTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = AppColors,
-        shapes = AppShapes,
-        content = content,
-    )
+    val dark = if (DisplayPrefs.followSystem) isSystemInDarkTheme() else DisplayPrefs.darkMode
+    CompositionLocalProvider(LocalAppColors provides if (dark) DarkAppColors else LightAppColors) {
+        MaterialTheme(
+            colorScheme = if (dark) DarkScheme else LightScheme,
+            shapes = AppShapes,
+            content = content,
+        )
+    }
 }

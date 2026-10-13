@@ -37,15 +37,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val ProfileCard = Color(0xFFF7F7F9)
-private val ProfileChip = Color(0xFFEFEFF3)
-private val ProfileInk = Color(0xFF111111)
-private val ProfileMuted = Color(0xFF6B7280)
-private val ProfileDivider = Color(0xFFEFEFF3)
+private val ProfileCard: Color @Composable get() = LocalAppColors.current.card
+private val ProfileChip: Color @Composable get() = LocalAppColors.current.surfaceVariant
+private val ProfileInk: Color @Composable get() = LocalAppColors.current.ink
+private val ProfileMuted: Color @Composable get() = LocalAppColors.current.muted
+private val ProfileDivider: Color @Composable get() = LocalAppColors.current.surfaceVariant
 private val ProfileRed = Color(0xFFF43F5E)
 
 private val sections: List<Pair<String, List<String>>> = listOf(

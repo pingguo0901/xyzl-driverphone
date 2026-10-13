@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
@@ -44,10 +45,10 @@ import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.openUrl
 import com.xyzl.driverphone.shareText
 
-private val InviteCardColor = Color(0xFFF7F7F9)
-private val InviteChipColor = Color(0xFFEFEFF3)
-private val InviteInk = Color(0xFF111111)
-private val InviteMuted = Color(0xFF6B7280)
+private val InviteCardColor: Color @Composable get() = LocalAppColors.current.card
+private val InviteChipColor: Color @Composable get() = LocalAppColors.current.surfaceVariant
+private val InviteInk: Color @Composable get() = LocalAppColors.current.ink
+private val InviteMuted: Color @Composable get() = LocalAppColors.current.muted
 private val InviteGreen = Color(0xFF3B82F6)
 
 /** 我的邀请码 + 邀请下载链接（示例数据，待后端下发） */

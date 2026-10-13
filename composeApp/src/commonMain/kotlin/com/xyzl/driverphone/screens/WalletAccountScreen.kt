@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -43,12 +44,12 @@ import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.model.LedgerEntry
 import com.xyzl.driverphone.model.formatMoney
 
-private val AcctCard = Color(0xFFF7F7F9)
-private val AcctChip = Color(0xFFEFEFF3)
-private val AcctInk = Color(0xFF111111)
-private val AcctMuted = Color(0xFF6B7280)
+private val AcctCard: Color @Composable get() = LocalAppColors.current.card
+private val AcctChip: Color @Composable get() = LocalAppColors.current.surfaceVariant
+private val AcctInk: Color @Composable get() = LocalAppColors.current.ink
+private val AcctMuted: Color @Composable get() = LocalAppColors.current.muted
 private val AcctGreen = Color(0xFF3B82F6)
-private val AcctDivider = Color(0xFFEFEFF3)
+private val AcctDivider: Color @Composable get() = LocalAppColors.current.surfaceVariant
 
 /** 钱包账户（钱包余额 / 代收 SGD / 代收 MYR） */
 data class WalletAccount(
