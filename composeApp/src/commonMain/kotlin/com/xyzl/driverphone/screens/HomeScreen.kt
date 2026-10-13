@@ -139,7 +139,7 @@ private fun OnlineStatusCard(
 
     val titleColor = if (online) Color.White else InkDark
     val subColor = if (online) Color.White.copy(alpha = 0.85f) else MutedGray
-    val iconTint = if (online) OnlineGreen else InkDark
+    val iconTint = OnlineGreen
 
     Card(
         modifier = modifier.fillMaxWidth(),
