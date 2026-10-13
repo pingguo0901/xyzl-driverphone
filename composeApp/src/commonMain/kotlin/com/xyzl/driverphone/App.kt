@@ -100,6 +100,7 @@ import com.xyzl.driverphone.screens.PolicyScreen
 import com.xyzl.driverphone.screens.AboutScreen
 import com.xyzl.driverphone.screens.AboutUsScreen
 import com.xyzl.driverphone.screens.WalletScreen
+import com.xyzl.driverphone.screens.InviteScreen
 import com.xyzl.driverphone.screens.EulaScreen
 import com.xyzl.driverphone.screens.QrCodeScreen
 import com.xyzl.driverphone.screens.VersionUpdateScreen
@@ -179,6 +180,7 @@ fun App(
         var showAbout by remember { mutableStateOf(false) }
         var showAboutUs by remember { mutableStateOf(false) }
         var showWallet by remember { mutableStateOf(false) }
+        var showInvite by remember { mutableStateOf(false) }
         var showVersionUpdate by remember { mutableStateOf(false) }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
@@ -450,6 +452,7 @@ fun App(
                         onOpenAbout = { showAbout = true },
                         onOpenAboutUs = { showAboutUs = true },
                         onOpenWallet = { showWallet = true },
+                        onOpenInvite = { showInvite = true },
                         onLogout = {
                             loggedIn = false
                             showEntry = false
@@ -879,6 +882,17 @@ fun App(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     AboutUsScreen(onBack = { showAboutUs = false })
+                }
+            }
+
+            // 邀请码页（覆盖层）
+            if (showInvite) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    InviteScreen(onBack = { showInvite = false })
                 }
             }
 

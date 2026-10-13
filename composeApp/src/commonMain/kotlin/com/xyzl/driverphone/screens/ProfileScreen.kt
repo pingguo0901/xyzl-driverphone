@@ -51,7 +51,7 @@ private val ProfileRed = Color(0xFFF43F5E)
 private val sections: List<Pair<String, List<String>>> = listOf(
     "我的信息" to listOf("个人信息", "隐私信息", "车辆信息"),
     "账号管理" to listOf("司机端密码", "登录设备管理", "更多安全设置"),
-    "邀请码" to listOf("客户邀请码", "公司邀请码"),
+    "邀请码" to listOf("邀请码"),
     "支付与收款" to listOf("我的钱包"),
     "通用" to listOf("通知", "界面与显示", "聊天", "聊天记录管理", "我的评价"),
     "平台政策与协议" to listOf(
@@ -88,6 +88,7 @@ fun ProfileScreen(
     onOpenAbout: () -> Unit = {},
     onOpenAboutUs: () -> Unit = {},
     onOpenWallet: () -> Unit = {},
+    onOpenInvite: () -> Unit = {},
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -115,6 +116,7 @@ fun ProfileScreen(
             "关于平台" -> onOpenAbout()
             "关于我们" -> onOpenAboutUs()
             "我的钱包" -> onOpenWallet()
+            "邀请码" -> onOpenInvite()
             else -> { }
         }
     }
