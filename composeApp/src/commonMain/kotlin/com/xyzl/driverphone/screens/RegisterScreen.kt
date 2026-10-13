@@ -53,7 +53,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import com.xyzl.driverphone.AccountTypes
 import com.xyzl.driverphone.DialCodes
 import com.xyzl.driverphone.GenderOptions
 import com.xyzl.driverphone.ImageSource
@@ -80,7 +79,7 @@ fun RegisterScreen(
     onPickImage: (source: ImageSource, onPicked: (String) -> Unit) -> Unit = { _, _ -> },
     onOpenPolicy: (Int) -> Unit = {},
 ) {
-    var accountType by remember { mutableStateOf(AccountTypes.first()) }
+    var inviteCode by remember { mutableStateOf("") }
     var nickname by remember { mutableStateOf("") }
     var fullName by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("") }
@@ -121,13 +120,14 @@ fun RegisterScreen(
             }
             Spacer(Modifier.height(8.dp))
 
-            SectionTitle("类型")
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                AccountTypes.forEach { type ->
-                    ChoiceChip(type, accountType == type, Modifier.weight(1f)) { accountType = type }
-                }
-            }
-            Spacer(Modifier.height(18.dp))
+            LabeledField(
+                label = "邀请码",
+                required = false,
+                value = inviteCode,
+                placeholder = "选填 · 填写后归属该公司，不填为个人",
+                onValueChange = { input -> inviteCode = input.filter { c -> c.isLetterOrDigit() || c == '-' } },
+            )
+            Spacer(Modifier.height(4.dp))
 
             LabeledField(
                 label = "昵称", required = true,
