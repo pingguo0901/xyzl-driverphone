@@ -73,11 +73,9 @@ fun TransactionDetailScreen(entry: LedgerEntry, onBack: () -> Unit = {}) {
             if (entry.kind == LedgerKind.REIMBURSEMENT) {
                 entry.expenseType?.let { DetailItem("报销类型", it) }
             }
-            if (entry.kind == LedgerKind.SALARY) {
-                entry.orderNo?.let { DetailItem("订单编号", it) }
-            }
-            DetailItem("参考", entry.reference)
-            DetailItem("编号", entry.id)
+            entry.orderNo?.let { DetailItem("订单编号", it) }
+            DetailItem("交易编号", entry.id)
+            entry.remark.takeIf { it.isNotBlank() }?.let { DetailItem("备注", it) }
             DetailItem("状态", entry.status)
 
             Spacer(Modifier.height(24.dp))
@@ -116,11 +114,11 @@ private fun receiptText(entry: LedgerEntry): String {
     if (entry.kind == LedgerKind.REIMBURSEMENT) {
         sb.append("报销类型：${entry.expenseType ?: "-"}\n")
     }
-    if (entry.kind == LedgerKind.SALARY) {
-        sb.append("订单编号：${entry.orderNo ?: "-"}\n")
+    entry.orderNo?.let { sb.append("订单编号：$it\n") }
+    sb.append("交易编号：${entry.id}\n")
+    if (entry.remark.isNotBlank()) {
+        sb.append("备注：${entry.remark}\n")
     }
-    sb.append("参考：${entry.reference}\n")
-    sb.append("编号：${entry.id}\n")
     sb.append("状态：${entry.status}\n")
     sb.append("————————————\n")
     sb.append("合计：${formatMoney(entry.currency, entry.amount)}")

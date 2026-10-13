@@ -27,6 +27,7 @@ enum class LedgerKind(val label: String) {
 
 /** 一条流水记录 */
 data class LedgerEntry(
+    /** 交易编号（每笔流水唯一） */
     val id: String,
     val kind: LedgerKind,
     val title: String,
@@ -38,10 +39,10 @@ data class LedgerEntry(
     val from: String = "",
     /** 报销类型（仅报销记录） */
     val expenseType: String? = null,
-    /** 订单编号（仅薪资记录） */
+    /** 订单编号（有关联订单时显示） */
     val orderNo: String? = null,
-    /** 参考号 */
-    val reference: String = "",
+    /** 备注 */
+    val remark: String = "",
     /** 是否为入账（true 显示 +，false 显示 -） */
     val income: Boolean = true,
 )
