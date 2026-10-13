@@ -5,7 +5,7 @@ actual fun saveQrToGallery(text: String): Boolean {
     return false
 }
 
-actual fun saveStatementToDevice(fileName: String, content: String): Boolean {
+actual fun saveStatementPdf(fileName: String, content: String): Boolean {
     // iOS 端暂未接入保存文档，留空
     return false
 }

@@ -42,7 +42,7 @@ import com.xyzl.driverphone.model.LedgerEntry
 import com.xyzl.driverphone.model.LedgerKind
 import com.xyzl.driverphone.model.formatMoney
 import com.xyzl.driverphone.model.signedMoney
-import com.xyzl.driverphone.saveStatementToDevice
+import com.xyzl.driverphone.saveStatementPdf
 
 private val OnlineGreen = Color(0xFF3B82F6)
 private val InkDark = Color(0xFFFFFFFF)
@@ -116,8 +116,8 @@ fun LedgerScreen(onBack: () -> Unit = {}, embedded: Boolean = false, showPrint: 
                         .clip(RoundedCornerShape(50))
                         .background(FieldGray)
                         .clickable {
-                            val ok = saveStatementToDevice(statementFileName(), statementText(entries))
-                            savedInfo = if (ok) "e-statement 已生成并保存到手机（下载/XYZL）" else "保存失败，请检查存储权限后重试"
+                            val ok = saveStatementPdf(statementFileName(), statementText(entries))
+                            savedInfo = if (ok) "e-statement PDF 已生成并保存到手机（下载/XYZL）" else "保存失败，请检查存储权限后重试"
                         }
                         .padding(horizontal = 14.dp, vertical = 9.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -159,7 +159,7 @@ fun LedgerScreen(onBack: () -> Unit = {}, embedded: Boolean = false, showPrint: 
 
 private fun statementFileName(): String {
     val d = currentTimeParts().first.replace("-", "")
-    return "e-statement_" + d + ".txt"
+    return "e-statement_" + d + ".pdf"
 }
 
 private fun statementText(entries: List<LedgerEntry>): String {
