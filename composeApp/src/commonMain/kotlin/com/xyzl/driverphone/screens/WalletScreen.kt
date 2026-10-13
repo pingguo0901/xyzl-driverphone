@@ -21,8 +21,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.QrCode
@@ -105,7 +105,7 @@ fun WalletScreen(onBack: () -> Unit = {}) {
         Box(Modifier.fillMaxWidth().weight(1f)) {
             when (tab) {
                 0 -> WalletHomeTab(onOpenAccount = { accountIndex = it })
-                1 -> WalletOverviewTab(onOpenAccount = { accountIndex = it })
+                1 -> WalletTransferTab()
                 2 -> WalletScanTab()
                 3 -> LedgerScreen(onBack = onBack, embedded = true)
                 4 -> WalletApplyTab()
@@ -127,21 +127,6 @@ private fun WalletHomeTab(onOpenAccount: (Int) -> Unit) {
             BalanceCard("代收 SGD", "SGD 386.50", modifier = Modifier.weight(1f), onClick = { onOpenAccount(1) })
             BalanceCard("代收 MYR", "MYR 1,286.40", modifier = Modifier.weight(1f), onClick = { onOpenAccount(2) })
         }
-        Spacer(Modifier.height(24.dp))
-    }
-}
-
-/** 概述：三张卡片，点击进入对应账户页 */
-@Composable
-private fun WalletOverviewTab(onOpenAccount: (Int) -> Unit) {
-    Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
-        Spacer(Modifier.height(8.dp))
-        FormSectionTitle("钱包概览")
-        BalanceCard(label = "钱包余额", amount = "MYR 1,672.90", big = true, onClick = { onOpenAccount(0) })
-        Spacer(Modifier.height(14.dp))
-        BalanceCard(label = "代收 SGD", amount = "SGD 386.50", onClick = { onOpenAccount(1) })
-        Spacer(Modifier.height(14.dp))
-        BalanceCard(label = "代收 MYR", amount = "MYR 1,286.40", onClick = { onOpenAccount(2) })
         Spacer(Modifier.height(24.dp))
     }
 }
@@ -186,7 +171,7 @@ private fun WalletBottomBar(selected: Int, onSelect: (Int) -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             WalletBarItem(Icons.Filled.Home, "首页", selected == 0, Modifier.weight(1f)) { onSelect(0) }
-            WalletBarItem(Icons.Filled.Description, "概述", selected == 1, Modifier.weight(1f)) { onSelect(1) }
+            WalletBarItem(Icons.AutoMirrored.Filled.Send, "转账", selected == 1, Modifier.weight(1f)) { onSelect(1) }
             Spacer(Modifier.weight(1f))
             WalletBarItem(Icons.AutoMirrored.Filled.ReceiptLong, "流水", selected == 3, Modifier.weight(1f)) { onSelect(3) }
             WalletBarItem(Icons.Filled.Add, "申请", selected == 4, Modifier.weight(1f)) { onSelect(4) }
@@ -236,7 +221,7 @@ private fun WalletApplyTab() {
     var submitted by remember { mutableStateOf(false) }
 
     val isExpense = type == "开销资金"
-    val canSubmit = type != null && (!isExpense || amount.isNotBlank())
+    val canSubmit = type != null && amount.isNotBlank()
 
     Column(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
@@ -251,16 +236,20 @@ private fun WalletApplyTab() {
                     onClick = { showTypeDialog = true },
                 )
             }
-            if (isExpense) {
+            if (type != null) {
                 Spacer(Modifier.height(18.dp))
-                FormSectionTitle("开销资金")
+                FormSectionTitle(if (isExpense) "开销资金" else type ?: "")
                 FormGroup {
                     Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
                         Text("货币", fontSize = 13.sp, color = WalletMuted)
                         Spacer(Modifier.height(10.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            CurrencyChip("SGD", currency == "SGD") { currency = "SGD" }
-                            CurrencyChip("MYR", currency == "MYR") { currency = "MYR" }
+                            if (isExpense) {
+                                CurrencyChip("SGD", currency == "SGD") { currency = "SGD" }
+                                CurrencyChip("MYR", currency == "MYR") { currency = "MYR" }
+                            } else {
+                                WalletCurrencyStatic("MYR")
+                            }
                         }
                     }
                 }
@@ -296,6 +285,7 @@ private fun WalletApplyTab() {
                                 .fillMaxWidth()
                                 .clickable {
                                     type = option
+                                    if (option != "开销资金") currency = "MYR"
                                     showTypeDialog = false
                                 }
                                 .padding(vertical = 14.dp),
@@ -356,6 +346,18 @@ private fun ApplyInfoRow(
             Spacer(Modifier.width(4.dp))
             Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null, tint = WalletMuted, modifier = Modifier.size(18.dp))
         }
+    }
+}
+
+@Composable
+private fun WalletCurrencyStatic(label: String) {
+    Box(
+        Modifier
+            .clip(RoundedCornerShape(50))
+            .background(WalletGreen)
+            .padding(horizontal = 20.dp, vertical = 9.dp),
+    ) {
+        Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
     }
 }
 
