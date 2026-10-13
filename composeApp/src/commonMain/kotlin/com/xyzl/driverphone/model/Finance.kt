@@ -22,7 +22,7 @@ fun currencyForType(type: String): String = if (type == "Autopass") "SGD" else "
 enum class LedgerKind(val label: String) {
     SALARY("薪资"),
     REIMBURSEMENT("报销"),
-    COLLECTION("代收"),
+    TRANSFER("转账"),
 }
 
 /** 一条流水记录 */
@@ -34,6 +34,16 @@ data class LedgerEntry(
     val amount: Double,
     val date: String,
     val status: String,
+    /** 来自（付款方 / 来源） */
+    val from: String = "",
+    /** 报销类型（仅报销记录） */
+    val expenseType: String? = null,
+    /** 订单编号（仅薪资记录） */
+    val orderNo: String? = null,
+    /** 参考号 */
+    val reference: String = "",
+    /** 是否为入账（true 显示 +，false 显示 -） */
+    val income: Boolean = true,
 )
 
 /** 金额格式化（带货币前缀，跨平台） */
@@ -42,4 +52,11 @@ fun formatMoney(currency: String, amount: Double): String {
     val sign = if (cents < 0) "-" else ""
     val abs = if (cents < 0) -cents else cents
     return currency + " " + sign + (abs / 100) + "." + (abs % 100).toString().padStart(2, '0')
+}
+
+/** 带正负号的金额，如「+ MYR 386.00」「- MYR 86.00」 */
+fun signedMoney(currency: String, amount: Double, income: Boolean): String {
+    val sign = if (income) "+" else "-"
+    val abs = if (amount < 0) -amount else amount
+    return sign + " " + formatMoney(currency, abs)
 }

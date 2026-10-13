@@ -47,23 +47,112 @@ private enum class LedgerFilter(val label: String) {
     ALL("全部"),
     REIMBURSEMENT("报销"),
     SALARY("薪资"),
-    COLLECTION("代收"),
+    TRANSFER("转账"),
 }
 
-/** 流水记录页：报销 / 薪资 / 代收 全部流水 */
+/** 流水记录页：报销 / 薪资 / 转账 全部流水 */
 @Composable
 fun LedgerScreen(onBack: () -> Unit = {}) {
     var filter by remember { mutableStateOf(LedgerFilter.ALL) }
+    var selected by remember { mutableStateOf<LedgerEntry?>(null) }
+
+    val current = selected
+    if (current != null) {
+        TransactionDetailScreen(entry = current, onBack = { selected = null })
+        return
+    }
 
     val entries = remember {
         listOf(
-            LedgerEntry("L001", LedgerKind.SALARY, "今日薪资 · 6 单", "MYR", 386.00, "今天 20:00", "已入账"),
-            LedgerEntry("L002", LedgerKind.REIMBURSEMENT, "加油 · JXY 8888", "MYR", 128.50, "今天 18:30", "审核中"),
-            LedgerEntry("L003", LedgerKind.COLLECTION, "代收车费 · 张先生", "MYR", 86.00, "今天 14:42", "已代收"),
-            LedgerEntry("L004", LedgerKind.COLLECTION, "代收车费 · 李女士", "SGD", 24.50, "今天 15:20", "已代收"),
-            LedgerEntry("L005", LedgerKind.REIMBURSEMENT, "Autopass · WMB 2233", "SGD", 42.00, "昨天 19:10", "已报销"),
-            LedgerEntry("L006", LedgerKind.SALARY, "昨日薪资 · 5 单", "MYR", 312.00, "昨天 20:00", "已入账"),
-            LedgerEntry("L007", LedgerKind.REIMBURSEMENT, "洗车 · VKL 5566", "MYR", 25.00, "昨天 12:00", "已报销"),
+            LedgerEntry(
+                id = "L001",
+                kind = LedgerKind.SALARY,
+                title = "今日薪资 · 6 单",
+                currency = "MYR",
+                amount = 386.00,
+                date = "13/10/2026 20:00",
+                status = "已入账",
+                from = "星域臻旅 · 薪资结算",
+                orderNo = "SO20261013006",
+                reference = "SAL-20261013-001",
+                income = true,
+            ),
+            LedgerEntry(
+                id = "L002",
+                kind = LedgerKind.REIMBURSEMENT,
+                title = "加油 · JXY 8888",
+                currency = "MYR",
+                amount = 128.50,
+                date = "13/10/2026 18:30",
+                status = "审核中",
+                from = "星域臻旅 · 报销",
+                expenseType = "加油",
+                reference = "RMB-20261013-014",
+                income = true,
+            ),
+            LedgerEntry(
+                id = "L003",
+                kind = LedgerKind.TRANSFER,
+                title = "代收车费 · 张先生",
+                currency = "MYR",
+                amount = 86.00,
+                date = "13/10/2026 14:42",
+                status = "已代收",
+                from = "乘客 · 张先生",
+                reference = "TRF-20261013-021",
+                income = false,
+            ),
+            LedgerEntry(
+                id = "L004",
+                kind = LedgerKind.TRANSFER,
+                title = "代收车费 · 李女士",
+                currency = "SGD",
+                amount = 24.50,
+                date = "13/10/2026 15:20",
+                status = "已代收",
+                from = "乘客 · 李女士",
+                reference = "TRF-20261013-022",
+                income = false,
+            ),
+            LedgerEntry(
+                id = "L005",
+                kind = LedgerKind.REIMBURSEMENT,
+                title = "Autopass · WMB 2233",
+                currency = "SGD",
+                amount = 42.00,
+                date = "12/10/2026 19:10",
+                status = "已报销",
+                from = "星域臻旅 · 报销",
+                expenseType = "Autopass",
+                reference = "RMB-20261012-009",
+                income = true,
+            ),
+            LedgerEntry(
+                id = "L006",
+                kind = LedgerKind.SALARY,
+                title = "昨日薪资 · 5 单",
+                currency = "MYR",
+                amount = 312.00,
+                date = "12/10/2026 20:00",
+                status = "已入账",
+                from = "星域臻旅 · 薪资结算",
+                orderNo = "SO20261012005",
+                reference = "SAL-20261012-001",
+                income = true,
+            ),
+            LedgerEntry(
+                id = "L007",
+                kind = LedgerKind.REIMBURSEMENT,
+                title = "洗车 · VKL 5566",
+                currency = "MYR",
+                amount = 25.00,
+                date = "12/10/2026 12:00",
+                status = "已报销",
+                from = "星域臻旅 · 报销",
+                expenseType = "洗车",
+                reference = "RMB-20261012-003",
+                income = true,
+            ),
         )
     }
 
@@ -72,7 +161,7 @@ fun LedgerScreen(onBack: () -> Unit = {}) {
             LedgerFilter.ALL -> true
             LedgerFilter.REIMBURSEMENT -> e.kind == LedgerKind.REIMBURSEMENT
             LedgerFilter.SALARY -> e.kind == LedgerKind.SALARY
-            LedgerFilter.COLLECTION -> e.kind == LedgerKind.COLLECTION
+            LedgerFilter.TRANSFER -> e.kind == LedgerKind.TRANSFER
         }
     }
 
@@ -113,16 +202,16 @@ fun LedgerScreen(onBack: () -> Unit = {}) {
         Spacer(Modifier.height(14.dp))
         LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             items(filtered, key = { it.id }) { entry ->
-                LedgerRow(entry)
+                LedgerRow(entry, onClick = { selected = entry })
             }
         }
     }
 }
 
 @Composable
-private fun LedgerRow(entry: LedgerEntry) {
+private fun LedgerRow(entry: LedgerEntry, onClick: () -> Unit) {
     Card(
-        Modifier.fillMaxWidth(),
+        Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1C1C1E)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
@@ -159,7 +248,7 @@ private fun KindBadge(kind: LedgerKind) {
     val color = when (kind) {
         LedgerKind.SALARY -> Color(0xFF3B82F6)
         LedgerKind.REIMBURSEMENT -> Color(0xFFFBBF24)
-        LedgerKind.COLLECTION -> Color(0xFF3B82F6)
+        LedgerKind.TRANSFER -> Color(0xFF3B82F6)
     }
     Box(
         Modifier
