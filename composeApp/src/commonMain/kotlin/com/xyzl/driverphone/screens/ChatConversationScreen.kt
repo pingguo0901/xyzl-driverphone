@@ -124,19 +124,19 @@ fun ChatConversationScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回", tint = LocalAppColors.current.ink)
             }
             Text(
                 peerName,
                 modifier = Modifier.weight(1f),
-                color = Color.White,
+                color = LocalAppColors.current.ink,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
             )
             if (!readOnly) {
                 IconButton(onClick = onOpenChatDetail) {
-                    Icon(Icons.Filled.MoreVert, "聊天详情", tint = Color.White)
+                    Icon(Icons.Filled.MoreVert, "聊天详情", tint = LocalAppColors.current.ink)
                 }
             }
         }
@@ -170,7 +170,7 @@ fun ChatConversationScreen(
                 Icon(
                     if (panelOpen || voiceMode) Icons.Filled.Close else Icons.Filled.Add,
                     contentDescription = if (panelOpen || voiceMode) "取消" else "更多",
-                    tint = Color.White,
+                    tint = LocalAppColors.current.ink,
                 )
             }
 
@@ -209,7 +209,7 @@ fun ChatConversationScreen(
                 ) {
                     Text(
                         if (recording) "松开 发送 · " + seconds + "\"" else "按住 说话",
-                        color = Color.White,
+                        color = if (recording) Color.White else FormInk,
                         fontSize = 14.sp,
                     )
                 }
@@ -229,7 +229,7 @@ fun ChatConversationScreen(
                     BasicTextField(
                         value = input,
                         onValueChange = { input = it },
-                        textStyle = androidx.compose.ui.text.TextStyle(color = Color.White, fontSize = 14.sp),
+                        textStyle = androidx.compose.ui.text.TextStyle(color = FormInk, fontSize = 14.sp),
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
@@ -251,7 +251,7 @@ fun ChatConversationScreen(
                     voiceMode = !voiceMode
                     panelOpen = false
                 }) {
-                    Icon(Icons.Filled.Mic, "语音", tint = if (voiceMode) BubbleMine else Color.White)
+                    Icon(Icons.Filled.Mic, "语音", tint = if (voiceMode) BubbleMine else FormInk)
                 }
             }
         }
@@ -347,7 +347,7 @@ private fun PanelItem(label: String, icon: androidx.compose.ui.graphics.vector.I
             Modifier.size(52.dp).clip(RoundedCornerShape(16.dp)).background(FormCard),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(icon, label, tint = Color.White, modifier = Modifier.size(24.dp))
+            Icon(icon, label, tint = FormInk, modifier = Modifier.size(24.dp))
         }
         Spacer(Modifier.height(6.dp))
         Text(label, color = FormMuted, fontSize = 11.sp)
@@ -363,7 +363,7 @@ private fun CardOption(title: String, subtitle: String, onClick: () -> Unit) {
         Box(
             Modifier.size(38.dp).clip(CircleShape).background(FormChip),
             contentAlignment = Alignment.Center,
-        ) { Text(title.take(1), color = Color.White, fontSize = 15.sp) }
+        ) { Text(title.take(1), color = FormInk, fontSize = 15.sp) }
         Spacer(Modifier.width(10.dp))
         Column {
             Text(title, color = FormInk, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
@@ -410,17 +410,20 @@ private fun MessageRow(msg: ChatMessage, onAvatarClick: () -> Unit) {
 @Composable
 private fun MessageBody(msg: ChatMessage) {
     val body = msg.body
+    val fg = if (msg.mine) Color.White else FormInk
+    val fgDim = if (msg.mine) Color(0xFFDBEAFE) else FormMuted
+    val innerChip = if (msg.mine) Color(0x33000000) else FormChip
     when (body) {
-        is ChatBody.Text -> Text(body.text, color = Color.White, fontSize = 14.sp, lineHeight = 20.sp)
+        is ChatBody.Text -> Text(body.text, color = fg, fontSize = 14.sp, lineHeight = 20.sp)
         is ChatBody.Voice -> Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Filled.PlayArrow, "播放", tint = Color.White, modifier = Modifier.size(20.dp))
+            Icon(Icons.Filled.PlayArrow, "播放", tint = fg, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(6.dp))
-            Text(body.seconds.toString() + "\"", color = Color.White, fontSize = 14.sp)
+            Text(body.seconds.toString() + "\"", color = fg, fontSize = 14.sp)
         }
         is ChatBody.File -> Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Filled.Description, "文件", tint = Color.White, modifier = Modifier.size(20.dp))
+            Icon(Icons.Filled.Description, "文件", tint = fg, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(6.dp))
-            Text(body.name, color = Color.White, fontSize = 13.sp, maxLines = 2)
+            Text(body.name, color = fg, fontSize = 13.sp, maxLines = 2)
         }
         is ChatBody.Location -> Column(Modifier.clickable {
             body.coords?.let { openUrl("https://www.google.com/maps/search/?api=1&query=" + it) }
@@ -432,21 +435,21 @@ private fun MessageBody(msg: ChatMessage) {
                 Icon(Icons.Filled.LocationOn, "位置", tint = TickGreen, modifier = Modifier.size(30.dp))
             }
             Spacer(Modifier.height(6.dp))
-            Text(body.name, color = Color.White, fontSize = 13.sp)
+            Text(body.name, color = fg, fontSize = 13.sp)
             Text(
                 if (body.coords == null) "点击查看（未开启定位）" else body.coords,
-                color = Color(0xFFDBEAFE), fontSize = 11.sp,
+                color = fgDim, fontSize = 11.sp,
             )
         }
         is ChatBody.Card -> Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
-                Modifier.size(38.dp).clip(RoundedCornerShape(10.dp)).background(Color(0x33000000)),
+                Modifier.size(38.dp).clip(RoundedCornerShape(10.dp)).background(innerChip),
                 contentAlignment = Alignment.Center,
-            ) { Text(body.title.take(1), color = Color.White, fontSize = 15.sp) }
+            ) { Text(body.title.take(1), color = fg, fontSize = 15.sp) }
             Spacer(Modifier.width(10.dp))
             Column {
-                Text(body.title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                Text(body.subtitle, color = Color(0xFFDBEAFE), fontSize = 11.sp)
+                Text(body.title, color = fg, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                Text(body.subtitle, color = fgDim, fontSize = 11.sp)
             }
         }
         is ChatBody.Album -> Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -460,13 +463,13 @@ private fun MessageBody(msg: ChatMessage) {
                     )
                 } else {
                     Box(
-                        Modifier.size(64.dp).clip(RoundedCornerShape(10.dp)).background(Color(0x33000000)),
+                        Modifier.size(64.dp).clip(RoundedCornerShape(10.dp)).background(innerChip),
                         contentAlignment = Alignment.Center,
-                    ) { Icon(Icons.Filled.PhotoLibrary, "图片", tint = Color.White, modifier = Modifier.size(20.dp)) }
+                    ) { Icon(Icons.Filled.PhotoLibrary, "图片", tint = fg, modifier = Modifier.size(20.dp)) }
                 }
             }
             if (body.uris.size > 3) {
-                Text("+" + (body.uris.size - 3), color = Color.White, fontSize = 12.sp)
+                Text("+" + (body.uris.size - 3), color = fg, fontSize = 12.sp)
             }
         }
     }
@@ -477,7 +480,7 @@ private fun Avatar(text: String, onClick: () -> Unit) {
     Box(
         Modifier.size(36.dp).clip(CircleShape).background(FormChip).clickable { onClick() },
         contentAlignment = Alignment.Center,
-    ) { Text(text, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold) }
+    ) { Text(text, color = FormInk, fontSize = 14.sp, fontWeight = FontWeight.SemiBold) }
 }
 
 @Composable

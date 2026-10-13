@@ -76,7 +76,7 @@ fun ChatSearchScreen(
                 androidx.compose.foundation.text.BasicTextField(
                     value = keyword,
                     onValueChange = { keyword = it },
-                    textStyle = androidx.compose.ui.text.TextStyle(color = Color.White, fontSize = 14.sp),
+                    textStyle = androidx.compose.ui.text.TextStyle(color = FormInk, fontSize = 14.sp),
                     modifier = Modifier.fillMaxWidth(),
                 )
                 if (keyword.isEmpty()) Text("搜索", color = FormMuted, fontSize = 14.sp)
@@ -108,7 +108,7 @@ fun ChatSearchScreen(
                         .padding(horizontal = 14.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(label, color = Color.White, fontSize = 12.sp)
+                    Text(label, color = if (selected) Color.White else FormInk, fontSize = 12.sp)
                 }
             }
         }
@@ -152,7 +152,7 @@ fun ChatRecordCard(msg: ChatMessage, onClick: () -> Unit) {
         verticalAlignment = Alignment.Top,
     ) {
         Box(Modifier.size(38.dp).clip(CircleShape).background(FormChip), contentAlignment = Alignment.Center) {
-            Text(msg.senderName.take(1), color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Text(msg.senderName.take(1), color = FormInk, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         }
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {

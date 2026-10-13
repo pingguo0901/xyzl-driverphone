@@ -36,8 +36,8 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 
 private val SegTrack: Color @Composable get() = LocalAppColors.current.surfaceVariant
-private val SegBorder = Color(0x1A000000)
-private val SegInk: Color @Composable get() = LocalAppColors.current.card
+private val SegBorder: Color @Composable get() = LocalAppColors.current.border
+private val SegInk: Color @Composable get() = LocalAppColors.current.ink
 private val SegMuted: Color @Composable get() = LocalAppColors.current.muted
 
 /** 胶囊式左右选项：整体一个胶囊（不是各自独立胶囊），选中项有白色滑块跟随 */
@@ -83,7 +83,7 @@ fun SegmentedTabs(
                 .fillMaxHeight()
                 .shadow(2.dp, RoundedCornerShape(50))
                 .clip(RoundedCornerShape(50))
-                .background(Color.White),
+                .background(LocalAppColors.current.background),
         )
 
         Row(

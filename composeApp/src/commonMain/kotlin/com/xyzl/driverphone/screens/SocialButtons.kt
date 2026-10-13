@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.LocalAppColors
 
 // ============================================================
 // 通用圆形按钮容器
@@ -165,8 +166,8 @@ fun AppleButton(
         onClick = onClick,
         modifier = modifier,
         size = size,
-        backgroundColor = Color(0xFFF7F7F9),
-        borderColor = Color(0x1A000000),
+        backgroundColor = LocalAppColors.current.surfaceVariant,
+        borderColor = LocalAppColors.current.border,
     ) {
         AppleLogo(logoSize)
     }
@@ -174,6 +175,8 @@ fun AppleButton(
 
 @Composable
 private fun AppleLogo(logoSize: Dp) {
+    val ink = LocalAppColors.current.ink
+    val bite = LocalAppColors.current.surfaceVariant
     Canvas(modifier = Modifier.size(logoSize)) {
         val w = size.width
         val h = size.height
@@ -185,15 +188,15 @@ private fun AppleLogo(logoSize: Dp) {
             cubicTo(w * 0.85f, h * 0.45f, w * 0.75f, h * 0.25f, w * 0.5f, h * 0.32f)
             close()
         }
-        drawPath(apple, Color.White)
+        drawPath(apple, ink)
         val leaf = Path().apply {
             moveTo(w * 0.5f, h * 0.3f)
             cubicTo(w * 0.45f, h * 0.15f, w * 0.55f, h * 0.08f, w * 0.65f, h * 0.1f)
             cubicTo(w * 0.62f, h * 0.22f, w * 0.55f, h * 0.3f, w * 0.5f, h * 0.3f)
             close()
         }
-        drawPath(leaf, Color.White)
-        drawCircle(Color(0xFFF7F7F9), radius = w * 0.12f, center = Offset(w * 0.78f, h * 0.5f))
+        drawPath(leaf, ink)
+        drawCircle(bite, radius = w * 0.12f, center = Offset(w * 0.78f, h * 0.5f))
     }
 }
 

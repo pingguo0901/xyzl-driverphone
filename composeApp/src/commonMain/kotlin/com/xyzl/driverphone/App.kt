@@ -1001,8 +1001,8 @@ private fun CapsuleBottomBar(
         modifier = modifier
             .clip(RoundedCornerShape(50))
             .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin())
-            .background(Color(0xFFF7F7F9), RoundedCornerShape(50))
-            .border(1.dp, Color(0x1A000000), RoundedCornerShape(50))
+            .background(LocalAppColors.current.surfaceVariant, RoundedCornerShape(50))
+            .border(1.dp, LocalAppColors.current.border, RoundedCornerShape(50))
             .height(52.dp)
             .padding(4.dp),
     ) {
@@ -1012,7 +1012,7 @@ private fun CapsuleBottomBar(
                 .width(animatedW)
                 .fillMaxHeight()
                 .shadow(2.dp, RoundedCornerShape(50))
-                .background(Color.White, RoundedCornerShape(50)),
+                .background(LocalAppColors.current.background, RoundedCornerShape(50)),
         )
 
         Row(
@@ -1042,7 +1042,7 @@ private fun CapsuleBarItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val contentColor = if (selected) Color(0xFFF7F7F9) else Color(0xFF9CA3AF)
+    val contentColor = if (selected) LocalAppColors.current.ink else LocalAppColors.current.muted
 
     Row(
         modifier = modifier

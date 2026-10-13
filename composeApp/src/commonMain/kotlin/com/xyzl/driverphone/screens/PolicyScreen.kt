@@ -42,9 +42,9 @@ fun PolicyScreen(onBack: () -> Unit = {}) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回", tint = Color.White)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回", tint = LocalAppColors.current.ink)
                 }
-                Text("服务政策", fontSize = 22.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                Text("服务政策", fontSize = 22.sp, color = LocalAppColors.current.ink, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(8.dp))
 
@@ -148,7 +148,7 @@ fun PolicyScreen(onBack: () -> Unit = {}) {
 
 @Composable
 private fun PolicyTitle(text: String) {
-    Text(text, color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.Bold, lineHeight = 28.sp)
+    Text(text, color = LocalAppColors.current.ink, fontSize = 19.sp, fontWeight = FontWeight.Bold, lineHeight = 28.sp)
 }
 
 @Composable
@@ -167,7 +167,7 @@ private fun PolicyHeading(text: String) {
 @Composable
 private fun PolicySubHeading(text: String) {
     Spacer(Modifier.height(6.dp))
-    Text(text, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+    Text(text, color = LocalAppColors.current.ink, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
     Spacer(Modifier.height(4.dp))
 }
 

@@ -356,7 +356,7 @@ private fun TransferAmountPad(
                                 key,
                                 fontSize = if (key == "OK") 15.sp else 20.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White,
+                                color = if (key == "OK") Color.White else TrInk,
                             )
                         }
                     }

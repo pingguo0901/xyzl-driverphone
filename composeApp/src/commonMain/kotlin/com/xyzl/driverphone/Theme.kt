@@ -29,15 +29,15 @@ data class AppThemeColors(
 
 private val LightAppColors = AppThemeColors(
     background = Color(0xFFFFFFFF),
-    surface = Color(0xFFF7F7F9),
-    surfaceVariant = Color(0xFFEFEFF3),
-    card = Color(0xFFF7F7F9),
-    cardAlt = Color(0xFFF2F2F7),
-    border = Color(0x1A000000),
+    surface = Color(0xFFF6F6F8),
+    surfaceVariant = Color(0xFFE7E7ED),
+    card = Color(0xFFF2F2F6),
+    cardAlt = Color(0xFFE9E9EF),
+    border = Color(0x24000000),
     ink = Color(0xFF111111),
-    muted = Color(0xFF6B7280),
-    textMuted = Color(0xFF9CA3AF),
-    textDisabled = Color(0xFFB0B0B8),
+    muted = Color(0xFF5F6470),
+    textMuted = Color(0xFF8A8F98),
+    textDisabled = Color(0xFFA6A6AE),
 )
 
 private val DarkAppColors = AppThemeColors(

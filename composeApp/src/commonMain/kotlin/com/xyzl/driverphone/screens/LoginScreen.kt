@@ -107,7 +107,7 @@ fun LoginScreen(
                         Text(
                             text = "登录",
                             fontSize = 24.sp,
-                            color = Color.White,
+                            color = LocalAppColors.current.ink,
                             fontWeight = FontWeight.Bold,
                         )
                     }
@@ -127,8 +127,8 @@ fun LoginScreen(
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF3B82F6),
                             unfocusedBorderColor = LocalAppColors.current.surfaceVariant,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
+                            focusedTextColor = LocalAppColors.current.ink,
+                            unfocusedTextColor = LocalAppColors.current.ink,
                         ),
                         singleLine = true,
                     )
@@ -157,8 +157,8 @@ fun LoginScreen(
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF3B82F6),
                             unfocusedBorderColor = LocalAppColors.current.surfaceVariant,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
+                            focusedTextColor = LocalAppColors.current.ink,
+                            unfocusedTextColor = LocalAppColors.current.ink,
                         ),
                         singleLine = true,
                     )
@@ -291,7 +291,7 @@ fun LoginScreen(
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "返回",
-                tint = Color.White,
+                tint = LocalAppColors.current.ink,
             )
         }
     }

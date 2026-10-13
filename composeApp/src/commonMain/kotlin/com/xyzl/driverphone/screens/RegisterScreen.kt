@@ -115,9 +115,9 @@ fun RegisterScreen(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回", tint = Color.White)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回", tint = LocalAppColors.current.ink)
                 }
-                Text("注册", fontSize = 22.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                Text("注册", fontSize = 22.sp, color = LocalAppColors.current.ink, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(8.dp))
 
@@ -203,7 +203,7 @@ fun RegisterScreen(
                                     DialCodes.forEach { code ->
                                         Text(
                                             code,
-                                            color = Color.White,
+                                            color = LocalAppColors.current.ink,
                                             fontSize = 15.sp,
                                             modifier = Modifier.fillMaxWidth()
                                                 .clickable { dialCode = code; showDial = false }
@@ -320,7 +320,7 @@ fun RegisterScreen(
 @Composable
 private fun SectionTitle(text: String, required: Boolean = false) {
     Row(Modifier.padding(bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(text, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        Text(text, color = LocalAppColors.current.ink, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         if (required) Text(" *必填", color = GoldLight, fontSize = 12.sp)
     }
 }
@@ -356,12 +356,12 @@ private fun PickerField(text: String, onClick: () -> Unit) {
     Box(
         Modifier.fillMaxWidth().height(56.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(Color(0x1A000000))
+            .background(LocalAppColors.current.surfaceVariant)
             .clickable { onClick() }
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
-        Text(text, color = Color.White, fontSize = 15.sp)
+        Text(text, color = LocalAppColors.current.ink, fontSize = 15.sp)
     }
 }
 
@@ -370,7 +370,7 @@ private fun ChoiceChip(text: String, selected: Boolean, modifier: Modifier, onCl
     Box(
         modifier = modifier.height(48.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(if (selected) Gold else Color(0x1A000000))
+            .background(if (selected) Gold else LocalAppColors.current.surfaceVariant)
             .clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
@@ -397,13 +397,13 @@ private fun UploadBox(
         Box(
             Modifier.fillMaxWidth().height(120.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0x1A000000))
+                .background(LocalAppColors.current.surfaceVariant)
                 .clickable { showSheet = true },
             contentAlignment = Alignment.Center,
         ) {
             if (uri == null) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Filled.CameraAlt, null, tint = Color.White, modifier = Modifier.size(30.dp))
+                    Icon(Icons.Filled.CameraAlt, null, tint = LocalAppColors.current.muted, modifier = Modifier.size(30.dp))
                     Spacer(Modifier.height(6.dp))
                     Text(hint, color = LabelGray, fontSize = 12.sp)
                 }
@@ -411,7 +411,7 @@ private fun UploadBox(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Check, null, tint = Color(0xFF25D366))
                     Spacer(Modifier.width(8.dp))
-                    Text("已上传", color = Color.White, fontSize = 14.sp)
+                    Text("已上传", color = LocalAppColors.current.ink, fontSize = 14.sp)
                 }
             }
         }
@@ -424,16 +424,16 @@ private fun UploadBox(
                 shadowElevation = 12.dp,
             ) {
                 Column(Modifier.fillMaxWidth().padding(20.dp)) {
-                    Text(title, color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                    Text(title, color = LocalAppColors.current.ink, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(12.dp))
                     Row(
                         Modifier.fillMaxWidth().clickable { showSheet = false; onPick(ImageSource.Camera) }
                             .padding(vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Filled.CameraAlt, null, tint = Color.White)
+                        Icon(Icons.Filled.CameraAlt, null, tint = LocalAppColors.current.muted)
                         Spacer(Modifier.width(12.dp))
-                        Text("拍照", color = Color.White)
+                        Text("拍照", color = LocalAppColors.current.ink)
                     }
                     if (allowGallery) {
                         Row(
@@ -443,7 +443,7 @@ private fun UploadBox(
                         ) {
                             Icon(Icons.Filled.PhotoLibrary, null, tint = GoldLight)
                             Spacer(Modifier.width(12.dp))
-                            Text("从相册选择", color = Color.White)
+                            Text("从相册选择", color = LocalAppColors.current.ink)
                         }
                     }
                     Spacer(Modifier.height(4.dp))
@@ -463,7 +463,7 @@ private fun UploadBox(
 private fun fieldColors() = OutlinedTextFieldDefaults.colors(
     focusedBorderColor = Gold,
     unfocusedBorderColor = FieldBorder,
-    focusedTextColor = Color.White,
-    unfocusedTextColor = Color.White,
+    focusedTextColor = LocalAppColors.current.ink,
+    unfocusedTextColor = LocalAppColors.current.ink,
     cursorColor = Gold,
 )

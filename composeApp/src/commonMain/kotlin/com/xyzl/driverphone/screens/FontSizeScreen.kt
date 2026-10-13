@@ -110,7 +110,7 @@ private fun FontPreview(fontSize: TextUnit, modifier: Modifier = Modifier) {
         }
         // 对方
         Row(Modifier.fillMaxWidth()) {
-            Avatar("对", FormChip)
+            Avatar("对", FormChip, FormInk)
             Spacer(Modifier.width(8.dp))
             Box(
                 Modifier
@@ -123,7 +123,7 @@ private fun FontPreview(fontSize: TextUnit, modifier: Modifier = Modifier) {
             }
         }
         Row(Modifier.fillMaxWidth()) {
-            Avatar("对", FormChip)
+            Avatar("对", FormChip, FormInk)
             Spacer(Modifier.width(8.dp))
             Box(
                 Modifier
@@ -144,11 +144,11 @@ private fun FontPreview(fontSize: TextUnit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun Avatar(text: String, color: Color) {
+private fun Avatar(text: String, color: Color, contentColor: Color = Color.White) {
     Box(
         Modifier.size(32.dp).clip(CircleShape).background(color),
         contentAlignment = Alignment.Center,
     ) {
-        Text(text, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        Text(text, color = contentColor, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
     }
 }
