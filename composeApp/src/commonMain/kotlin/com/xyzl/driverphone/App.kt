@@ -100,6 +100,7 @@ import com.xyzl.driverphone.screens.PolicyScreen
 import com.xyzl.driverphone.screens.AboutScreen
 import com.xyzl.driverphone.screens.AboutUsScreen
 import com.xyzl.driverphone.screens.WalletScreen
+import com.xyzl.driverphone.screens.DutyScreen
 import com.xyzl.driverphone.screens.InviteScreen
 import com.xyzl.driverphone.screens.EulaScreen
 import com.xyzl.driverphone.screens.QrCodeScreen
@@ -188,6 +189,7 @@ fun App(
         var showAboutUs by remember { mutableStateOf(false) }
         var showWallet by remember { mutableStateOf(false) }
         var showInvite by remember { mutableStateOf(false) }
+        var showDuty by remember { mutableStateOf(false) }
         var showVersionUpdate by remember { mutableStateOf(false) }
         val hazeState = remember { HazeState() }
         var showUpdateDialog by remember { mutableStateOf(false) }
@@ -454,6 +456,7 @@ fun App(
                         onOpenChatSettings = { showChatSettings = true },
                         onOpenChatRecords = { showChatRecords = true },
                         onOpenMyReviews = { showMyReviews = true },
+                        onOpenDuty = { showDuty = true },
                         onOpenPolicy = { policyIndex = it },
                         onOpenQr = { showQrCode = true },
                         onOpenAbout = { showAbout = true },
@@ -941,6 +944,17 @@ fun App(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     QrCodeScreen(onBack = { showQrCode = false })
+                }
+            }
+
+            // 我的值班页（覆盖层）
+            if (showDuty) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    DutyScreen(onBack = { showDuty = false })
                 }
             }
 
