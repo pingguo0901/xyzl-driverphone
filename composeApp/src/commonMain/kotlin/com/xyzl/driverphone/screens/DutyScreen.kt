@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.model.DutyData
 import com.xyzl.driverphone.model.DutyRecord
+import com.xyzl.driverphone.model.RestStore
 import com.xyzl.driverphone.model.formatRinggit
 
 private val DutyBlue = Color(0xFF3B82F6)
@@ -61,6 +62,8 @@ fun DutyScreen(
     onBack: () -> Unit = {},
 ) {
     var selected by remember { mutableStateOf<DutyRecord?>(null) }
+    var showApply by remember { mutableStateOf(false) }
+    var showApps by remember { mutableStateOf(false) }
 
     val current = selected
     if (current != null) {
@@ -68,12 +71,26 @@ fun DutyScreen(
         return
     }
 
+    if (showApply) {
+        RestApplyScreen(
+            onBack = { showApply = false },
+            onConfirm = { app ->
+                RestStore.add(app)
+                showApply = false
+            },
+        )
+        return
+    }
+
+    if (showApps) {
+        RestAppsScreen(onBack = { showApps = false })
+        return
+    }
+
     val todayIso = remember { currentTimeParts().first }
     var rangeStart by remember { mutableStateOf(mmddFromIso(monthStartIso(todayIso))) }
     var rangeEnd by remember { mutableStateOf(mmddFromIso(todayIso)) }
     var showPicker by remember { mutableStateOf(false) }
-    var showApply by remember { mutableStateOf(false) }
-    var applyMsg by remember { mutableStateOf<String?>(null) }
 
     val summary = DutyData.summary
     val records = remember { DutyData.records }
@@ -108,6 +125,17 @@ fun DutyScreen(
                 color = DutyInk,
                 modifier = Modifier.align(Alignment.Center),
             )
+            Row(
+                Modifier
+                    .align(Alignment.CenterEnd)
+                    .clip(RoundedCornerShape(50))
+                    .background(DutyChip)
+                    .clickable { showApps = true }
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("查看申请", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = DutyBlue)
+            }
         }
 
         Spacer(Modifier.height(14.dp))
@@ -216,34 +244,6 @@ fun DutyScreen(
         }
     }
 
-    if (showApply) {
-        AlertDialog(
-            onDismissRequest = { showApply = false },
-            containerColor = DutyCard,
-            title = { Text("申请休息", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = DutyInk) },
-            text = { Text("确认提交休息申请吗？", fontSize = 14.sp, color = DutyMuted) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showApply = false
-                    applyMsg = "休息申请已提交，请等待调度确认。"
-                }) { Text("确认提交", color = DutyBlue, fontWeight = FontWeight.SemiBold) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showApply = false }) { Text("取消", color = DutyMuted) }
-            },
-        )
-    }
-
-    val msg = applyMsg
-    if (msg != null) {
-        AlertDialog(
-            onDismissRequest = { applyMsg = null },
-            containerColor = DutyCard,
-            title = { Text("申请休息", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = DutyInk) },
-            text = { Text(msg, fontSize = 14.sp, color = DutyMuted) },
-            confirmButton = { TextButton(onClick = { applyMsg = null }) { Text("确定", color = DutyBlue) } },
-        )
-    }
 }
 
 @Composable
