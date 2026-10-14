@@ -44,7 +44,7 @@ fun ChangePasswordScreen(
             .statusBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "司机端密码", onBack = onBack)
+        FormPageHeader(title = "密码管理", onBack = onBack)
         Spacer(Modifier.height(16.dp))
         // 表单区可滚动，确认按钮固定在最底部
         Column(

@@ -51,7 +51,7 @@ private val ProfileRed = Color(0xFFF43F5E)
 
 private val sections: List<Pair<String, List<String>>> = listOf(
     "我的信息" to listOf("个人信息", "隐私信息", "车辆信息"),
-    "账号管理" to listOf("司机端密码", "登录设备管理", "更多安全设置"),
+    "账号管理" to listOf("密码管理", "登录设备管理", "更多安全设置"),
     "邀请码" to listOf("邀请码"),
     "支付与收款" to listOf("我的钱包"),
     "通用" to listOf("我的值班", "通知", "界面与显示", "聊天", "聊天记录管理", "我的评价"),
@@ -102,7 +102,7 @@ fun ProfileScreen(
             "车辆信息" -> onOpenVehicleInfo()
             "通知" -> onOpenNotificationSettings()
             "界面与显示" -> onOpenDisplay()
-            "司机端密码" -> onOpenChangePassword()
+            "密码管理" -> onOpenChangePassword()
             "登录设备管理" -> onOpenDeviceManage()
             "更多安全设置" -> onOpenSecurity()
             "聊天" -> onOpenChatSettings()
