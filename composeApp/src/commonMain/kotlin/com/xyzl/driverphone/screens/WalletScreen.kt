@@ -228,7 +228,10 @@ private fun WalletApplyTab() {
     var amount by remember { mutableStateOf("") }
     var submitted by remember { mutableStateOf(false) }
 
+    var handInAccount by remember { mutableStateOf("代收SGD") }
+
     val isExpense = type == "开销资金"
+    val isHandIn = type == "申请上交"
     val canSubmit = type != null && amount.isNotBlank()
 
     Column(Modifier.fillMaxSize()) {
@@ -246,17 +249,22 @@ private fun WalletApplyTab() {
             }
             if (type != null) {
                 Spacer(Modifier.height(18.dp))
-                FormSectionTitle(if (isExpense) "开销资金" else type ?: "")
+                FormSectionTitle(type ?: "")
                 FormGroup {
                     Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
-                        Text("货币", fontSize = 13.sp, color = WalletMuted)
+                        Text(if (isHandIn) "代收账户" else "货币", fontSize = 13.sp, color = WalletMuted)
                         Spacer(Modifier.height(10.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            if (isExpense) {
-                                CurrencyChip("SGD", currency == "SGD") { currency = "SGD" }
-                                CurrencyChip("MYR", currency == "MYR") { currency = "MYR" }
-                            } else {
-                                WalletCurrencyStatic("MYR")
+                            when {
+                                isExpense -> {
+                                    CurrencyChip("SGD", currency == "SGD") { currency = "SGD" }
+                                    CurrencyChip("MYR", currency == "MYR") { currency = "MYR" }
+                                }
+                                isHandIn -> {
+                                    CurrencyChip("代收SGD", handInAccount == "代收SGD") { handInAccount = "代收SGD" }
+                                    CurrencyChip("代收MYR", handInAccount == "代收MYR") { handInAccount = "代收MYR" }
+                                }
+                                else -> WalletCurrencyStatic("MYR")
                             }
                         }
                     }
@@ -284,7 +292,7 @@ private fun WalletApplyTab() {
             title = { Text("申请类型", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = WalletInk) },
             text = {
                 Column {
-                    listOf("预支薪水", "申请发薪", "开销资金").forEach { option ->
+                    listOf("预支薪水", "申请发薪", "申请上交", "开销资金").forEach { option ->
                         Text(
                             option,
                             fontSize = 15.sp,
@@ -316,7 +324,11 @@ private fun WalletApplyTab() {
             title = { Text("已提交", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = WalletInk) },
             text = {
                 Text(
-                    if (isExpense) "申请「开销资金」${currency} ${amount} 已提交。" else "申请「${type}」已提交。",
+                    when {
+                        isExpense -> "申请「开销资金」${currency} ${amount} 已提交。"
+                        isHandIn -> "申请「上交${handInAccount}」${amount} 已提交。"
+                        else -> "申请「${type}」已提交。"
+                    },
                     fontSize = 14.sp,
                     color = WalletMuted,
                 )
