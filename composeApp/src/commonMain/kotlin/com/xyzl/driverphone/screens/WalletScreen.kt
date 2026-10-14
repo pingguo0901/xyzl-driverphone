@@ -85,7 +85,10 @@ private fun walletAccount(index: Int): WalletAccount = when (index) {
 
 /** 我的钱包：首页 / 概述 / 扫码 / 流水 / 申请 五个板块 */
 @Composable
-fun WalletScreen(onBack: () -> Unit = {}) {
+fun WalletScreen(
+    onBack: () -> Unit = {},
+    isCompanyDriver: Boolean = true,
+) {
     var tab by remember { mutableStateOf(0) }
     var accountIndex by remember { mutableStateOf<Int?>(null) }
 
@@ -109,11 +112,11 @@ fun WalletScreen(onBack: () -> Unit = {}) {
                 1 -> WalletTransferTab()
                 2 -> WalletScanTab()
                 3 -> LedgerScreen(onBack = onBack, embedded = true, showPrint = true)
-                4 -> WalletApplyTab()
+                4 -> if (isCompanyDriver) WalletApplyTab() else WalletHomeTab(onOpenAccount = { accountIndex = it })
             }
         }
 
-        WalletBottomBar(selected = tab, onSelect = { tab = it })
+        WalletBottomBar(selected = tab, onSelect = { tab = it }, showApply = isCompanyDriver)
     }
 }
 
@@ -161,7 +164,7 @@ private fun BalanceCard(
 
 /** 底部胶囊合并快捷栏：首页 概述 扫码（突出圆形） 流水 申请 */
 @Composable
-private fun WalletBottomBar(selected: Int, onSelect: (Int) -> Unit) {
+private fun WalletBottomBar(selected: Int, onSelect: (Int) -> Unit, showApply: Boolean) {
     Box(Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 8.dp)) {
         Row(
             Modifier
@@ -175,7 +178,11 @@ private fun WalletBottomBar(selected: Int, onSelect: (Int) -> Unit) {
             WalletBarItem(Icons.AutoMirrored.Filled.Send, "转账", selected == 1, Modifier.weight(1f)) { onSelect(1) }
             Spacer(Modifier.weight(1f))
             WalletBarItem(Icons.AutoMirrored.Filled.ReceiptLong, "流水", selected == 3, Modifier.weight(1f)) { onSelect(3) }
-            WalletBarItem(Icons.Filled.Add, "申请", selected == 4, Modifier.weight(1f)) { onSelect(4) }
+            if (showApply) {
+                WalletBarItem(Icons.Filled.Add, "申请", selected == 4, Modifier.weight(1f)) { onSelect(4) }
+            } else {
+                Spacer(Modifier.weight(1f))
+            }
         }
         // 突出的圆形扫码按钮
         Box(

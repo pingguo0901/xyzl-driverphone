@@ -916,7 +916,7 @@ fun App(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    WalletScreen(onBack = { showWallet = false })
+                    WalletScreen(onBack = { showWallet = false }, isCompanyDriver = DriverIsCompany)
                 }
             }
 
@@ -954,7 +954,7 @@ fun App(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    DutyScreen(onBack = { showDuty = false })
+                    DutyScreen(onBack = { showDuty = false }, isCompanyDriver = DriverIsCompany)
                 }
             }
 

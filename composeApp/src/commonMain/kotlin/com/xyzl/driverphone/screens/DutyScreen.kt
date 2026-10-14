@@ -60,6 +60,7 @@ private val DutyCard: Color @Composable get() = LocalAppColors.current.card
 @Composable
 fun DutyScreen(
     onBack: () -> Unit = {},
+    isCompanyDriver: Boolean = true,
 ) {
     var selected by remember { mutableStateOf<DutyRecord?>(null) }
     var showApply by remember { mutableStateOf(false) }
@@ -125,16 +126,18 @@ fun DutyScreen(
                 color = DutyInk,
                 modifier = Modifier.align(Alignment.Center),
             )
-            Row(
-                Modifier
-                    .align(Alignment.CenterEnd)
-                    .clip(RoundedCornerShape(50))
-                    .background(DutyChip)
-                    .clickable { showApps = true }
-                    .padding(horizontal = 14.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text("查看申请", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = DutyBlue)
+            if (isCompanyDriver) {
+                Row(
+                    Modifier
+                        .align(Alignment.CenterEnd)
+                        .clip(RoundedCornerShape(50))
+                        .background(DutyChip)
+                        .clickable { showApps = true }
+                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("查看申请", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = DutyBlue)
+                }
             }
         }
 
@@ -209,18 +212,19 @@ fun DutyScreen(
             }
         }
 
-        Spacer(Modifier.height(12.dp))
-
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(DutyBlue)
-                .clickable { showApply = true },
-            contentAlignment = Alignment.Center,
-        ) {
-            Text("申请休息", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        if (isCompanyDriver) {
+            Spacer(Modifier.height(12.dp))
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(DutyBlue)
+                    .clickable { showApply = true },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("申请休息", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            }
         }
     }
 
