@@ -91,7 +91,6 @@ import com.xyzl.driverphone.screens.DeviceManageScreen
 import com.xyzl.driverphone.screens.ForgotPasswordScreen
 import com.xyzl.driverphone.screens.PersonalInfoScreen
 import com.xyzl.driverphone.screens.ResetPasswordScreen
-import com.xyzl.driverphone.screens.VerifyCodeScreen
 import com.xyzl.driverphone.screens.PrivacyInfoScreen
 import com.xyzl.driverphone.screens.VehicleInfoScreen
 import com.xyzl.driverphone.screens.HomeScreen
@@ -160,6 +159,7 @@ fun App(
         val authState by authStateFlow.collectAsState(initial = AuthState.Loading)
         val loggedIn = authState is AuthState.Authenticated
 
+
         // 忘记密码 / 验证码 / 重建密码 失败时的统一提示
         if (authError != null) {
             AlertDialog(
@@ -184,6 +184,19 @@ fun App(
         var showResetPassword by remember { mutableStateOf(false) }
         var showDeviceManage by remember { mutableStateOf(false) }
         var verifyEmail by remember { mutableStateOf("") }
+
+        // ---- 重置密码邮件回跳：邮件链接点开回到 App，直接弹「重建密码」页 ----
+        val recoveryLink by AuthDeepLink.recovery.collectAsState()
+        LaunchedEffect(recoveryLink) {
+            if (recoveryLink) {
+                showEntry = false
+                showLogin = false
+                showRegister = false
+                showForgotPassword = false
+                showVerifyCode = false
+                showResetPassword = true
+            }
+        }
         var showSecurity by remember { mutableStateOf(false) }
         var showNotificationSettings by remember { mutableStateOf(false) }
         var showDisplay by remember { mutableStateOf(false) }
@@ -404,6 +417,7 @@ fun App(
                                     scope.launch {
                                         authRepository.updatePassword(newPwd)
                                             .onSuccess {
+                                                AuthDeepLink.clear()
                                                 showResetPassword = false
                                                 showVerifyCode = false
                                                 showForgotPassword = false
@@ -415,34 +429,13 @@ fun App(
                                     }
                                 },
                             )
-                            showVerifyCode -> VerifyCodeScreen(
-                                email = verifyEmail,
-                                onBack = {
-                                    showVerifyCode = false
-                                    showForgotPassword = true
-                                },
-                                onConfirm = { code ->
-                                    scope.launch {
-                                        authRepository.verifyRecoveryCode(verifyEmail, code)
-                                            .onSuccess {
-                                                showVerifyCode = false
-                                                showResetPassword = true
-                                            }
-                                            .onFailure { authError = it.message ?: "验证码不正确" }
-                                    }
-                                },
-                            )
                             else -> ForgotPasswordScreen(
                                 onBack = { showForgotPassword = false },
                                 onSendCode = { email ->
+                                    verifyEmail = email
                                     scope.launch {
-                                        authRepository.sendPasswordResetCode(email)
-                                            .onSuccess {
-                                                verifyEmail = email
-                                                showForgotPassword = false
-                                                showVerifyCode = true
-                                            }
-                                            .onFailure { authError = it.message ?: "验证码发送失败" }
+                                        authRepository.sendPasswordResetEmail(email, AuthDeepLink.REDIRECT_URL)
+                                            .onFailure { authError = it.message ?: "重置邮件发送失败" }
                                     }
                                 },
                             )
@@ -636,46 +629,16 @@ fun App(
                     ForgotPasswordScreen(
                         onBack = { showForgotPassword = false },
                         onSendCode = { email ->
+                            verifyEmail = email
                             scope.launch {
-                                authRepository.sendPasswordResetCode(email)
-                                    .onSuccess {
-                                        verifyEmail = email
-                                        showForgotPassword = false
-                                        showVerifyCode = true
-                                    }
-                                    .onFailure { authError = it.message ?: "验证码发送失败" }
+                                authRepository.sendPasswordResetEmail(email, AuthDeepLink.REDIRECT_URL)
+                                    .onFailure { authError = it.message ?: "重置邮件发送失败" }
                             }
                         },
                     )
                 }
             }
 
-            // 验证码页（覆盖层）
-            if (showVerifyCode) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background)
-                ) {
-                    VerifyCodeScreen(
-                        email = verifyEmail,
-                        onBack = {
-                            showVerifyCode = false
-                            showForgotPassword = true
-                        },
-                        onConfirm = { code ->
-                            scope.launch {
-                                authRepository.verifyRecoveryCode(verifyEmail, code)
-                                    .onSuccess {
-                                        showVerifyCode = false
-                                        showResetPassword = true
-                                    }
-                                    .onFailure { authError = it.message ?: "验证码不正确" }
-                            }
-                        },
-                    )
-                }
-            }
 
             // 重建密码页（覆盖层）：确认后回到登录页
             if (showResetPassword) {
@@ -690,6 +653,7 @@ fun App(
                             scope.launch {
                                 authRepository.updatePassword(newPwd)
                                     .onSuccess {
+                                        AuthDeepLink.clear()
                                         authRepository.signOut()
                                         showResetPassword = false
                                         showVerifyCode = false

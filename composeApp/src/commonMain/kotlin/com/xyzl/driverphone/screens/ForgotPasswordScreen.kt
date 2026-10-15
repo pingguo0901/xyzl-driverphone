@@ -27,6 +27,7 @@ fun ForgotPasswordScreen(
     onSendCode: (String) -> Unit = {},
 ) {
     var email by remember { mutableStateOf("") }
+    var sent by remember { mutableStateOf(false) }
 
     Column(
         Modifier
@@ -39,7 +40,7 @@ fun ForgotPasswordScreen(
         Spacer(Modifier.height(16.dp))
 
         Text(
-            "请输入注册时使用的邮箱地址，我们会把验证码发送到该邮箱。",
+            "请输入注册时使用的邮箱地址，我们会把重置密码的链接发到该邮箱。",
             color = FormMuted,
             fontSize = 13.sp,
             lineHeight = 19.sp,
@@ -53,11 +54,26 @@ fun ForgotPasswordScreen(
             onValueChange = { email = sanitizeEmail(it) },
         )
 
-        FormPrimaryButton(
-            text = "发送验证码",
-            onClick = { onSendCode(email) },
-            enabled = isEmailValid(email),
-        )
+        if (sent) {
+            Text(
+                "重置邮件已发送到 $email。请到邮箱点开里面的链接，回到 App 就能设置新密码。",
+                color = FormMuted,
+                fontSize = 13.sp,
+                lineHeight = 19.sp,
+                modifier = Modifier.padding(start = 2.dp, top = 6.dp, bottom = 12.dp),
+            )
+            FormPrimaryButton(
+                text = "返回登录",
+                onClick = onBack,
+                enabled = true,
+            )
+        } else {
+            FormPrimaryButton(
+                text = "发送重置邮件",
+                onClick = { onSendCode(email); sent = true },
+                enabled = isEmailValid(email),
+            )
+        }
         Spacer(Modifier.height(110.dp))
     }
 }

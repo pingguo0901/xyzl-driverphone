@@ -1,7 +1,6 @@
 package com.xyzl.driverphone
 
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.status.SessionStatus
@@ -279,14 +278,9 @@ class AuthRepository(
     }
 
     // ---------------------------------------------------------- 忘记密码（全走 Supabase Auth）
-    /** 发送重置验证码到邮箱 */
-    suspend fun sendPasswordResetCode(email: String): Result<Unit> = apiCall {
-        supabase.auth.resetPasswordForEmail(email.trim())
-    }
-
-    /** 校验邮箱收到的验证码（Recovery 类型） */
-    suspend fun verifyRecoveryCode(email: String, code: String): Result<Unit> = apiCall {
-        supabase.auth.verifyEmailOtp(OtpType.Email.RECOVERY, email.trim(), code.trim())
+    /** 发送重置密码邮件：邮件里的链接点开直接回到 App（deep link），再设置新密码 */
+    suspend fun sendPasswordResetEmail(email: String, redirectTo: String): Result<Unit> = apiCall {
+        supabase.auth.resetPasswordForEmail(email.trim(), redirectTo)
     }
 
     /** 设置新密码（需已通过验证码，处于 recovery 会话） */
