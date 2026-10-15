@@ -45,6 +45,10 @@ data class LedgerEntry(
     val remark: String = "",
     /** 是否为入账（true 显示 +，false 显示 -） */
     val income: Boolean = true,
+    /** 收据（Storage 路径或链接） */
+    val receiptUrl: String? = null,
+    /** 交易编号 */
+    val txNo: String? = null,
 )
 
 /** 全部流水记录（示例数据，钱包与流水页共用） */

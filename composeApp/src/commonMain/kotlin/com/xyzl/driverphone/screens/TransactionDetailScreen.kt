@@ -24,6 +24,7 @@ import com.xyzl.driverphone.model.LedgerEntry
 import com.xyzl.driverphone.model.LedgerKind
 import com.xyzl.driverphone.model.formatMoney
 import com.xyzl.driverphone.model.signedMoney
+import com.xyzl.driverphone.openUrl
 import com.xyzl.driverphone.shareText
 
 private val InkDark: Color @Composable get() = LocalAppColors.current.ink
@@ -44,7 +45,14 @@ fun TransactionDetailScreen(entry: LedgerEntry, onBack: () -> Unit = {}) {
             title = "交易详情",
             actionLabel = "收据",
             onBack = onBack,
-            onAction = { shareText(receiptText(entry)) },
+            onAction = {
+                val url = entry.receiptUrl
+                if (!url.isNullOrBlank() && (url.startsWith("http://") || url.startsWith("https://"))) {
+                    openUrl(url)
+                } else {
+                    shareText(receiptText(entry))
+                }
+            },
         )
 
         Column(
@@ -75,7 +83,7 @@ fun TransactionDetailScreen(entry: LedgerEntry, onBack: () -> Unit = {}) {
                 entry.expenseType?.let { DetailItem("报销类型", it) }
             }
             entry.orderNo?.let { DetailItem("订单编号", it) }
-            DetailItem("交易编号", entry.id)
+            DetailItem("交易编号", entry.txNo ?: entry.id)
             entry.remark.takeIf { it.isNotBlank() }?.let { DetailItem("备注", it) }
             DetailItem("状态", entry.status)
 

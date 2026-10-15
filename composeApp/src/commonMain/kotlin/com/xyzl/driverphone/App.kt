@@ -511,6 +511,7 @@ fun App(
                         },
                     )
                     AppTab.Finance -> FinanceScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
                         onOpenLedger = { showLedger = true },
                         onSubmitExpense = { showExpense = true },
                         onOpenNotifications = { showNotifications = true },
@@ -564,7 +565,10 @@ fun App(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    LedgerScreen(onBack = { showLedger = false })
+                    LedgerScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                        onBack = { showLedger = false },
+                    )
                 }
             }
 
@@ -576,6 +580,7 @@ fun App(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     ExpenseSubmitScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
                         onBack = { showExpense = false },
                         onPickImage = { source, cb -> requestPick(source, cb) },
                         onPickDocument = { cb -> pickDocument(cb) },

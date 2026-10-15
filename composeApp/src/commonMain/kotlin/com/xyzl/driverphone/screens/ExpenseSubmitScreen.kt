@@ -47,10 +47,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import com.xyzl.driverphone.FinanceRepository
 import com.xyzl.driverphone.ImageSource
+import com.xyzl.driverphone.VehicleOption
 import com.xyzl.driverphone.pickBirthday
+import kotlinx.coroutines.launch
 import com.xyzl.driverphone.model.Currencies
-import com.xyzl.driverphone.model.DutyVehicles
 import com.xyzl.driverphone.model.ExpenseTypes
 import com.xyzl.driverphone.model.currencyForType
 
@@ -63,6 +67,7 @@ private val DividerGray: Color @Composable get() = LocalAppColors.current.surfac
 /** 提交报销页 */
 @Composable
 fun ExpenseSubmitScreen(
+    userId: String? = null,
     onBack: () -> Unit = {},
     onPickImage: (source: ImageSource, onPicked: (String) -> Unit) -> Unit = { _, _ -> },
     onPickDocument: (onPicked: (String) -> Unit) -> Unit = {},
@@ -75,7 +80,42 @@ fun ExpenseSubmitScreen(
     var amount by remember { mutableStateOf("") }
     var receiptUri by remember { mutableStateOf<String?>(null) }
 
-    val canSubmit = expenseDate.isNotBlank() && vehicle.isNotBlank() && type.isNotBlank() && amount.isNotBlank() && receiptUri != null
+    val repo = remember { FinanceRepository() }
+    val scope = rememberCoroutineScope()
+    var vehicleOptions by remember { mutableStateOf<List<VehicleOption>>(emptyList()) }
+    var submitting by remember { mutableStateOf(false) }
+
+    LaunchedEffect(userId) {
+        if (userId == null) return@LaunchedEffect
+        val account = repo.accountId(userId)
+        vehicleOptions = if (account == null) emptyList() else repo.vehicles(account)
+    }
+
+    fun submit() {
+        val uid = userId ?: return
+        if (submitting) return
+        submitting = true
+        scope.launch {
+            val account = repo.accountId(uid)
+            val receiptUrl = receiptUri?.let { repo.uploadReceipt(it, uid) }
+            val vehicleId = vehicleOptions.firstOrNull { it.label == vehicle }?.id
+            val ok = repo.submitExpense(
+                userId = uid,
+                accountId = account,
+                category = type,
+                amount = amount.toDoubleOrNull() ?: 0.0,
+                currency = currency,
+                vehicleId = vehicleId,
+                receiptUrl = receiptUrl,
+                serviceDate = isoDate(expenseDate),
+                note = null,
+            )
+            submitting = false
+            if (ok) onSubmit()
+        }
+    }
+
+    val canSubmit = !submitting && expenseDate.isNotBlank() && vehicle.isNotBlank() && type.isNotBlank() && amount.isNotBlank() && receiptUri != null
 
     Column(
         Modifier
@@ -138,7 +178,7 @@ fun ExpenseSubmitScreen(
         DropdownField(
             text = vehicle.ifBlank { "请选择车辆" },
             placeholder = vehicle.isBlank(),
-            options = DutyVehicles,
+            options = vehicleOptions.map { it.label },
             onSelect = { vehicle = it },
         )
 
@@ -208,7 +248,7 @@ fun ExpenseSubmitScreen(
                 .height(54.dp)
                 .clip(RoundedCornerShape(999.dp))
                 .background(if (canSubmit) OnlineGreen else LocalAppColors.current.surfaceVariant)
-                .clickable(enabled = canSubmit) { onSubmit() },
+                .clickable(enabled = canSubmit) { submit() },
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -233,6 +273,18 @@ private fun FieldLabel(text: String) {
         color = MutedGray,
         modifier = Modifier.padding(bottom = 8.dp),
     )
+}
+
+/** 日期文本 → yyyy-MM-dd（已是 ISO 就原样返回） */
+private fun isoDate(text: String): String {
+    val t = text.trim()
+    if (t.length >= 10 && t[4] == '-') return t.take(10)
+    val parts = t.split("/", "-", ".").filter { it.isNotBlank() }
+    return if (parts.size == 3) {
+        parts[2].padStart(4, '0') + "-" + parts[1].padStart(2, '0') + "-" + parts[0].padStart(2, '0')
+    } else {
+        t
+    }
 }
 
 /** 弹出式选项：点击展开 Popup 列表 */

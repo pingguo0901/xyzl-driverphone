@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +39,7 @@ import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.xyzl.driverphone.model.LedgerEntries
+import com.xyzl.driverphone.FinanceRepository
 import com.xyzl.driverphone.model.LedgerEntry
 import com.xyzl.driverphone.model.LedgerKind
 import com.xyzl.driverphone.model.formatMoney
@@ -59,7 +60,7 @@ private enum class LedgerFilter(val label: String) {
 
 /** 流水记录页：报销 / 薪资 / 转账 全部流水 */
 @Composable
-fun LedgerScreen(onBack: () -> Unit = {}, embedded: Boolean = false, showPrint: Boolean = false) {
+fun LedgerScreen(userId: String? = null, onBack: () -> Unit = {}, embedded: Boolean = false, showPrint: Boolean = false) {
     var filter by remember { mutableStateOf(LedgerFilter.ALL) }
     var selected by remember { mutableStateOf<LedgerEntry?>(null) }
 
@@ -69,7 +70,14 @@ fun LedgerScreen(onBack: () -> Unit = {}, embedded: Boolean = false, showPrint: 
         return
     }
 
-    val entries = remember { LedgerEntries }
+    val repo = remember { FinanceRepository() }
+    var entries by remember { mutableStateOf<List<LedgerEntry>>(emptyList()) }
+
+    LaunchedEffect(userId) {
+        if (userId == null) return@LaunchedEffect
+        val account = repo.accountId(userId)
+        entries = if (account == null) emptyList() else repo.ledger(account)
+    }
     var savedInfo by remember { mutableStateOf<String?>(null) }
 
     val filtered = entries.filter { e ->

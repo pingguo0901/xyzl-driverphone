@@ -23,11 +23,19 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.FinanceRepository
+import com.xyzl.driverphone.FinanceSummary
 import com.xyzl.driverphone.LocalAppColors
+import com.xyzl.driverphone.model.formatMoney
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,10 +48,20 @@ private val CardGray: Color @Composable get() = LocalAppColors.current.surfaceVa
 /** 财务页：今日薪资 + 今日报销/今日单数 + 代收新币/代收马币 + 提交报销 */
 @Composable
 fun FinanceScreen(
+    userId: String? = null,
     onOpenLedger: () -> Unit = {},
     onSubmitExpense: () -> Unit = {},
     onOpenNotifications: () -> Unit = {},
 ) {
+    val repo = remember { FinanceRepository() }
+    var summary by remember { mutableStateOf(FinanceSummary()) }
+
+    LaunchedEffect(userId) {
+        if (userId == null) return@LaunchedEffect
+        val account = repo.accountId(userId)
+        summary = repo.summary(userId, account)
+    }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -85,7 +103,7 @@ fun FinanceScreen(
             Column(Modifier.padding(24.dp)) {
                 Text("今日薪资", fontSize = 13.sp, color = Color.White.copy(alpha = 0.85f))
                 Spacer(Modifier.height(8.dp))
-                Text("RM 386.00", fontSize = 34.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                Text(formatMoney("MYR", summary.todaySalary), fontSize = 34.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
             }
         }
 
@@ -93,24 +111,24 @@ fun FinanceScreen(
 
         // 今日报销 + 今日单数（平均分布）
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            StatCard("今日报销", "RM 128.50", Modifier.weight(1f))
-            StatCard("今日单数", "6 单", Modifier.weight(1f))
+            StatCard("今日报销", formatMoney("MYR", summary.todayExpense), Modifier.weight(1f))
+            StatCard("今日单数", summary.todayTrips.toString() + " 单", Modifier.weight(1f))
         }
 
         Spacer(Modifier.height(14.dp))
 
         // 当月累计报销 + 当月累计薪资（平均分布）
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            StatCard("当月累计报销", "RM 2,486.50", Modifier.weight(1f))
-            StatCard("当月累计薪资", "RM 8,642.00", Modifier.weight(1f))
+            StatCard("当月累计报销", formatMoney("MYR", summary.monthExpense), Modifier.weight(1f))
+            StatCard("当月累计薪资", formatMoney("MYR", summary.monthSalary), Modifier.weight(1f))
         }
 
         Spacer(Modifier.height(14.dp))
 
         // 代收新币 + 代收马币（平均分布）
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            StatCard("代收新币", "SGD 240.00", Modifier.weight(1f))
-            StatCard("代收马币", "RM 1,860.00", Modifier.weight(1f))
+            StatCard("代收新币", formatMoney("SGD", summary.sgdCollection), Modifier.weight(1f))
+            StatCard("代收马币", formatMoney("MYR", summary.myrCollection), Modifier.weight(1f))
         }
 
         Spacer(Modifier.height(24.dp))
