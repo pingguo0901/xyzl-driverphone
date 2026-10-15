@@ -30,6 +30,7 @@ data class InviteInfo(
 
 /** 邀请码类型（库里 invite_type 是枚举） */
 private const val INVITE_PERSONAL = "personal_to_customer"
+private const val INVITE_UNIVERSAL = "universal"
 private const val INVITE_DRIVER_CUSTOMER = "company_to_customer"
 private const val INVITE_COMPANY_DRIVER = "company_to_driver"
 private const val INVITE_PERSONAL_FALLBACK = "platform_to_customer"
@@ -149,15 +150,27 @@ class SecurityRepository(
      * 其它（personal）→ 自己账户的 personal_to_customer + company_to_driver（2 条）
      */
     suspend fun myInvites(userId: String, role: String?): List<InviteInfo> {
-        val accountId = accountId(userId)
-        return if (role == "driver") {
-            listOfNotNull(byAccount(accountId, INVITE_DRIVER_CUSTOMER))
-        } else {
-            listOfNotNull(
-                byAccount(accountId, INVITE_PERSONAL) ?: byAccount(accountId, INVITE_PERSONAL_FALLBACK),
-                byAccount(accountId, INVITE_COMPANY_DRIVER),
-            )
-        }
+        val accountId = accountId(userId) ?: return emptyList()
+        // 新规则：一个账号只维护 1 条码（归属账号，与角色无关）。
+        // 优先读 universal；老数据没有 universal 时退回任意一条（取最新）。
+        val invite = byAccount(accountId, INVITE_UNIVERSAL) ?: anyByAccount(accountId)
+        return listOfNotNull(invite)
+    }
+
+    /** 该账号最新的任意一条邀请码（兼容旧类型的码） */
+    private suspend fun anyByAccount(accountId: String): InviteInfo? {
+        val rows = safe {
+            supabase.postgrest.from("se_invitation_codes")
+                .select(Columns.list("invite_code", "share_link", "invite_type")) {
+                    filter { eq("account_id", accountId) }
+                    order("created_at", Order.DESCENDING)
+                    limit(1)
+                }
+                .decodeList<JsonObject>()
+        } ?: emptyList()
+        val row = rows.firstOrNull() ?: return null
+        val code = row.s("invite_code") ?: return null
+        return InviteInfo(code, row.s("share_link"), row.s("invite_type") ?: INVITE_UNIVERSAL)
     }
 
     /**

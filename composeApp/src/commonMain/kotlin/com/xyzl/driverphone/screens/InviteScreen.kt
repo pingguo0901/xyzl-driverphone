@@ -46,10 +46,10 @@ import com.xyzl.driverphone.shareText
 
 /** 邀请码类型 → 页面标题 */
 private fun inviteLabel(inviteType: String): String = when (inviteType) {
-    "personal_to_customer" -> "客户邀请码"
-    "company_to_customer" -> "客户邀请码（公司）"
-    "company_to_driver" -> "司机邀请码"
-    else -> "邀请码"
+    "universal" -> "我的邀请码"
+    "personal_to_customer", "company_to_customer", "platform_to_customer" -> "我的邀请码"
+    "company_to_driver", "platform_to_driver", "driver_to_customer" -> "我的邀请码"
+    else -> "我的邀请码"
 }
 
 /**
@@ -133,7 +133,7 @@ fun InviteScreen(userId: String? = null, onBack: () -> Unit = {}) {
             }
         }
 
-        FormNote("邀请码来自 se_invitation_codes：司机读所属公司的客户码；个人读自己的客户码 + 司机码（公司/独资另有公司客户码）。")
+        FormNote("邀请码只有一种：归属某个账号。个人/独资/企业显示自己的；司机/客服/客户显示归属公司的。客户分享给好友，好友填同一码即归入同一公司。")
         Spacer(Modifier.height(110.dp))
     }
 

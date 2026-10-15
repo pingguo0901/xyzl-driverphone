@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import com.xyzl.driverphone.LocalAppColors
+import com.xyzl.driverphone.friendlyLoginError
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -201,7 +202,7 @@ fun LoginScreen(
                             scope.launch {
                                 val result = onLogin(accountText, passwordText)
                                 submitting = false
-                                result.onFailure { errorMsg = it.message ?: "登录失败，请重试" }
+                                result.onFailure { errorMsg = friendlyLoginError(it) }
                             }
                         },
                         modifier = Modifier

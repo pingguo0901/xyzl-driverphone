@@ -79,7 +79,19 @@ class AuthRepository(
     }
 
     // ---------------------------------------------------------- 登录 / 退出
-    suspend fun signIn(email: String, password: String): Result<Unit> = apiCall {
+    suspend fun signIn(email: String, password: String): Result<Unit> = try {
+        supabase.auth.signInWith(Email) {
+            this.email = email.trim()
+            this.password = password
+        }
+        Result.success(Unit)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Result.failure(Exception(friendlyLoginError(e)))
+    }
+
+    private suspend fun signInRaw(email: String, password: String): Result<Unit> = apiCall {
         supabase.auth.signInWith(Email) {
             this.email = email.trim()
             this.password = password
@@ -316,6 +328,21 @@ class AuthRepository(
         throw e
     } catch (e: Exception) {
         Result.failure(e)
+    }
+}
+
+/**
+ * 认证/登录失败一律给用户看短句，不暴露底层错误码与原始报文。
+ * Auth 找不到该用户 / 密码不匹配 → 「账号与密码错误」
+ */
+fun friendlyLoginError(e: Throwable): String {
+    val m = (e.message ?: "").lowercase()
+    return when {
+        m.contains("email not confirmed") || m.contains("not confirmed") -> "邮箱还没验证，请先到邮箱点验证链接"
+        m.contains("too many") || m.contains("rate limit") -> "尝试太频繁，请稍后再试"
+        m.contains("network") || m.contains("timeout") || m.contains("unable to resolve") ||
+            m.contains("connect") || m.contains("offline") -> "网络异常，请检查网络后重试"
+        else -> "账号与密码错误"
     }
 }
 
