@@ -59,6 +59,13 @@ fun TripsScreen(userId: String?, onOpenNotifications: () -> Unit = {}) {
     val repo = remember { TripRepository() }
     var filter by remember { mutableStateOf(TripFilter.ALL) }
     var trips by remember { mutableStateOf<List<TripItem>>(emptyList()) }
+    var selectedOrderId by remember { mutableStateOf<String?>(null) }
+
+    val openOrderId = selectedOrderId
+    if (openOrderId != null) {
+        TripDetailScreen(orderId = openOrderId, onBack = { selectedOrderId = null })
+        return
+    }
 
     LaunchedEffect(userId) {
         if (userId != null) trips = repo.list(userId)
@@ -95,19 +102,22 @@ fun TripsScreen(userId: String?, onOpenNotifications: () -> Unit = {}) {
             Text("暂无行程", fontSize = 14.sp, color = MutedGray, modifier = Modifier.padding(top = 32.dp))
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(filtered, key = { it.orderId }) { t -> TripRow(item = t) }
+                items(filtered, key = { it.orderId }) { t ->
+                    TripRow(item = t, onClick = { selectedOrderId = t.orderId })
+                }
             }
         }
     }
 }
 
 @Composable
-private fun TripRow(item: TripItem) {
+private fun TripRow(item: TripItem, onClick: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(18.dp))
             .background(LocalAppColors.current.card)
+            .clickable { onClick() }
             .padding(16.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
