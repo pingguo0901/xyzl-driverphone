@@ -12,14 +12,19 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.ChatRepository
+import com.xyzl.driverphone.ChatThreadInfo
+import kotlinx.coroutines.launch
 
 /** 聊天详情页（聊天窗右上角三个点）：查找聊天内容 / 免打扰 / 置顶 / 清空记录 */
 @Composable
@@ -28,10 +33,22 @@ fun ChatDetailScreen(
     onBack: () -> Unit = {},
     onOpenSearch: () -> Unit = {},
     onCleared: () -> Unit = {},
+    userId: String? = null,
 ) {
+    val repo = remember { ChatRepository() }
+    val scope = rememberCoroutineScope()
+    var thread by remember { mutableStateOf<ChatThreadInfo?>(null) }
     var quiet by remember { mutableStateOf(false) }
-    var pinned by remember { mutableStateOf(true) }
+    var pinned by remember { mutableStateOf(false) }
     var confirmClear by remember { mutableStateOf(false) }
+
+    LaunchedEffect(userId, peerName) {
+        if (userId == null) return@LaunchedEffect
+        val info = repo.open(userId, peerName)?.first
+        thread = info
+        quiet = info?.isMuted ?: false
+        pinned = info?.isPinned ?: false
+    }
 
     Column(
         Modifier
@@ -49,12 +66,20 @@ fun ChatDetailScreen(
 
         Spacer(Modifier.height(14.dp))
         FormGroup {
-            FormSwitchRow(label = "消息免打扰", checked = quiet, onCheckedChange = { quiet = it })
+            FormSwitchRow(label = "消息免打扰", checked = quiet, onCheckedChange = { on ->
+                quiet = on
+                val id = thread?.id ?: return@FormSwitchRow
+                scope.launch { repo.setMuted(id, on) }
+            })
         }
 
         Spacer(Modifier.height(14.dp))
         FormGroup {
-            FormSwitchRow(label = "置顶聊天", checked = pinned, onCheckedChange = { pinned = it })
+            FormSwitchRow(label = "置顶聊天", checked = pinned, onCheckedChange = { on ->
+                pinned = on
+                val id = thread?.id ?: return@FormSwitchRow
+                scope.launch { repo.setPinned(id, on) }
+            })
         }
 
         Spacer(Modifier.height(14.dp))
@@ -66,7 +91,7 @@ fun ChatDetailScreen(
             )
         }
         Spacer(Modifier.height(10.dp))
-        FormNote("清空后无法恢复，仅影响本机保存的这段聊天记录。")
+        FormNote("清空只对你自己隐藏（user_cleared_at），服务器上的聊天记录不会被删。")
         Spacer(Modifier.height(40.dp))
     }
 
@@ -79,7 +104,8 @@ fun ChatDetailScreen(
             confirmButton = {
                 TextButton(onClick = {
                     confirmClear = false
-                    ChatStore.clearAll()
+                    val id = thread?.id
+                    if (id != null) scope.launch { repo.clearForUser(id) }
                     onCleared()
                 }) { Text("确定", color = FormRed, fontWeight = FontWeight.SemiBold) }
             },

@@ -24,7 +24,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,22 +37,38 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.ChatRepository
 import com.xyzl.driverphone.pickBirthday
 
 private val searchTypes = listOf("日期", "图片与视频", "文件", "名片", "位置", "链接")
 
-/** 查找聊天内容：取消 / 搜索框 / 搜索按钮 + 胶囊类型选择 + 结果列表 */
+/**
+ * 查找聊天历史记录（聊天详情页 → 查找聊天内容）
+ * 搜索：content 关键词；筛选：日期 / 图片与视频 / 文件 / 名片 / 位置 / 链接
+ * 结果：发送人（sender_user_id → se_users.full_name）+ 内容 + 时间；点一条回聊天窗
+ */
 @Composable
 fun ChatSearchScreen(
     peerName: String,
     onBack: () -> Unit = {},
     onOpenMessage: (Long) -> Unit = {},
+    userId: String? = null,
 ) {
+    val repo = remember { ChatRepository() }
+    val all = remember { mutableStateListOf<ChatMessage>() }
     var keyword by remember { mutableStateOf("") }
     var type by remember { mutableStateOf(-1) }
     var pickedDate by remember { mutableStateOf<String?>(null) }
 
-    val results = ChatStore.messages.filter { msg ->
+    LaunchedEffect(userId, peerName) {
+        if (userId == null) return@LaunchedEffect
+        val info = repo.open(userId, peerName)?.first ?: return@LaunchedEffect
+        val lines = repo.messages(info, userId)
+        all.clear()
+        all.addAll(lines.mapIndexed { index, line -> line.toChatMessage(index.toLong() + 1L, peerName) })
+    }
+
+    val results = all.filter { msg ->
         when {
             keyword.isNotBlank() -> bodyText(msg.body).contains(keyword, ignoreCase = true)
             type == 0 -> pickedDate != null && msg.date == pickedDate
@@ -81,10 +99,9 @@ fun ChatSearchScreen(
                 )
                 if (keyword.isEmpty()) Text("搜索", color = FormMuted, fontSize = 14.sp)
             }
-            TextButton(onClick = { }) { Text("搜索", color = FormGreen, fontWeight = FontWeight.SemiBold) }
+            TextButton(onClick = { type = -1 }) { Text("搜索", color = FormGreen, fontWeight = FontWeight.SemiBold) }
         }
 
-        // 胶囊类型
         Row(
             Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),

@@ -30,6 +30,8 @@ data class ChatThreadInfo(
     val peerUserId: String?,
     val peerName: String,
     val peerAvatar: String?,
+    val isMuted: Boolean = false,
+    val isPinned: Boolean = false,
 )
 
 /** 一条消息 */
@@ -58,7 +60,7 @@ class ChatRepository(
     suspend fun open(userId: String, peerName: String): Pair<ChatThreadInfo, List<ChatLine>>? {
         val threads = try {
             supabase.postgrest.from("se_chat_threads")
-                .select(Columns.list("id", "thread_type", "participants", "last_message_at")) {
+                .select(Columns.list("id", "thread_type", "participants", "last_message_at", "is_muted", "is_pinned")) {
                     order("last_message_at", Order.DESCENDING)
                     limit(200)
                 }
@@ -108,6 +110,8 @@ class ChatRepository(
             peerUserId = peerId,
             peerName = peerId?.let { users[it]?.str("full_name") } ?: peerName,
             peerAvatar = peerId?.let { users[it]?.str("avatar_url") },
+            isMuted = chosenRow.bool("is_muted"),
+            isPinned = chosenRow.bool("is_pinned"),
         )
         return info to messages(info, userId)
     }
@@ -141,6 +145,36 @@ class ChatRepository(
             put("lng", lng)
         },
     )
+
+    /** 消息免打扰：is_muted（顺带写 muted_until） */
+    suspend fun setMuted(threadId: String, muted: Boolean): Boolean = updateThread(threadId) {
+        put("is_muted", muted)
+        if (muted) put("muted_until", "now") else put("muted_until", null as String?)
+    }
+
+    /** 置顶聊天：is_pinned + pinned_at */
+    suspend fun setPinned(threadId: String, pinned: Boolean): Boolean = updateThread(threadId) {
+        put("is_pinned", pinned)
+        if (pinned) put("pinned_at", "now") else put("pinned_at", null as String?)
+    }
+
+    /** 清空当前聊天记录：只对该用户隐藏（user_cleared_at = now()），不删服务器数据 */
+    suspend fun clearForUser(threadId: String): Boolean = updateThread(threadId) {
+        put("user_cleared_at", "now")
+    }
+
+    private suspend fun updateThread(
+        threadId: String,
+        values: kotlinx.serialization.json.JsonObjectBuilder.() -> Unit,
+    ): Boolean = try {
+        supabase.postgrest.from("se_chat_threads")
+            .update(buildJsonObject(values)) { filter { eq("id", threadId) } }
+        true
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        false
+    }
 
     /** 对方发来的消息标记已读 */
     suspend fun markThreadRead(info: ChatThreadInfo): Boolean = try {

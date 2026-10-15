@@ -539,7 +539,7 @@ private fun TickMark(tick: ChatTick) {
 }
 
 /** 数据库一行 → 界面气泡 */
-private fun ChatLine.toChatMessage(id: Long, peerName: String): ChatMessage {
+internal fun ChatLine.toChatMessage(id: Long, peerName: String): ChatMessage {
     val body = when (type) {
         "voice" -> ChatBody.Voice(voiceUrl, voiceSeconds ?: 0)
         "location" -> ChatBody.Location(

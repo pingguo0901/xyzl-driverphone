@@ -868,6 +868,7 @@ fun App(
                         onBack = { showChatDetail = false },
                         onOpenSearch = { showChatSearch = true },
                         onCleared = { showChatDetail = false },
+                        userId = (authState as? AuthState.Authenticated)?.userId,
                     )
                 }
             }
@@ -883,6 +884,7 @@ fun App(
                         peerName = peer,
                         onBack = { showChatSearch = false },
                         onOpenMessage = { showChatSearch = false },
+                        userId = (authState as? AuthState.Authenticated)?.userId,
                     )
                 }
             }
@@ -897,6 +899,7 @@ fun App(
                 ) {
                     PersonDetailScreen(
                         personName = person,
+                        userId = (authState as? AuthState.Authenticated)?.userId,
                         onBack = { chatPerson = null },
                         onSendMessage = {
                             chatPerson = null
