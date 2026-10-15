@@ -1,5 +1,6 @@
 package com.xyzl.driverphone.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,11 +32,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import com.xyzl.driverphone.LocalAppColors
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.ChatListItem
+import com.xyzl.driverphone.ChatRepository
+import com.xyzl.driverphone.LocalAppColors
+import com.xyzl.driverphone.formatClock
+import com.xyzl.driverphone.formatDate
+import com.xyzl.driverphone.loadImageBitmap
 
 private val ChatCard: Color @Composable get() = LocalAppColors.current.card
 private val ChatAvatar: Color @Composable get() = LocalAppColors.current.surfaceVariant
@@ -42,14 +50,28 @@ private val ChatGreen = Color(0xFF3B82F6)
 private val ChatInk: Color @Composable get() = LocalAppColors.current.ink
 private val ChatMuted: Color @Composable get() = LocalAppColors.current.muted
 
-/** 聊天页：胶囊式左右选项（聊天 / 官方通知）+ 聊天列表 */
+/**
+ * 聊天 Tab（《聊天 Tab（私聊列表）接线表》）
+ * 聊天：se_chat_threads（我在参与的 business/support/direct）· 官方通知：thread_type = 'official'
+ * 名字/头像：se_users（对方）；官方用 se_accounts.display_name
+ * 最后一条/时间：se_chat_threads.last_message / last_message_at
+ * 未读：该会话消息表里别人发的 is_read = false 条数
+ * 排序：is_pinned desc, last_message_at desc
+ */
 @Composable
 fun ChatScreen(
+    userId: String? = null,
     onOpenNotifications: () -> Unit = {},
-    onOpenChat: (String) -> Unit = {},
-    onOpenOfficial: (String) -> Unit = {},
+    onOpenChat: (String, String) -> Unit = { _, _ -> },
+    onOpenOfficial: (String, String) -> Unit = { _, _ -> },
 ) {
     var tab by remember { mutableStateOf(0) }
+    val repo = remember { ChatRepository() }
+    var items by remember { mutableStateOf<List<ChatListItem>>(emptyList()) }
+
+    LaunchedEffect(userId) {
+        items = if (userId == null) emptyList() else repo.list(userId)
+    }
 
     Column(
         Modifier
@@ -66,22 +88,28 @@ fun ChatScreen(
         )
         Spacer(Modifier.height(14.dp))
 
-        val list = if (tab == 0) ChatListStore.driver else ChatListStore.official
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(bottom = 96.dp),
-        ) {
-            items(list, key = { it.name + it.time + it.message }) { item ->
-                ChatRow(item, onClick = {
-                    if (tab == 0) onOpenChat(item.name) else onOpenOfficial(item.name)
-                })
+        val list = items.filter { if (tab == 0) !it.official else it.official }
+        if (list.isEmpty()) {
+            Box(Modifier.fillMaxWidth().padding(top = 60.dp), contentAlignment = Alignment.Center) {
+                Text(if (tab == 0) "还没有聊天会话" else "还没有官方通知", color = ChatMuted, fontSize = 13.sp)
+            }
+        } else {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(bottom = 96.dp),
+            ) {
+                items(list, key = { it.threadId }) { item ->
+                    ChatRow(item, onClick = {
+                        if (tab == 0) onOpenChat(item.threadId, item.name) else onOpenOfficial(item.threadId, item.name)
+                    })
+                }
             }
         }
     }
 }
 
 @Composable
-private fun ChatRow(item: ChatItem, onClick: () -> Unit) {
+private fun ChatRow(item: ChatListItem, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -91,30 +119,47 @@ private fun ChatRow(item: ChatItem, onClick: () -> Unit) {
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val bitmap = remember(item.avatarUrl) { item.avatarUrl?.let { loadImageBitmap(it) } }
         Box(
             modifier = Modifier.size(46.dp).clip(CircleShape).background(ChatAvatar),
             contentAlignment = Alignment.Center,
         ) {
-            Text(
-                item.name.take(1),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = ChatInk,
-            )
+            if (bitmap != null) {
+                Image(
+                    bitmap = bitmap,
+                    contentDescription = item.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(46.dp).clip(CircleShape),
+                )
+            } else {
+                Text(
+                    item.name.take(1),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = ChatInk,
+                )
+            }
         }
         Spacer(modifier = Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(
-                item.name,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = ChatInk,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    item.name,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = ChatInk,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                if (item.isPinned) {
+                    Spacer(Modifier.width(6.dp))
+                    Text("置顶", fontSize = 10.sp, color = ChatGreen)
+                }
+            }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                item.message,
+                item.lastMessage?.takeIf { it.isNotBlank() } ?: "暂无消息",
                 fontSize = 13.sp,
                 color = ChatMuted,
                 maxLines = 1,
@@ -123,10 +168,14 @@ private fun ChatRow(item: ChatItem, onClick: () -> Unit) {
         }
         Spacer(modifier = Modifier.width(10.dp))
         Column(horizontalAlignment = Alignment.End) {
-            Text(item.time, fontSize = 12.sp, color = ChatMuted)
+            val clock = formatClock(item.lastMessageAt)
+            Text(
+                if (clock.isNotBlank()) clock else formatDate(item.lastMessageAt),
+                fontSize = 12.sp,
+                color = ChatMuted,
+            )
             if (item.unread > 0) {
                 Spacer(modifier = Modifier.height(6.dp))
-                // 未读：胶囊式（原来是小圆点）
                 Box(
                     modifier = Modifier
                         .height(18.dp)

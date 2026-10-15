@@ -232,6 +232,7 @@ fun App(
         var showChatSettings by remember { mutableStateOf(false) }
         var showChatRecords by remember { mutableStateOf(false) }
         var chatPeer by remember { mutableStateOf<String?>(null) }
+        var chatThreadId by remember { mutableStateOf<String?>(null) }
         var chatReadOnly by remember { mutableStateOf(false) }
         var chatPerson by remember { mutableStateOf<String?>(null) }
         var chatCallPeer by remember { mutableStateOf<String?>(null) }
@@ -496,14 +497,15 @@ fun App(
                         onOpenNotifications = { showNotifications = true },
                     )
                     AppTab.Chat -> ChatScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
                         onOpenNotifications = { showNotifications = true },
-                        onOpenChat = { name ->
-                            ChatListStore.clearUnread(name)
+                        onOpenChat = { threadId, name ->
+                            chatThreadId = threadId
                             chatReadOnly = false
                             chatPeer = name
                         },
-                        onOpenOfficial = { name ->
-                            ChatListStore.clearUnread(name)
+                        onOpenOfficial = { threadId, name ->
+                            chatThreadId = threadId
                             chatReadOnly = true
                             chatPeer = name
                         },
@@ -849,8 +851,12 @@ fun App(
                 ) {
                     ChatConversationScreen(
                         peerName = peer,
+                        threadId = chatThreadId,
                         readOnly = chatReadOnly,
-                        onBack = { chatPeer = null },
+                        onBack = {
+                            chatPeer = null
+                            chatThreadId = null
+                        },
                         onOpenChatDetail = { showChatDetail = true },
                         onOpenPerson = { name -> chatPerson = name },
                         onOpenCall = { video ->

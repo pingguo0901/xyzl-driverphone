@@ -102,6 +102,7 @@ fun ChatConversationScreen(
     onOpenPerson: (String) -> Unit = {},
     onOpenCall: (Boolean) -> Unit = {},
     userId: String? = null,
+    threadId: String? = null,
 ) {
     var input by remember { mutableStateOf("") }
     var panelOpen by remember { mutableStateOf(false) }
@@ -151,9 +152,10 @@ fun ChatConversationScreen(
     }
 
     // 进聊天窗：按对方名字找会话 → 拉真实消息 → 标记已读
-    LaunchedEffect(userId, peerName) {
+    LaunchedEffect(userId, peerName, threadId) {
         if (userId == null) return@LaunchedEffect
-        val opened = repo.open(userId, peerName)
+        // 从聊天列表点进来直接按 thread_id 开；否则按对方名字找
+        val opened = if (threadId != null) repo.openById(threadId, userId) else repo.open(userId, peerName)
         val info = opened?.first
         thread = info
         val loaded = opened?.second.orEmpty().mapIndexed { index, line ->

@@ -37,6 +37,21 @@ data class ChatThreadInfo(
     val bucket: String = "se_chat-direct",
 )
 
+/** 聊天 Tab 的一行（《聊天 Tab（私聊列表）接线表》） */
+data class ChatListItem(
+    val threadId: String,
+    val threadType: String,
+    val peerUserId: String?,
+    val name: String,
+    val avatarUrl: String?,
+    val lastMessage: String?,
+    val lastMessageAt: String?,
+    val unread: Int,
+    val isPinned: Boolean,
+) {
+    val official: Boolean get() = threadType == "official"
+}
+
 /** 一条消息 */
 data class ChatLine(
     val id: String,
@@ -58,6 +73,176 @@ data class ChatLine(
 class ChatRepository(
     private val supabase: SupabaseClient = Supabase.client,
 ) {
+
+    /**
+     * 聊天 Tab 列表：我在参与的会话（business / support / direct / official）
+     * 排序：is_pinned desc, last_message_at desc；未读=该会话里别人发的 is_read=false 条数
+     */
+    suspend fun list(userId: String): List<ChatListItem> {
+        val rows = try {
+            supabase.postgrest.from("se_chat_threads")
+                .select(
+                    Columns.list(
+                        "id", "thread_type", "participants", "account_id",
+                        "last_message", "last_message_at", "is_pinned",
+                    ),
+                ) {
+                    order("is_pinned", Order.DESCENDING)
+                    order("last_message_at", Order.DESCENDING)
+                    limit(100)
+                }
+                .decodeList<JsonObject>()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+        val mine = rows.filter { it.participantIds().contains(userId) }
+        if (mine.isEmpty()) return emptyList()
+
+        val peerIds = mine
+            .filter { it.str("thread_type") != "official" }
+            .flatMap { it.participantIds() }
+            .filter { it != userId }
+            .distinct()
+        val users: Map<String, JsonObject> = if (peerIds.isEmpty()) emptyMap() else try {
+            supabase.postgrest.from("se_users")
+                .select(Columns.list("id", "full_name", "avatar_url")) { filter { isIn("id", peerIds) } }
+                .decodeList<JsonObject>()
+                .mapNotNull { row -> row.str("id")?.let { it to row } }
+                .toMap()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            emptyMap()
+        }
+
+        val accountIds = mine.mapNotNull { it.str("account_id") }.distinct()
+        val accounts: Map<String, JsonObject> = if (accountIds.isEmpty()) emptyMap() else try {
+            supabase.postgrest.from("se_accounts")
+                .select(Columns.list("id", "display_name")) { filter { isIn("id", accountIds) } }
+                .decodeList<JsonObject>()
+                .mapNotNull { row -> row.str("id")?.let { it to row } }
+                .toMap()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            emptyMap()
+        }
+
+        // 未读：三张消息表各查一次（is_read=false 且不是我发的）
+        val idsByTable = mine.groupBy { tableFor(it.str("thread_type")) }
+        val unread = HashMap<String, Int>()
+        for ((table, group) in idsByTable) {
+            val ids = group.mapNotNull { it.str("id") }
+            unread.putAll(unreadByThread(table, ids, userId))
+        }
+
+        return mine.mapNotNull { row ->
+            val id = row.str("id") ?: return@mapNotNull null
+            val type = row.str("thread_type").orEmpty()
+            val peerId = row.participantIds().firstOrNull { it != userId }
+            val official = type == "official"
+            ChatListItem(
+                threadId = id,
+                threadType = type,
+                peerUserId = peerId,
+                name = if (official) {
+                    accounts[row.str("account_id").orEmpty()]?.str("display_name") ?: "官方通知"
+                } else {
+                    users[peerId]?.str("full_name") ?: "用户"
+                },
+                avatarUrl = if (official) null else peerId?.let { users[it]?.str("avatar_url") },
+                lastMessage = row.str("last_message"),
+                lastMessageAt = row.str("last_message_at"),
+                unread = unread[id] ?: 0,
+                isPinned = row.bool("is_pinned"),
+            )
+        }
+    }
+
+    private suspend fun unreadByThread(table: String, threadIds: List<String>, userId: String): Map<String, Int> {
+        if (threadIds.isEmpty()) return emptyMap()
+        return try {
+            supabase.postgrest.from(table)
+                .select(Columns.list("thread_id", "sender_user_id")) {
+                    filter {
+                        isIn("thread_id", threadIds)
+                        eq("is_read", false)
+                    }
+                    limit(2000)
+                }
+                .decodeList<JsonObject>()
+                .filter { it.str("sender_user_id") != userId }
+                .groupingBy { it.str("thread_id").orEmpty() }
+                .eachCount()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            emptyMap()
+        }
+    }
+
+    /** 列表点进来：直接用 thread_id 开会话 */
+    suspend fun openById(threadId: String, userId: String): Pair<ChatThreadInfo, List<ChatLine>>? {
+        val row = try {
+            supabase.postgrest.from("se_chat_threads")
+                .select(Columns.list("id", "thread_type", "participants", "account_id", "is_muted", "is_pinned")) {
+                    filter { eq("id", threadId) }
+                    limit(1)
+                }
+                .decodeList<JsonObject>()
+                .firstOrNull()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            null
+        } ?: return null
+
+        val type = row.str("thread_type").orEmpty()
+        val peerId = row.participantIds().firstOrNull { it != userId }
+        val peer = if (peerId == null) null else try {
+            supabase.postgrest.from("se_users")
+                .select(Columns.list("id", "full_name", "avatar_url")) { filter { eq("id", peerId) } }
+                .decodeList<JsonObject>()
+                .firstOrNull()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            null
+        }
+        val accountName = if (type == "official") {
+            row.str("account_id")?.let { accountId ->
+                try {
+                    supabase.postgrest.from("se_accounts")
+                        .select(Columns.list("display_name")) { filter { eq("id", accountId) } }
+                        .decodeList<JsonObject>()
+                        .firstOrNull()
+                        ?.str("display_name")
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        } else {
+            null
+        }
+
+        val info = ChatThreadInfo(
+            id = row.str("id").orEmpty(),
+            threadType = type,
+            table = tableFor(type),
+            peerUserId = peerId,
+            peerName = accountName ?: peer?.str("full_name") ?: "对话",
+            peerAvatar = peer?.str("avatar_url"),
+            isMuted = row.bool("is_muted"),
+            isPinned = row.bool("is_pinned"),
+            bucket = bucketFor(type),
+        )
+        return info to messages(info, userId)
+    }
 
     /** 打开与某个人的会话：先按对方名字找会话，再拉消息 */
     suspend fun open(userId: String, peerName: String): Pair<ChatThreadInfo, List<ChatLine>>? {
