@@ -42,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +60,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.xyzl.driverphone.DialCodes
+import com.xyzl.driverphone.RegisterPayload
+import com.xyzl.driverphone.RegisterResult
+import kotlinx.coroutines.launch
 import com.xyzl.driverphone.GenderOptions
 import com.xyzl.driverphone.ImageSource
 import com.xyzl.driverphone.sanitizeDigits
@@ -96,7 +100,7 @@ private fun isPasswordValid(pwd: String): Boolean = PasswordRules.all { it.check
 @Composable
 fun RegisterScreen(
     onBack: () -> Unit = {},
-    onSubmit: () -> Unit = {},
+    onSubmit: suspend (RegisterPayload) -> Result<RegisterResult> = { Result.success(RegisterResult("", null)) },
     onPickBirthday: (onPicked: (String) -> Unit) -> Unit = {},
     onPickImage: (source: ImageSource, onPicked: (String) -> Unit) -> Unit = { _, _ -> },
     onOpenPolicy: (Int) -> Unit = {},
@@ -122,6 +126,9 @@ fun RegisterScreen(
 
     val passwordOk = isPasswordValid(password)
     val confirmMismatch = confirmPassword.isNotEmpty() && confirmPassword != password
+    var submitting by remember { mutableStateOf(false) }
+    var errorMsg by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
     var icUri by remember { mutableStateOf<String?>(null) }
     var licenseUri by remember { mutableStateOf<String?>(null) }
     var passportUri by remember { mutableStateOf<String?>(null) }
@@ -396,11 +403,48 @@ fun RegisterScreen(
                 }
             }
 
+            if (errorMsg != null) {
+                Text(
+                    text = errorMsg ?: "",
+                    color = ErrRed,
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+            }
+
             Spacer(Modifier.height(20.dp))
 
             Button(
-                onClick = onSubmit,
-                enabled = canSubmit,
+                onClick = {
+                    errorMsg = null
+                    submitting = true
+                    scope.launch {
+                        val result = onSubmit(
+                            RegisterPayload(
+                                email = email,
+                                password = password,
+                                nickname = nickname,
+                                fullName = fullName,
+                                gender = gender,
+                                birthday = birthday,
+                                street = street,
+                                garden = garden,
+                                postcode = postcode,
+                                city = city,
+                                state = state,
+                                phone = dialCode.filter { c -> c.isDigit() } + phone,
+                                wechatId = wechat,
+                                inviteCode = inviteCode.ifBlank { null },
+                                icUri = icUri,
+                                licenseUri = licenseUri,
+                                passportUri = passportUri,
+                            )
+                        )
+                        submitting = false
+                        result.onFailure { errorMsg = it.message ?: "注册失败，请重试" }
+                    }
+                },
+                enabled = canSubmit && !submitting,
                 modifier = Modifier.fillMaxWidth().height(54.dp),
                 shape = RoundedCornerShape(999.dp),
                 colors = ButtonDefaults.buttonColors(

@@ -30,13 +30,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.brandLogoPainter
+import kotlinx.coroutines.launch
 
 // =====================  星域臻旅 登录页面  =====================
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LoginScreen(
     onBack: () -> Unit = {},
-    onLoginSuccess: () -> Unit = {},
+    onLogin: suspend (String, String) -> Result<Unit> = { _, _ -> Result.success(Unit) },
     onRegister: () -> Unit = {},
     onForgetPassword: () -> Unit = {},
     onWechatLogin: () -> Unit = {},
@@ -47,6 +48,9 @@ fun LoginScreen(
     var passwordText by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var agreedPolicy by remember { mutableStateOf(false) }
+    var submitting by remember { mutableStateOf(false) }
+    var errorMsg by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
 
     // 星空深蓝色渐变
     val backgroundBrush = Brush.verticalGradient(
@@ -181,8 +185,25 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(28.dp))
 
                     // 金色大登录按钮
+                    if (errorMsg != null) {
+                        Text(
+                            text = errorMsg ?: "",
+                            color = Color(0xFFE53935),
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(bottom = 8.dp),
+                        )
+                    }
+
                     Button(
-                        onClick = { onLoginSuccess() },
+                        onClick = {
+                            errorMsg = null
+                            submitting = true
+                            scope.launch {
+                                val result = onLogin(accountText, passwordText)
+                                submitting = false
+                                result.onFailure { errorMsg = it.message ?: "登录失败，请重试" }
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
@@ -190,7 +211,7 @@ fun LoginScreen(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF3B82F6),
                         ),
-                        enabled = agreedPolicy,
+                        enabled = agreedPolicy && !submitting,
                     ) {
                         Text(
                             "登录",

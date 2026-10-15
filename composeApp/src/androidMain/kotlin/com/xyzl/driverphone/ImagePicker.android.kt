@@ -16,6 +16,8 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private var birthdayLauncher: ActivityResultLauncher<Intent>? = null
 private var cameraLauncher: ActivityResultLauncher<Uri>? = null
@@ -122,6 +124,17 @@ actual fun loadImageBitmap(uri: String): ImageBitmap? {
         }
     } catch (_: Exception) {
         null
+    }
+}
+
+actual suspend fun readUriBytes(uri: String): ByteArray? {
+    if (!::pickerActivity.isInitialized) return null
+    return withContext(Dispatchers.IO) {
+        try {
+            pickerActivity.contentResolver.openInputStream(Uri.parse(uri))?.use { it.readBytes() }
+        } catch (_: Exception) {
+            null
+        }
     }
 }
 

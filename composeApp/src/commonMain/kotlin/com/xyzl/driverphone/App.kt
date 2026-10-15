@@ -29,6 +29,7 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -151,7 +153,11 @@ fun App(
         var showRegister by remember { mutableStateOf(false) }
         var showPolicy by remember { mutableStateOf(false) }
         var preAuthPolicy by remember { mutableStateOf(-1) }
-        var loggedIn by remember { mutableStateOf(false) }
+        // ---- Supabase 登录态（替代原来的本地 loggedIn 开关）----
+        val authRepository = remember { AuthRepository() }
+        val authStateFlow = remember { authRepository.observeAuthState() }
+        val authState by authStateFlow.collectAsState(initial = AuthState.Loading)
+        val loggedIn = authState is AuthState.Authenticated
         var selectedTab by remember { mutableStateOf(AppTab.Home) }
         var showLedger by remember { mutableStateOf(false) }
         var showExpense by remember { mutableStateOf(false) }
@@ -326,6 +332,12 @@ fun App(
         if (!loggedIn) {
             Box(Modifier.fillMaxSize()) {
                 when {
+                    authState is AuthState.Loading -> Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(color = Color(0xFF3B82F6))
+                    }
                     showPolicy -> PolicyScreen(onBack = { showPolicy = false })
                     showEntry -> EntryScreen(
                         onLoginClick = { showEntry = false; showLogin = true },
@@ -333,14 +345,14 @@ fun App(
                     )
                     showRegister -> RegisterScreen(
                         onBack = { showRegister = false; showEntry = true },
-                        onSubmit = { loggedIn = true },
+                        onSubmit = { payload -> authRepository.registerFull(payload) },
                         onPickBirthday = { cb -> pickBirthday(cb) },
                         onPickImage = { source, cb -> requestPick(source, cb) },
                         onOpenPolicy = { preAuthPolicy = it },
                     )
                     else -> LoginScreen(
                         onBack = { showLogin = false; showEntry = true },
-                        onLoginSuccess = { loggedIn = true },
+                        onLogin = { email, password -> authRepository.signIn(email, password) },
                         onRegister = { showLogin = false; showRegister = true },
                         onForgetPassword = { showLogin = false; showForgotPassword = true },
                         onOpenPolicy = { preAuthPolicy = it },
@@ -464,7 +476,7 @@ fun App(
                         onOpenWallet = { showWallet = true },
                         onOpenInvite = { showInvite = true },
                         onLogout = {
-                            loggedIn = false
+                            scope.launch { authRepository.signOut() }
                             showEntry = false
                             showLogin = true
                             showRegister = false
@@ -636,7 +648,7 @@ fun App(
                             showVerifyCode = false
                             showForgotPassword = false
                             showChangePassword = false
-                            loggedIn = false
+                            scope.launch { authRepository.signOut() }
                             showEntry = false
                             showLogin = true
                             showRegister = false

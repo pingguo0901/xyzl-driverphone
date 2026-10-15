@@ -31,6 +31,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
             implementation(libs.zxing.core)
+            implementation(libs.ktor.client.android)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -40,6 +41,21 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(libs.haze)
             implementation(libs.haze.materials)
+
+            // Supabase：BOM 统一版本，后面四个库不用写版本号
+            implementation(project.dependencies.platform(libs.supabase.bom))
+            implementation(libs.supabase.postgrest)
+            implementation(libs.supabase.auth)
+            implementation(libs.supabase.realtime)
+            implementation(libs.supabase.storage)
+
+            // Ktor：网络引擎之外的公共部分
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+
+            // 会话持久化
+            implementation(libs.multiplatform.settings)
+            implementation(libs.multiplatform.settings.no.arg)
         }
     }
 }
@@ -49,7 +65,7 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     // 只需改 appVersionName，versionCode 会自动按 major*10000 + minor*100 + patch 计算
-    val appVersionName = "1.0.100"
+    val appVersionName = "1.0.101"
     val appVersionParts = appVersionName.split(".").map { it.toIntOrNull() ?: 0 }
     val appVersionCode = (appVersionParts.getOrNull(0) ?: 0) * 10000 +
         (appVersionParts.getOrNull(1) ?: 0) * 100 +

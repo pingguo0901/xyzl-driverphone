@@ -18,3 +18,6 @@ actual fun loadImageBitmap(uri: String): ImageBitmap? {
     // iOS 端暂未接入图片读取，留空
     return null
 }
+
+/** iOS 端暂未实现：KYC 证件照上传先返回 null */
+actual suspend fun readUriBytes(uri: String): ByteArray? = null

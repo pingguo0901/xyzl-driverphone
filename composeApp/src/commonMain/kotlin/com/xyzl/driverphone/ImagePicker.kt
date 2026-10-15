@@ -16,3 +16,6 @@ expect fun pickDocument(onPicked: (String) -> Unit)
 
 /** 读取本地 uri 的图片（用于头像预览），失败返回 null */
 expect fun loadImageBitmap(uri: String): ImageBitmap?
+
+/** 读取本地 uri 的原始字节（用于上传 KYC 证件照），失败返回 null */
+expect suspend fun readUriBytes(uri: String): ByteArray?
