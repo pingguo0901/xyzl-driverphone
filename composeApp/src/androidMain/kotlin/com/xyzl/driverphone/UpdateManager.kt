@@ -21,7 +21,9 @@ object UpdateManager {
     /** 版本清单：主地址走 GitHub raw，国内网络常被墙 → 备用走 Supabase 镜像 */
     private val VERSION_URLS = listOf(
         "https://raw.githubusercontent.com/pingguo0901/xyzl-driverphone/main/version.json",
-        "https://yldweqbpvlngmkhvjwrn.supabase.co/storage/v1/object/public/releases/version.json",
+        // 加时间戳参数避开 CDN 缓存，保证拿到最新版本号
+        "https://yldweqbpvlngmkhvjwrn.supabase.co/storage/v1/object/public/releases/version.json?t=" +
+            (System.currentTimeMillis() / 60000),
     )
     private const val APK_FILENAME = "xyzl-driverphone.apk"
     private var currentVersionCode = 0
