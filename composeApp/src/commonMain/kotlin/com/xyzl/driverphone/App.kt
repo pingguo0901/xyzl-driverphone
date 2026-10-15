@@ -485,7 +485,10 @@ fun App(
                         userId = (authState as? AuthState.Authenticated)?.userId,
                         onOpenNotifications = { showNotifications = true },
                     )
-                    AppTab.Trips -> TripsScreen(onOpenNotifications = { showNotifications = true })
+                    AppTab.Trips -> TripsScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                        onOpenNotifications = { showNotifications = true },
+                    )
                     AppTab.Chat -> ChatScreen(
                         onOpenNotifications = { showNotifications = true },
                         onOpenChat = { name ->
@@ -580,7 +583,10 @@ fun App(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    NotificationsScreen(onBack = { showNotifications = false })
+                    NotificationsScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                        onBack = { showNotifications = false },
+                    )
                 }
             }
 

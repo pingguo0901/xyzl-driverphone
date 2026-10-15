@@ -26,26 +26,36 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import com.xyzl.driverphone.LocalAppColors
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import com.xyzl.driverphone.LocalAppColors
+import com.xyzl.driverphone.NotificationItem
+import com.xyzl.driverphone.NotificationRepository
+import com.xyzl.driverphone.formatHomeTimestamp
+import kotlinx.coroutines.launch
 
 private val NotifCard: Color @Composable get() = LocalAppColors.current.card
 private val NotifChip: Color @Composable get() = LocalAppColors.current.surfaceVariant
@@ -53,34 +63,29 @@ private val NotifGreen = Color(0xFF3B82F6)
 private val NotifDone = Color(0xFF22C55E)
 private val NotifInk: Color @Composable get() = LocalAppColors.current.ink
 private val NotifMuted: Color @Composable get() = LocalAppColors.current.muted
+private val NotifDanger = Color(0xFFF43F5E)
 
-private data class NoticeItem(
-    val title: String,
-    val body: String,
-    val time: String,
-    val unread: Boolean,
-    val official: Boolean,
-)
-
-private val notices = listOf(
-    NoticeItem("新订单已派单", "T001 吉隆坡国际机场 → 武吉免登，请在 15 分钟内确认", "16:20", true, true),
-    NoticeItem("薪资已到账", "本周薪资 RM 486.00 已到账，可在财务页查看流水", "10:22", true, true),
-    NoticeItem("实名认证通过", "你的 KYC 认证已通过，可以正常接单", "昨天", false, true),
-    NoticeItem("报销已受理", "加油报销 RM 120.00 已受理，3 个工作日内完成审核", "昨天", true, false),
-    NoticeItem("服务分更新", "当前服务分 4.9，继续保持", "10-10", false, false),
-)
-
-/** 通知页：返回 / 标题 / 右上角三个点；支持多选（全选·标记已读·删除） */
+/**
+ * 通知页（《通知页面接线表》）
+ * Tab：全部 / 未读 / 已读 / 官方通知　·　点开一条 = is_read=true + read_at
+ * 右上角三点：全部标记已读 / 清空（软删 deleted_at）
+ */
 @Composable
-fun NotificationsScreen(onBack: () -> Unit = {}) {
+fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
+    val repo = remember { NotificationRepository() }
+    val scope = rememberCoroutineScope()
+
     var tab by remember { mutableStateOf(0) }
     var menuOpen by remember { mutableStateOf(false) }
     var selecting by remember { mutableStateOf(false) }
+    var confirmClear by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
-    val items = remember { mutableStateListOf<NoticeItem>().also { it.addAll(notices) } }
+    var items by remember { mutableStateOf<List<NotificationItem>>(emptyList()) }
     val selected = remember { mutableStateListOf<String>() }
 
-    fun keyOf(item: NoticeItem) = item.title + "|" + item.time
+    LaunchedEffect(userId) {
+        if (userId != null) items = repo.list(userId)
+    }
 
     val filtered = items.filter { n ->
         when (tab) {
@@ -90,8 +95,26 @@ fun NotificationsScreen(onBack: () -> Unit = {}) {
             else -> true
         }
     }
+    val allSelected = filtered.isNotEmpty() && filtered.all { selected.contains(it.id) }
 
-    val allSelected = filtered.isNotEmpty() && filtered.all { selected.contains(keyOf(it)) }
+    fun openItem(item: NotificationItem) {
+        if (selecting) {
+            if (selected.contains(item.id)) selected.remove(item.id) else selected.add(item.id)
+            return
+        }
+        if (!item.unread) return
+        items = items.map { if (it.id == item.id) it.copy(isRead = true) else it }
+        scope.launch { repo.markRead(item.id) }
+    }
+
+    fun markSelectedRead() {
+        val keys = selected.toList()
+        items = items.map { if (keys.contains(it.id)) it.copy(isRead = true) else it }
+        selected.clear()
+        selecting = false
+        scope.launch { repo.markRead(keys.firstOrNull().orEmpty()) }
+        scope.launch { keys.forEach { repo.markRead(it) } }
+    }
 
     Column(
         Modifier
@@ -101,7 +124,6 @@ fun NotificationsScreen(onBack: () -> Unit = {}) {
     ) {
         Box(Modifier.fillMaxWidth().height(44.dp)) {
             if (selecting) {
-                // 左上角：打叉取消
                 CircleIconButton(
                     icon = Icons.Filled.Close,
                     contentDescription = "取消",
@@ -119,7 +141,6 @@ fun NotificationsScreen(onBack: () -> Unit = {}) {
                     color = NotifInk,
                     modifier = Modifier.align(Alignment.Center),
                 )
-                // 右上角：绿色打勾完成
                 CircleIconButton(
                     icon = Icons.Filled.Check,
                     contentDescription = "完成",
@@ -154,7 +175,6 @@ fun NotificationsScreen(onBack: () -> Unit = {}) {
                     color = NotifInk,
                     modifier = Modifier.align(Alignment.Center),
                 )
-                // 右上角三个点
                 Box(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
@@ -189,15 +209,14 @@ fun NotificationsScreen(onBack: () -> Unit = {}) {
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 contentPadding = PaddingValues(bottom = if (selecting) 120.dp else 96.dp),
             ) {
-                items(filtered, key = { keyOf(it) }) { item ->
+                items(filtered, key = { it.id }) { item ->
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        // 选择模式：卡片右移，左边出现勾选框
                         if (selecting) {
-                            val checked = selected.contains(keyOf(item))
+                            val checked = selected.contains(item.id)
                             Checkbox(
                                 checked = checked,
                                 onCheckedChange = {
-                                    if (checked) selected.remove(keyOf(item)) else selected.add(keyOf(item))
+                                    if (checked) selected.remove(item.id) else selected.add(item.id)
                                 },
                                 colors = CheckboxDefaults.colors(
                                     checkedColor = NotifGreen,
@@ -207,18 +226,7 @@ fun NotificationsScreen(onBack: () -> Unit = {}) {
                             )
                         }
                         Box(Modifier.weight(1f)) {
-                            NoticeRow(
-                                item = item,
-                                onClick = {
-                                    if (selecting) {
-                                        if (selected.contains(keyOf(item))) selected.remove(keyOf(item))
-                                        else selected.add(keyOf(item))
-                                    } else {
-                                        val idx = items.indexOfFirst { keyOf(it) == keyOf(item) }
-                                        if (idx >= 0) items[idx] = items[idx].copy(unread = false)
-                                    }
-                                },
-                            )
+                            NoticeRow(item = item, onClick = { openItem(item) })
                         }
                     }
                 }
@@ -226,7 +234,6 @@ fun NotificationsScreen(onBack: () -> Unit = {}) {
         }
     }
 
-    // 选中后底部：全选 / 标记已读 / 删除
     if (selecting) {
         Row(
             Modifier
@@ -243,47 +250,54 @@ fun NotificationsScreen(onBack: () -> Unit = {}) {
                 icon = Icons.Filled.Check,
             ) {
                 if (allSelected) {
-                    filtered.forEach { selected.remove(keyOf(it)) }
+                    filtered.forEach { selected.remove(it.id) }
                 } else {
-                    filtered.forEach { if (!selected.contains(keyOf(it))) selected.add(keyOf(it)) }
+                    filtered.forEach { if (!selected.contains(it.id)) selected.add(it.id) }
                 }
             }
-            BottomAction(label = "标记已读", icon = Icons.Filled.DoneAll) {
-                for (i in items.indices) {
-                    if (selected.contains(keyOf(items[i]))) items[i] = items[i].copy(unread = false)
-                }
-                selected.clear()
-                selecting = false
-            }
-            BottomAction(label = "删除", icon = Icons.Filled.Delete, tint = Color(0xFFF43F5E)) {
+            BottomAction(label = "标记已读", icon = Icons.Filled.DoneAll) { markSelectedRead() }
+            BottomAction(label = "删除", icon = Icons.Filled.Delete, tint = NotifDanger) {
                 confirmDelete = true
             }
         }
     }
 
-    // 三个点菜单
     if (menuOpen) {
-        androidx.compose.ui.window.Dialog(onDismissRequest = { menuOpen = false }) {
-            androidx.compose.material3.Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = NotifCard,
-            ) {
+        Dialog(onDismissRequest = { menuOpen = false }) {
+            Surface(shape = RoundedCornerShape(20.dp), color = NotifCard) {
                 Column(Modifier.fillMaxWidth().padding(18.dp)) {
-                    Text("标记全部已读", color = NotifInk, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text("通知操作", color = NotifInk, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(14.dp))
                     Row(
                         Modifier.fillMaxWidth().clickable {
                             menuOpen = false
-                            for (i in items.indices) items[i] = items[i].copy(unread = false)
-                            selecting = true
+                            if (userId != null) {
+                                items = items.map { it.copy(isRead = true) }
+                                scope.launch { repo.markAllRead(userId) }
+                            }
                         },
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Filled.DoneAll, "标记全部已读", tint = NotifGreen, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Filled.DoneAll, "全部标记已读", tint = NotifGreen, modifier = Modifier.size(20.dp))
                         Spacer(Modifier.width(10.dp))
                         Column {
-                            Text("标记全部已读", color = NotifInk, fontSize = 15.sp)
-                            Text("进入多选，可继续全选 / 标记已读 / 删除", color = NotifMuted, fontSize = 12.sp)
+                            Text("全部标记已读", color = NotifInk, fontSize = 15.sp)
+                            Text("把所有通知标成已读", color = NotifMuted, fontSize = 12.sp)
+                        }
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    Row(
+                        Modifier.fillMaxWidth().clickable {
+                            menuOpen = false
+                            confirmClear = true
+                        },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Filled.Delete, "清空", tint = NotifDanger, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(10.dp))
+                        Column {
+                            Text("清空", color = NotifInk, fontSize = 15.sp)
+                            Text("清掉全部通知（软删除，可恢复）", color = NotifMuted, fontSize = 12.sp)
                         }
                     }
                 }
@@ -291,25 +305,46 @@ fun NotificationsScreen(onBack: () -> Unit = {}) {
         }
     }
 
+    if (confirmClear) {
+        AlertDialog(
+            onDismissRequest = { confirmClear = false },
+            containerColor = NotifCard,
+            title = { Text("清空通知", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = NotifInk) },
+            text = { Text("确定清空全部通知吗？", fontSize = 14.sp, color = NotifMuted) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmClear = false
+                    if (userId != null) {
+                        items = emptyList()
+                        selected.clear()
+                        scope.launch { repo.clear(userId) }
+                    }
+                }) { Text("确定", color = NotifDanger, fontWeight = FontWeight.SemiBold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmClear = false }) { Text("取消", color = NotifMuted) }
+            },
+        )
+    }
+
     if (confirmDelete) {
-        androidx.compose.material3.AlertDialog(
+        AlertDialog(
             onDismissRequest = { confirmDelete = false },
             containerColor = NotifCard,
             title = { Text("删除通知", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = NotifInk) },
             text = { Text("确定删除选中的 " + selected.size + " 条通知吗？", fontSize = 14.sp, color = NotifMuted) },
             confirmButton = {
-                androidx.compose.material3.TextButton(onClick = {
+                TextButton(onClick = {
                     confirmDelete = false
                     val keys = selected.toList()
-                    items.removeAll { keys.contains(keyOf(it)) }
+                    items = items.filterNot { keys.contains(it.id) }
                     selected.clear()
                     selecting = false
-                }) { Text("确定", color = Color(0xFFF43F5E), fontWeight = FontWeight.SemiBold) }
+                    scope.launch { repo.delete(keys) }
+                }) { Text("确定", color = NotifDanger, fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = {
-                androidx.compose.material3.TextButton(onClick = { confirmDelete = false }) {
-                    Text("取消", color = NotifMuted)
-                }
+                TextButton(onClick = { confirmDelete = false }) { Text("取消", color = NotifMuted) }
             },
         )
     }
@@ -317,7 +352,7 @@ fun NotificationsScreen(onBack: () -> Unit = {}) {
 
 @Composable
 private fun CircleIconButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     contentDescription: String,
     background: Color,
     tint: Color,
@@ -339,7 +374,7 @@ private fun CircleIconButton(
 @Composable
 private fun BottomAction(
     label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     tint: Color = NotifInk,
     onClick: () -> Unit,
 ) {
@@ -354,7 +389,7 @@ private fun BottomAction(
 }
 
 @Composable
-private fun NoticeRow(item: NoticeItem, onClick: () -> Unit) {
+private fun NoticeRow(item: NotificationItem, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -396,7 +431,7 @@ private fun NoticeRow(item: NoticeItem, onClick: () -> Unit) {
             Spacer(Modifier.height(6.dp))
             Text(item.body, fontSize = 13.sp, color = NotifMuted, lineHeight = 19.sp)
             Spacer(Modifier.height(6.dp))
-            Text(item.time, fontSize = 12.sp, color = NotifMuted)
+            Text(formatHomeTimestamp(item.createdAt).orEmpty(), fontSize = 12.sp, color = NotifMuted)
         }
     }
 }

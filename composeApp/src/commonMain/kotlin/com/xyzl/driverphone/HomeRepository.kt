@@ -254,7 +254,7 @@ private val ORDER_COLUMNS = Columns.list(
 )
 
 /** 取字符串字段：null / JsonNull / 空串都当没有 */
-private fun JsonObject.str(key: String): String? {
+internal fun JsonObject.str(key: String): String? {
     val element = this[key] ?: return null
     if (element is JsonNull) return null
     val content = (element as? JsonPrimitive)?.contentOrNull ?: return null
@@ -262,7 +262,7 @@ private fun JsonObject.str(key: String): String? {
 }
 
 /** 取布尔字段 */
-private fun JsonObject.bool(key: String): Boolean =
+internal fun JsonObject.bool(key: String): Boolean =
     (this[key] as? JsonPrimitive)?.booleanOrNull ?: false
 
 /**
