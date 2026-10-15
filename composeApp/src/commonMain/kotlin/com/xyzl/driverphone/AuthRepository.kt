@@ -290,6 +290,25 @@ class AuthRepository(
         }
     }
 
+    /**
+     * 校验原密码：用邮箱 + 原密码试一次登录；成功说明原密码对。
+     * 失败返回 false（密码错 / 邮箱空 / 网络问题都算失败）
+     */
+    suspend fun verifyPassword(email: String?, password: String): Boolean {
+        if (email.isNullOrBlank() || password.isBlank()) return false
+        return try {
+            supabase.auth.signInWith(Email) {
+                this.email = email.trim()
+                this.password = password
+            }
+            true
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     // ---------------------------------------------------------- 统一异常包装
     private suspend fun <T> apiCall(block: suspend () -> T): Result<T> = try {
         Result.success(block())

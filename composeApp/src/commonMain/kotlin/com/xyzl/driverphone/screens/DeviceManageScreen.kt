@@ -27,9 +27,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,108 +40,133 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.DeviceRow
+import com.xyzl.driverphone.SecurityRepository
+import kotlinx.coroutines.launch
 
-private data class DeviceInfo(
-    val id: String,
-    val name: String,
-    val type: String,
-    val lastActive: String,
-    val signedIn: Boolean,
-)
+/** 时间显示：2026-10-12T14:20:31+08:00 → 2026-10-12 14:20 */
+private fun prettyLogin(raw: String?): String {
+    if (raw.isNullOrBlank()) return "-"
+    val t = raw.replace("T", " ")
+    return if (t.length >= 16) t.substring(0, 16) else t
+}
 
-private val initialDevices = listOf(
-    DeviceInfo("d1", "iPhone 15 Pro", "iOS 18 · 手机", "刚刚", true),
-    DeviceInfo("d2", "Xiaomi 14", "Android 15 · 手机", "今天 14:20", true),
-    DeviceInfo("d3", "iPad Air", "iPadOS 18 · 平板", "昨天 21:05", true),
-    DeviceInfo("d4", "Huawei Mate 40", "Android 12 · 手机", "10-08 09:12", false),
-    DeviceInfo("d5", "Samsung Galaxy S21", "Android 13 · 手机", "09-30 18:40", false),
-)
+private fun deviceTypeLine(device: DeviceRow): String {
+    val os = device.osName?.takeIf { it.isNotBlank() }
+    val type = device.deviceType?.takeIf { it.isNotBlank() }
+    return listOfNotNull(os, type).joinToString(" · ").ifBlank { "-" }
+}
 
-/** 登录设备管理页：已登录/已退出设备 + 编辑删除 + 设备详情 */
+/** 登录设备管理页：已登录（is_active=true）/ 已退出（is_active=false） */
 @Composable
-fun DeviceManageScreen(onBack: () -> Unit = {}) {
-    var devices by remember { mutableStateOf(initialDevices) }
+fun DeviceManageScreen(userId: String? = null, onBack: () -> Unit = {}) {
+    val repo = remember { SecurityRepository() }
+    val scope = rememberCoroutineScope()
+
+    var active by remember { mutableStateOf<List<DeviceRow>>(emptyList()) }
+    var inactive by remember { mutableStateOf<List<DeviceRow>>(emptyList()) }
+    var loaded by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf(false) }
     var revealed by remember { mutableStateOf<String?>(null) }
-    var detail by remember { mutableStateOf<DeviceInfo?>(null) }
-    var pendingDelete by remember { mutableStateOf<DeviceInfo?>(null) }
+    var detail by remember { mutableStateOf<DeviceRow?>(null) }
+    var pending by remember { mutableStateOf<DeviceRow?>(null) }
+    var hint by remember { mutableStateOf<String?>(null) }
+
+    suspend fun reload() {
+        val id = userId ?: return
+        val all = repo.devices(id)
+        active = all.filter { it.isActive }
+        inactive = all.filter { !it.isActive }
+        loaded = true
+    }
+
+    LaunchedEffect(userId) { reload() }
 
     val current = detail
     if (current != null) {
         DeviceDetailScreen(
             device = current,
             onBack = { detail = null },
-            onDelete = { pendingDelete = current },
+            onLogout = { pending = current },
         )
-    } else {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-        ) {
-            FormPageHeaderAction(
-                title = "登录设备管理",
-                actionLabel = if (editing) "完成" else "编辑",
-                onBack = onBack,
-                onAction = {
-                    editing = !editing
-                    if (!editing) revealed = null
-                },
-            )
-            Spacer(Modifier.height(16.dp))
-
-            FormSectionTitle("已登录的设备")
-            val signedIn = devices.filter { it.signedIn }
-            if (signedIn.isEmpty()) {
-                Text("暂无已登录设备", fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
-            } else {
-                signedIn.forEach { device ->
-                    DeviceRow(
-                        device = device,
-                        editing = editing,
-                        revealed = revealed == device.id,
-                        onClick = { if (!editing) detail = device },
-                        onMinus = { revealed = if (revealed == device.id) null else device.id },
-                        onDelete = { pendingDelete = device },
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(8.dp))
-            FormSectionTitle("已退出的设备")
-            val signedOut = devices.filter { !it.signedIn }
-            if (signedOut.isEmpty()) {
-                Text("暂无已退出设备", fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
-            } else {
-                signedOut.forEach { device ->
-                    DeviceRow(
-                        device = device,
-                        editing = editing,
-                        revealed = revealed == device.id,
-                        onClick = { if (!editing) detail = device },
-                        onMinus = { revealed = if (revealed == device.id) null else device.id },
-                        onDelete = { pendingDelete = device },
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(110.dp))
-        }
+        return
     }
 
-    val target = pendingDelete
+    Column(
+        Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+    ) {
+        FormPageHeaderAction(
+            title = "登录设备管理",
+            actionLabel = if (editing) "完成" else "编辑",
+            onBack = onBack,
+            onAction = {
+                editing = !editing
+                if (!editing) revealed = null
+            },
+        )
+        Spacer(Modifier.height(16.dp))
+
+        FormSectionTitle("已登录的设备")
+        when {
+            !loaded -> Text("加载中…", fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
+            active.isEmpty() -> Text("暂无已登录设备", fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
+            else -> active.forEach { device ->
+                DeviceRowView(
+                    device = device,
+                    editing = editing,
+                    revealed = revealed == device.id,
+                    actionLabel = "退出",
+                    actionColor = FormRed,
+                    onClick = { if (!editing) detail = device },
+                    onMinus = { revealed = if (revealed == device.id) null else device.id },
+                    onAction = { pending = device },
+                )
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+        FormSectionTitle("已退出的设备")
+        when {
+            !loaded -> Text("加载中…", fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
+            inactive.isEmpty() -> Text("暂无已退出设备", fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
+            else -> inactive.forEach { device ->
+                DeviceRowView(
+                    device = device,
+                    editing = editing,
+                    revealed = revealed == device.id,
+                    actionLabel = "删除",
+                    actionColor = FormRed,
+                    onClick = { if (!editing) detail = device },
+                    onMinus = { revealed = if (revealed == device.id) null else device.id },
+                    onAction = { pending = device },
+                )
+            }
+        }
+
+        Spacer(Modifier.height(110.dp))
+    }
+
+    val target = pending
     if (target != null) {
+        val isActive = target.isActive
         AlertDialog(
-            onDismissRequest = { pendingDelete = null },
+            onDismissRequest = { pending = null },
             containerColor = FormCard,
             title = {
-                Text("删除设备", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
+                Text(
+                    if (isActive) "退出该设备" else "删除设备记录",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = FormInk,
+                )
             },
             text = {
                 Text(
-                    "删除后，下次在该设备登录时需要进行安全验证。",
+                    if (isActive) "退出后，下次在该设备登录时需要进行安全验证。" else "删除后这条记录不再显示。",
                     fontSize = 14.sp,
                     color = FormMuted,
                     lineHeight = 20.sp,
@@ -147,32 +174,53 @@ fun DeviceManageScreen(onBack: () -> Unit = {}) {
             },
             confirmButton = {
                 TextButton(onClick = {
-                    devices = devices.filter { it.id != target.id }
+                    val id = target.id
+                    pending = null
                     revealed = null
                     detail = null
-                    pendingDelete = null
+                    scope.launch {
+                        val err = if (isActive) repo.logoutDevice(id) else repo.removeDevice(id)
+                        if (err == null) reload() else hint = err
+                    }
                 }) {
-                    Text("删除", color = FormRed, fontWeight = FontWeight.SemiBold)
+                    Text(if (isActive) "退出" else "删除", color = FormRed, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { pendingDelete = null }) {
+                TextButton(onClick = { pending = null }) {
                     Text("取消", color = FormMuted)
+                }
+            },
+        )
+    }
+
+    val message = hint
+    if (message != null) {
+        AlertDialog(
+            onDismissRequest = { hint = null },
+            containerColor = FormCard,
+            title = { Text("提示", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            text = { Text(message, fontSize = 14.sp, color = FormMuted) },
+            confirmButton = {
+                TextButton(onClick = { hint = null }) {
+                    Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )
     }
 }
 
-/** 设备行：编辑态左侧 - 按钮，点 - 后卡片左滑露出右侧删除按钮 */
+/** 设备行：编辑态左侧 - 按钮，点 - 后卡片左滑露出右侧操作按钮 */
 @Composable
-private fun DeviceRow(
-    device: DeviceInfo,
+private fun DeviceRowView(
+    device: DeviceRow,
     editing: Boolean,
     revealed: Boolean,
+    actionLabel: String,
+    actionColor: Color,
     onClick: () -> Unit,
     onMinus: () -> Unit,
-    onDelete: () -> Unit,
+    onAction: () -> Unit,
 ) {
     val offset by animateDpAsState(
         targetValue = if (revealed) (-88).dp else 0.dp,
@@ -185,17 +233,17 @@ private fun DeviceRow(
             .padding(bottom = 10.dp)
             .height(64.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(FormRed),
+            .background(actionColor),
     ) {
         Box(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .width(88.dp)
                 .fillMaxHeight()
-                .clickable { onDelete() },
+                .clickable { onAction() },
             contentAlignment = Alignment.Center,
         ) {
-            Text("删除", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Text(actionLabel, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         }
 
         Row(
@@ -225,9 +273,9 @@ private fun DeviceRow(
             Column(Modifier.weight(1f)) {
                 Text(device.name, fontSize = 15.sp, color = FormInk, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(2.dp))
-                Text(device.type, fontSize = 12.sp, color = FormMuted)
+                Text(deviceTypeLine(device), fontSize = 12.sp, color = FormMuted)
             }
-            Text(device.lastActive, fontSize = 12.sp, color = FormMuted)
+            Text(prettyLogin(device.lastLoginAt), fontSize = 12.sp, color = FormMuted)
         }
     }
 }
@@ -235,9 +283,9 @@ private fun DeviceRow(
 /** 设备详情页 */
 @Composable
 private fun DeviceDetailScreen(
-    device: DeviceInfo,
+    device: DeviceRow,
     onBack: () -> Unit,
-    onDelete: () -> Unit,
+    onLogout: () -> Unit,
 ) {
     Column(
         Modifier
@@ -258,14 +306,20 @@ private fun DeviceDetailScreen(
             Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
                 DetailRow("设备名称", device.name)
                 HorizontalDivider(color = FormDivide, thickness = 1.dp)
-                DetailRow("设备类型", device.type)
+                DetailRow("系统版本", device.osName ?: "-")
                 HorizontalDivider(color = FormDivide, thickness = 1.dp)
-                DetailRow("最近活跃时间", device.lastActive)
+                DetailRow("设备类型", device.deviceType ?: "-")
+                HorizontalDivider(color = FormDivide, thickness = 1.dp)
+                DetailRow("最后登录时间", prettyLogin(device.lastLoginAt))
+                HorizontalDivider(color = FormDivide, thickness = 1.dp)
+                DetailRow("状态", if (device.isActive) "已登录" else "已退出")
             }
         }
 
         Spacer(Modifier.height(24.dp))
-        FormPrimaryButton(text = "删除该设备", onClick = onDelete, danger = true)
+        if (device.isActive) {
+            FormPrimaryButton(text = "退出该设备", onClick = onLogout, danger = true)
+        }
         Spacer(Modifier.height(110.dp))
     }
 }

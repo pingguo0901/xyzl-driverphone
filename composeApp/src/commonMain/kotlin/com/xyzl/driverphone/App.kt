@@ -681,6 +681,7 @@ fun App(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     ChangePasswordScreen(
+                        email = (authState as? AuthState.Authenticated)?.email,
                         onBack = { showChangePassword = false },
                         onForgotPassword = { showForgotPassword = true },
                     )
@@ -747,7 +748,10 @@ fun App(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    DeviceManageScreen(onBack = { showDeviceManage = false })
+                    DeviceManageScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                        onBack = { showDeviceManage = false },
+                    )
                 }
             }
 
@@ -758,7 +762,10 @@ fun App(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    SecuritySettingsScreen(onBack = { showSecurity = false })
+                    SecuritySettingsScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                        onBack = { showSecurity = false },
+                    )
                 }
             }
 
@@ -1006,7 +1013,10 @@ fun App(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    InviteScreen(onBack = { showInvite = false })
+                    InviteScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                        onBack = { showInvite = false },
+                    )
                 }
             }
 
