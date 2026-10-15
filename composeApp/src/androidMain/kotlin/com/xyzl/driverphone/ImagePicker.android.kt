@@ -127,6 +127,20 @@ actual fun loadImageBitmap(uri: String): ImageBitmap? {
     }
 }
 
+actual suspend fun loadRemoteImageBitmap(url: String): ImageBitmap? = withContext(Dispatchers.IO) {
+    try {
+        val conn = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+        conn.connectTimeout = 10000
+        conn.readTimeout = 15000
+        conn.instanceFollowRedirects = true
+        conn.inputStream.use { stream ->
+            android.graphics.BitmapFactory.decodeStream(stream)?.asImageBitmap()
+        }
+    } catch (_: Exception) {
+        null
+    }
+}
+
 actual suspend fun readUriBytes(uri: String): ByteArray? {
     if (!::pickerActivity.isInitialized) return null
     return withContext(Dispatchers.IO) {

@@ -13,3 +13,8 @@ actual fun decodeQrFromImage(uri: String): String? {
     // iOS 端暂未接入二维码识别，留空
     return null
 }
+
+actual fun qrMatrixFor(text: String): List<String>? {
+    // iOS 端暂未接入二维码生成，留空
+    return null
+}

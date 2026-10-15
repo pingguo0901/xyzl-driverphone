@@ -30,13 +30,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,29 +47,83 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.xyzl.driverphone.DialCodes
 import com.xyzl.driverphone.ImageSource
+import com.xyzl.driverphone.MyInfo
+import com.xyzl.driverphone.ProfileEditRepository
 import com.xyzl.driverphone.loadImageBitmap
+import com.xyzl.driverphone.loadRemoteImageBitmap
 import com.xyzl.driverphone.sanitizeDigits
 import com.xyzl.driverphone.sanitizeEmail
 import com.xyzl.driverphone.sanitizeNickname
 import com.xyzl.driverphone.sanitizeWechat
+import kotlinx.coroutines.launch
 
-/** 个人信息页：头像 + 昵称 + 手机号（区号）+ 邮箱 + 微信号 */
+/** 个人信息页：头像 + 昵称 + ID + 手机号（区号）+ 邮箱 + 微信号（se_users） */
 @Composable
 fun PersonalInfoScreen(
+    userId: String? = null,
     onBack: () -> Unit = {},
     onPickImage: (ImageSource, (String) -> Unit) -> Unit = { _, _ -> },
 ) {
+    val repo = remember { ProfileEditRepository() }
+    val scope = rememberCoroutineScope()
+
+    var loaded by remember { mutableStateOf(false) }
+    var initial by remember { mutableStateOf(MyInfo()) }
+
     var avatarUri by remember { mutableStateOf<String?>(null) }
-    // 昵称与 ID 存在 DriverProfile 里（我的页面同一个 ID）
-    val nickname = DriverProfile.nickname
+    var avatarUrl by remember { mutableStateOf<String?>(null) }
+    var remoteAvatar by remember { mutableStateOf<ImageBitmap?>(null) }
+    var localAvatar by remember { mutableStateOf<ImageBitmap?>(null) }
+
+    var nickname by remember { mutableStateOf("") }
+    var displayId by remember { mutableStateOf("") }
     var dialCode by remember { mutableStateOf(DialCodes.first()) }
     var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var wechat by remember { mutableStateOf("") }
-    var showAvatarSheet by remember { mutableStateOf(false) }
-    var showSaved by remember { mutableStateOf(false) }
 
-    val avatarBitmap = remember(avatarUri) { avatarUri?.let { loadImageBitmap(it) } }
+    var showAvatarSheet by remember { mutableStateOf(false) }
+    var dialogTitle by remember { mutableStateOf("") }
+    var dialogBody by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+    var saving by remember { mutableStateOf(false) }
+
+    LaunchedEffect(userId) {
+        val id = userId ?: return@LaunchedEffect
+        val info = repo.myInfo(id) ?: return@LaunchedEffect
+        initial = info
+        nickname = info.fullName
+        displayId = info.displayId.orEmpty()
+        email = info.email.orEmpty()
+        wechat = info.wechatId.orEmpty()
+        avatarUrl = info.avatarUrl
+        val digits = info.phone.orEmpty().filter { it.isDigit() }
+        val code = DialCodes.firstOrNull { digits.startsWith(it.removePrefix("+")) }
+        if (code != null) {
+            dialCode = code
+            phone = digits.removePrefix(code.removePrefix("+"))
+        } else {
+            phone = digits
+        }
+        loaded = true
+    }
+
+    LaunchedEffect(avatarUrl, avatarUri) {
+        avatarUri?.let { localAvatar = loadImageBitmap(it); return@LaunchedEffect }
+        val url = avatarUrl
+        remoteAvatar = if (url.isNullOrBlank()) null else loadRemoteImageBitmap(url)
+    }
+
+    val shownAvatar = localAvatar ?: remoteAvatar
+    val phoneFull = dialCode.removePrefix("+") + phone.filter { it.isDigit() }
+    val changed = loaded && (
+        nickname != initial.fullName ||
+            displayId != initial.displayId.orEmpty() ||
+            phoneFull != initial.phone.orEmpty().filter { it.isDigit() } ||
+            email != initial.email.orEmpty() ||
+            wechat != initial.wechatId.orEmpty() ||
+            avatarUri != null
+        )
 
     Column(
         Modifier
@@ -76,101 +133,142 @@ fun PersonalInfoScreen(
     ) {
         FormPageHeader(title = "个人信息", onBack = onBack)
         Spacer(Modifier.height(16.dp))
-        // 表单区可滚动，保存按钮固定在最底部
-        Column(
-            Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()),
-        ) {
+        Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
 
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
-                    modifier = Modifier
-                        .size(96.dp)
-                        .clip(CircleShape)
-                        .background(FormChip)
-                        .clickable { showAvatarSheet = true },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (avatarBitmap != null) {
-                        Image(
-                            bitmap = avatarBitmap,
-                            contentDescription = "头像",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    } else {
-                        Icon(
-                            Icons.Filled.Person,
-                            contentDescription = "头像",
-                            tint = FormMuted,
-                            modifier = Modifier.size(46.dp),
-                        )
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(
+                        modifier = Modifier
+                            .size(96.dp)
+                            .clip(CircleShape)
+                            .background(FormChip)
+                            .clickable { showAvatarSheet = true },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (shownAvatar != null) {
+                            Image(
+                                bitmap = shownAvatar,
+                                contentDescription = "头像",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        } else {
+                            Icon(
+                                Icons.Filled.Person,
+                                contentDescription = "头像",
+                                tint = FormMuted,
+                                modifier = Modifier.size(46.dp),
+                            )
+                        }
                     }
+                    Spacer(Modifier.height(8.dp))
+                    Text("点击设置头像", fontSize = 12.sp, color = FormMuted)
                 }
-                Spacer(Modifier.height(8.dp))
-                Text("点击设置头像", fontSize = 12.sp, color = FormMuted)
             }
-        }
 
-        Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(20.dp))
 
-        FormTextField(
-            label = "昵称",
-            value = nickname,
-            placeholder = "中文 / 英文 / 数字 / 标点",
-            onValueChange = { DriverProfile.nickname = sanitizeNickname(it) },
-        )
-
-        // ID：未自定义前自动生成随机唯一 ID，可直接改
-        FormTextField(
-            label = "ID",
-            value = DriverProfile.driverId,
-            placeholder = "自动生成，可自定义",
-            onValueChange = { input ->
-                DriverProfile.driverId = input.filter { it.isLetterOrDigit() || it == '-' }.take(20)
-            },
-        )
-
-        FormLabel("手机号")
-        Row(
-            Modifier.fillMaxWidth().padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            FormSelectCompact(
-                value = dialCode,
-                options = DialCodes,
-                onSelect = { dialCode = it },
-                modifier = Modifier.width(110.dp),
+            FormTextField(
+                label = "昵称",
+                value = nickname,
+                placeholder = "中文 / 英文 / 数字 / 标点",
+                onValueChange = { nickname = sanitizeNickname(it) },
             )
-            OutlinedTextField(
-                value = phone,
-                onValueChange = { phone = sanitizeDigits(it) },
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("仅数字", color = FormMuted) },
-                shape = RoundedCornerShape(14.dp),
-                singleLine = true,
-                colors = formFieldColors(),
-            )
-        }
 
-        FormTextField(
-            label = "邮箱地址",
-            value = email,
-            placeholder = "英文 / 数字 / 标点",
-            onValueChange = { email = sanitizeEmail(it) },
-        )
-        FormTextField(
-            label = "微信号",
-            value = wechat,
-            placeholder = "选填 · 英文 / 数字 / 标点",
-            onValueChange = { wechat = sanitizeWechat(it) },
-        )
+            FormTextField(
+                label = "ID",
+                value = displayId,
+                placeholder = "自动生成，可自定义，唯一",
+                onValueChange = { displayId = it.filter { c -> c.isLetterOrDigit() || c == '-' }.take(20) },
+            )
+
+            FormLabel("手机号")
+            Row(
+                Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                FormSelectCompact(
+                    value = dialCode,
+                    options = DialCodes,
+                    onSelect = { dialCode = it },
+                    modifier = Modifier.width(110.dp),
+                )
+                OutlinedTextField(
+                    value = phone,
+                    onValueChange = { phone = sanitizeDigits(it) },
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text("仅数字", color = FormMuted) },
+                    shape = RoundedCornerShape(14.dp),
+                    singleLine = true,
+                    colors = formFieldColors(),
+                )
+            }
+
+            FormTextField(
+                label = "邮箱地址",
+                value = email,
+                placeholder = "英文 / 数字 / 标点",
+                onValueChange = { email = sanitizeEmail(it) },
+            )
+            FormTextField(
+                label = "微信号",
+                value = wechat,
+                placeholder = "选填 · 英文 / 数字 / 标点",
+                onValueChange = { wechat = sanitizeWechat(it) },
+            )
 
             Spacer(Modifier.height(6.dp))
         }
 
-        FormPrimaryButton(text = "保存更改", onClick = { showSaved = true })
+        FormPrimaryButton(
+            text = if (saving) "保存中…" else "保存更改",
+            enabled = changed && !saving,
+            onClick = {
+                val id = userId
+                if (id == null) {
+                    dialogTitle = "请先登录"
+                    dialogBody = "登录后才能保存个人信息"
+                    showDialog = true
+                } else {
+                    saving = true
+                    scope.launch {
+                        var url = avatarUrl
+                        avatarUri?.let { local ->
+                            url = repo.uploadAvatar(id, local) ?: avatarUrl
+                        }
+                        val err = repo.saveInfo(
+                            userId = id,
+                            fullName = nickname,
+                            displayId = displayId.ifBlank { null },
+                            phone = phoneFull.ifBlank { null },
+                            email = email.ifBlank { null },
+                            wechatId = wechat.ifBlank { null },
+                            avatarUrl = url,
+                        )
+                        saving = false
+                        if (err == null) {
+                            avatarUrl = url
+                            avatarUri = null
+                            initial = initial.copy(
+                                fullName = nickname,
+                                displayId = displayId.ifBlank { null },
+                                phone = phoneFull.ifBlank { null },
+                                email = email.ifBlank { null },
+                                wechatId = wechat.ifBlank { null },
+                                avatarUrl = url,
+                            )
+                            dialogTitle = "保存成功"
+                            dialogBody = "个人信息已更新"
+                        } else {
+                            dialogTitle = "保存失败"
+                            dialogBody = err
+                        }
+                        showDialog = true
+                    }
+                }
+            },
+        )
         Spacer(Modifier.height(16.dp))
     }
 
@@ -218,16 +316,16 @@ fun PersonalInfoScreen(
         }
     }
 
-    if (showSaved) {
+    if (showDialog) {
         AlertDialog(
-            onDismissRequest = { showSaved = false },
+            onDismissRequest = { showDialog = false },
             containerColor = FormCard,
-            title = { Text("保存成功", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
-            text = { Text("个人信息已更新", fontSize = 14.sp, color = FormMuted) },
+            title = { Text(dialogTitle, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            text = { Text(dialogBody, fontSize = 14.sp, color = FormMuted) },
             confirmButton = {
                 TextButton(onClick = {
-                    showSaved = false
-                    onBack()
+                    showDialog = false
+                    if (dialogTitle == "保存成功") onBack()
                 }) {
                     Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }

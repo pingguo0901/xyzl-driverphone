@@ -19,3 +19,6 @@ expect fun loadImageBitmap(uri: String): ImageBitmap?
 
 /** 读取本地 uri 的原始字节（用于上传 KYC 证件照），失败返回 null */
 expect suspend fun readUriBytes(uri: String): ByteArray?
+
+/** 读取网络图片（头像等 http(s) URL），失败返回 null */
+expect suspend fun loadRemoteImageBitmap(url: String): ImageBitmap?

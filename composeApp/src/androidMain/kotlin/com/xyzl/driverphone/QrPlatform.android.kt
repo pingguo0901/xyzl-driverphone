@@ -6,12 +6,16 @@ import android.graphics.BitmapFactory
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.net.Uri
+import com.google.zxing.BarcodeFormat
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.DecodeHintType
+import com.google.zxing.EncodeHintType
 import com.google.zxing.MultiFormatReader
 import com.google.zxing.NotFoundException
 import com.google.zxing.RGBLuminanceSource
 import com.google.zxing.common.HybridBinarizer
+import com.google.zxing.qrcode.QRCodeWriter
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 
 private var qrContext: Context? = null
 
@@ -47,6 +51,23 @@ actual fun shareText(text: String) {
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
     context.startActivity(chooser)
+}
+
+actual fun qrMatrixFor(text: String): List<String>? = try {
+    val hints = mapOf(
+        EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.M,
+        EncodeHintType.MARGIN to 0,
+        EncodeHintType.CHARACTER_SET to "UTF-8",
+    )
+    val matrix = QRCodeWriter().encode(text, BarcodeFormat.QR_CODE, 0, 0, hints)
+    val w = matrix.width
+    val h = matrix.height
+    val size = maxOf(w, h)
+    (0 until size).map { y ->
+        (0 until size).map { x -> if (x < w && y < h && matrix.get(x, y)) '1' else '0' }.joinToString("")
+    }
+} catch (_: Exception) {
+    null
 }
 
 actual fun decodeQrFromImage(uri: String): String? {

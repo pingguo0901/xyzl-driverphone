@@ -89,6 +89,7 @@ import com.xyzl.driverphone.screens.TranslateToScreen
 import com.xyzl.driverphone.screens.TranslationScreen
 import com.xyzl.driverphone.screens.DeviceManageScreen
 import com.xyzl.driverphone.screens.ForgotPasswordScreen
+import com.xyzl.driverphone.screens.KycUpdateScreen
 import com.xyzl.driverphone.screens.PersonalInfoScreen
 import com.xyzl.driverphone.screens.ResetPasswordScreen
 import com.xyzl.driverphone.screens.PrivacyInfoScreen
@@ -201,6 +202,7 @@ fun App(
         var showNotifications by remember { mutableStateOf(false) }
         var showPersonalInfo by remember { mutableStateOf(false) }
         var showPrivacyInfo by remember { mutableStateOf(false) }
+        var kycDocType by remember { mutableStateOf<String?>(null) }
         var showVehicleInfo by remember { mutableStateOf(false) }
         var showChangePassword by remember { mutableStateOf(false) }
         var showForgotPassword by remember { mutableStateOf(false) }
@@ -611,6 +613,7 @@ fun App(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     PersonalInfoScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
                         onBack = { showPersonalInfo = false },
                         onPickImage = { source, cb -> requestPick(source, cb) },
                     )
@@ -625,10 +628,30 @@ fun App(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     PrivacyInfoScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
                         onBack = { showPrivacyInfo = false },
                         onPickBirthday = { cb -> pickBirthday(cb) },
+                        onUpdateKyc = { type -> kycDocType = type },
                         inviteCode = if (DriverIsCompany) DriverInviteCode else "",
                         companyName = if (DriverIsCompany) DriverCompanyName else "",
+                    )
+                }
+            }
+
+            // 更新 KYC 认证页（覆盖层）
+            val kycType = kycDocType
+            if (kycType != null) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    KycUpdateScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                        docType = kycType,
+                        onBack = { kycDocType = null },
+                        onPickImage = { source, cb -> requestPick(source, cb) },
+                        onPickDocument = { cb -> pickDocument(cb) },
                     )
                 }
             }
@@ -1020,7 +1043,10 @@ fun App(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    QrCodeScreen(onBack = { showQrCode = false })
+                    QrCodeScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                        onBack = { showQrCode = false },
+                    )
                 }
             }
 
