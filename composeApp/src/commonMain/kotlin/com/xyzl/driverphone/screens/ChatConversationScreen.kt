@@ -51,8 +51,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,9 +66,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.xyzl.driverphone.ChatLine
+import com.xyzl.driverphone.ChatRepository
+import com.xyzl.driverphone.ChatThreadInfo
 import com.xyzl.driverphone.ImageSource
 import com.xyzl.driverphone.PermissionScene
 import com.xyzl.driverphone.currentLocation
+import com.xyzl.driverphone.formatClock
+import com.xyzl.driverphone.formatDate
 import com.xyzl.driverphone.loadImageBitmap
 import com.xyzl.driverphone.openUrl
 import com.xyzl.driverphone.pickDocument
@@ -77,6 +84,7 @@ import com.xyzl.driverphone.requestScenePermission
 import com.xyzl.driverphone.startVoiceRecord
 import com.xyzl.driverphone.stopVoiceRecord
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private val BubbleMine = Color(0xFF3B82F6)
 private val BubbleOther: Color @Composable get() = LocalAppColors.current.surfaceVariant
@@ -92,6 +100,7 @@ fun ChatConversationScreen(
     onOpenChatDetail: () -> Unit = {},
     onOpenPerson: (String) -> Unit = {},
     onOpenCall: (Boolean) -> Unit = {},
+    userId: String? = null,
 ) {
     var input by remember { mutableStateOf("") }
     var panelOpen by remember { mutableStateOf(false) }
@@ -102,6 +111,37 @@ fun ChatConversationScreen(
     var hint by remember { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
     val myName = "我"
+    val repo = remember { ChatRepository() }
+    val scope = rememberCoroutineScope()
+    val messages = remember { mutableStateListOf<ChatMessage>() }
+    var thread by remember { mutableStateOf<ChatThreadInfo?>(null) }
+    var seq by remember { mutableStateOf(0L) }
+
+    fun add(
+        mine: Boolean,
+        senderName: String,
+        body: ChatBody,
+        tick: ChatTick = if (mine) ChatTick.Delivered else ChatTick.Read,
+    ) {
+        val parts = currentTimeParts()
+        seq += 1
+        messages.add(ChatMessage(seq, mine, senderName, body, parts.second, parts.first, tick))
+    }
+
+    // 进聊天窗：按对方名字找会话 → 拉真实消息 → 标记已读
+    LaunchedEffect(userId, peerName) {
+        if (userId == null) return@LaunchedEffect
+        val opened = repo.open(userId, peerName)
+        val info = opened?.first
+        thread = info
+        val loaded = opened?.second.orEmpty().mapIndexed { index, line ->
+            line.toChatMessage(index.toLong() + 1L, peerName)
+        }
+        messages.clear()
+        messages.addAll(loaded)
+        seq = messages.size.toLong()
+        if (info != null) repo.markThreadRead(info)
+    }
 
     LaunchedEffect(recording) {
         if (recording) {
@@ -113,8 +153,8 @@ fun ChatConversationScreen(
         }
     }
 
-    LaunchedEffect(ChatStore.messages.size) {
-        if (ChatStore.messages.isNotEmpty()) listState.animateScrollToItem(ChatStore.messages.size - 1)
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) listState.animateScrollToItem(messages.size - 1)
     }
 
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
@@ -148,7 +188,7 @@ fun ChatConversationScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
         ) {
-            items(ChatStore.messages, key = { it.id }) { msg ->
+            items(messages, key = { it.id }) { msg ->
                 MessageRow(msg) { onOpenPerson(if (msg.mine) myName else peerName) }
             }
         }
@@ -191,7 +231,7 @@ fun ChatConversationScreen(
                                         tryAwaitRelease()
                                         recording = false
                                         stopVoiceRecord { path ->
-                                            ChatStore.add(
+                                            add(
                                                 mine = true,
                                                 senderName = myName,
                                                 body = ChatBody.Voice(path, maxOf(1, seconds)),
@@ -240,8 +280,12 @@ fun ChatConversationScreen(
                 IconButton(onClick = {
                     val text = input.trim()
                     if (text.isNotEmpty()) {
-                        ChatStore.add(true, myName, ChatBody.Text(text), ChatTick.Delivered)
+                        add(true, myName, ChatBody.Text(text), ChatTick.Sent)
                         input = ""
+                        val info = thread
+                        if (info != null && userId != null) {
+                            scope.launch { repo.sendText(info, userId, text) }
+                        }
                     }
                 }) {
                     Icon(Icons.AutoMirrored.Filled.Send, "发送", tint = BubbleMine)
@@ -264,14 +308,14 @@ fun ChatConversationScreen(
                         requestScenePermission(PermissionScene.Photos)
                         pickMediaMultiple(10) { uris ->
                             if (uris.isNotEmpty()) {
-                                ChatStore.add(true, myName, ChatBody.Album(uris.take(10)), ChatTick.Delivered)
+                                add(true, myName, ChatBody.Album(uris.take(10)), ChatTick.Delivered)
                             }
                         }
                     }
                     PanelItem("拍照", Icons.Filled.PhotoCamera) {
                         requestScenePermission(PermissionScene.Camera)
                         pickImage(ImageSource.Camera) { uri ->
-                            ChatStore.add(true, myName, ChatBody.Album(listOf(uri)), ChatTick.Delivered)
+                            add(true, myName, ChatBody.Album(listOf(uri)), ChatTick.Delivered)
                         }
                     }
                     PanelItem("语音通话", Icons.Filled.Call) { onOpenCall(false) }
@@ -283,7 +327,7 @@ fun ChatConversationScreen(
                         requestScenePermission(PermissionScene.Location)
                         currentLocation { coords ->
                             val label = if (coords == null) "当前位置（定位不可用）" else "我的当前位置"
-                            ChatStore.add(
+                            add(
                                 true, myName,
                                 ChatBody.Location(label, coords),
                                 if (coords == null) ChatTick.Sent else ChatTick.Delivered,
@@ -294,7 +338,7 @@ fun ChatConversationScreen(
                     PanelItem("文件", Icons.Filled.Description) {
                         pickDocument { uri ->
                             val name = uri.substringAfterLast('/').ifBlank { "文件" }
-                            ChatStore.add(true, myName, ChatBody.File(name), ChatTick.Delivered)
+                            add(true, myName, ChatBody.File(name), ChatTick.Delivered)
                         }
                     }
                 }
@@ -312,15 +356,15 @@ fun ChatConversationScreen(
                     Text("发送名片", color = FormInk, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(10.dp))
                     CardOption("星域臻旅 · 公司名片", "XY-0001 · 星域臻旅") {
-                        ChatStore.add(true, myName, ChatBody.Card("星域臻旅 · 公司名片", "XY-0001 · 星域臻旅"), ChatTick.Delivered)
+                        add(true, myName, ChatBody.Card("星域臻旅 · 公司名片", "XY-0001 · 星域臻旅"), ChatTick.Delivered)
                         cardSheet = false
                     }
                     CardOption("调度 · 陈师傅", "XY-S-0231 · 星域臻旅 · 调度中心") {
-                        ChatStore.add(true, myName, ChatBody.Card("调度 · 陈师傅", "XY-S-0231 · 星域臻旅 · 调度中心"), ChatTick.Delivered)
+                        add(true, myName, ChatBody.Card("调度 · 陈师傅", "XY-S-0231 · 星域臻旅 · 调度中心"), ChatTick.Delivered)
                         cardSheet = false
                     }
                     CardOption("客服小星", "XY-S-0102 · 星域臻旅 · 客服中心") {
-                        ChatStore.add(true, myName, ChatBody.Card("客服小星", "XY-S-0102 · 星域臻旅 · 客服中心"), ChatTick.Delivered)
+                        add(true, myName, ChatBody.Card("客服小星", "XY-S-0102 · 星域臻旅 · 客服中心"), ChatTick.Delivered)
                         cardSheet = false
                     }
                 }
@@ -492,4 +536,34 @@ private fun TickMark(tick: ChatTick) {
         ChatTick.Read -> Icons.Filled.DoneAll to TickBlue
     }
     Icon(icon, "状态", tint = color, modifier = Modifier.size(15.dp))
+}
+
+/** 数据库一行 → 界面气泡 */
+private fun ChatLine.toChatMessage(id: Long, peerName: String): ChatMessage {
+    val body = when (type) {
+        "voice" -> ChatBody.Voice(voiceUrl, voiceSeconds ?: 0)
+        "location" -> ChatBody.Location(
+            content ?: "位置",
+            if (lat != null && lng != null) lat.toString() + "," + lng.toString() else null,
+        )
+        "image" -> ChatBody.Album(listOfNotNull(attachmentUrl))
+        "file" -> ChatBody.File(fileName ?: content ?: "文件")
+        "contact_card" -> ChatBody.Card(content ?: "名片", "联系人名片")
+        else -> ChatBody.Text(content.orEmpty())
+    }
+    val tick = when (deliveryStatus) {
+        "read" -> ChatTick.Read
+        "sent" -> ChatTick.Sent
+        "delivered" -> ChatTick.Delivered
+        else -> if (mine) ChatTick.Delivered else ChatTick.Read
+    }
+    return ChatMessage(
+        id = id,
+        mine = mine,
+        senderName = if (mine) "我" else peerName,
+        body = body,
+        time = formatClock(createdAt),
+        date = formatDate(createdAt),
+        tick = tick,
+    )
 }

@@ -851,6 +851,7 @@ fun App(
                             chatCallVideo = video
                             chatCallPeer = peer
                         },
+                        userId = (authState as? AuthState.Authenticated)?.userId,
                     )
                 }
             }
