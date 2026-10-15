@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import com.xyzl.driverphone.LocalAppColors
+import com.xyzl.driverphone.NotificationBadgeStore
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,7 +71,7 @@ fun ScreenHeader(
                         modifier = Modifier.size(20.dp),
                     )
                 }
-                val unread = unreadCount ?: ChatListStore.totalUnread()
+                val unread = unreadCount ?: NotificationBadgeStore.count
                 if (unread > 0) {
                     Box(
                         modifier = Modifier

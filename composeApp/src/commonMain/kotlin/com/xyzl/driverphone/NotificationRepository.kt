@@ -1,5 +1,8 @@
 package com.xyzl.driverphone
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
@@ -8,6 +11,34 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+
+/**
+ * 铃铛红点：全局未读通知数（首页/行程/聊天/财务/我的 标题栏共用）
+ * 绑定当前登录用户后 refresh()，标记已读或清空后再 refresh()
+ */
+object NotificationBadgeStore {
+    private var boundUserId: String? = null
+
+    var count by mutableStateOf(0)
+        private set
+
+    fun bind(userId: String?) {
+        boundUserId = userId
+    }
+
+    suspend fun refresh() {
+        val id = boundUserId
+        if (id == null) {
+            count = 0
+            return
+        }
+        count = try {
+            NotificationRepository().unreadCount(id)
+        } catch (e: Exception) {
+            count
+        }
+    }
+}
 
 /**
  * 通知（《通知页面接线表》）

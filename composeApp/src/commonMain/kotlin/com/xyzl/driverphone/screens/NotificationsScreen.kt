@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.xyzl.driverphone.LocalAppColors
+import com.xyzl.driverphone.NotificationBadgeStore
 import com.xyzl.driverphone.NotificationItem
 import com.xyzl.driverphone.NotificationRepository
 import com.xyzl.driverphone.formatHomeTimestamp
@@ -104,7 +105,7 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
         }
         if (!item.unread) return
         items = items.map { if (it.id == item.id) it.copy(isRead = true) else it }
-        scope.launch { repo.markRead(item.id) }
+        scope.launch { repo.markRead(item.id); NotificationBadgeStore.refresh() }
     }
 
     fun markSelectedRead() {
@@ -112,8 +113,7 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
         items = items.map { if (keys.contains(it.id)) it.copy(isRead = true) else it }
         selected.clear()
         selecting = false
-        scope.launch { repo.markRead(keys.firstOrNull().orEmpty()) }
-        scope.launch { keys.forEach { repo.markRead(it) } }
+        scope.launch { keys.forEach { repo.markRead(it) }; NotificationBadgeStore.refresh() }
     }
 
     Column(
@@ -273,7 +273,7 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
                             menuOpen = false
                             if (userId != null) {
                                 items = items.map { it.copy(isRead = true) }
-                                scope.launch { repo.markAllRead(userId) }
+                                scope.launch { repo.markAllRead(userId); NotificationBadgeStore.refresh() }
                             }
                         },
                         verticalAlignment = Alignment.CenterVertically,
@@ -317,7 +317,7 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
                     if (userId != null) {
                         items = emptyList()
                         selected.clear()
-                        scope.launch { repo.clear(userId) }
+                        scope.launch { repo.clear(userId); NotificationBadgeStore.refresh() }
                     }
                 }) { Text("确定", color = NotifDanger, fontWeight = FontWeight.SemiBold) }
             },
@@ -340,7 +340,7 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
                     items = items.filterNot { keys.contains(it.id) }
                     selected.clear()
                     selecting = false
-                    scope.launch { repo.delete(keys) }
+                    scope.launch { repo.delete(keys); NotificationBadgeStore.refresh() }
                 }) { Text("确定", color = NotifDanger, fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = {

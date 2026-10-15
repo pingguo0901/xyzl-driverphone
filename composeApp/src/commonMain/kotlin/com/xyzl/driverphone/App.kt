@@ -160,6 +160,12 @@ fun App(
         val authState by authStateFlow.collectAsState(initial = AuthState.Loading)
         val loggedIn = authState is AuthState.Authenticated
 
+        // 铃铛红点：绑定当前用户 + 拉一次真实未读通知数
+        LaunchedEffect(authState) {
+            NotificationBadgeStore.bind((authState as? AuthState.Authenticated)?.userId)
+            NotificationBadgeStore.refresh()
+        }
+
 
         // 注册成功弹窗：确定 → 跳登录页
         if (showRegisterSuccess) {
