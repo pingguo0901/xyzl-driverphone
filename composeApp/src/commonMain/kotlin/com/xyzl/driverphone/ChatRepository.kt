@@ -606,3 +606,9 @@ fun formatDate(iso: String?): String {
     val p = shiftedParts(iso) ?: return ""
     return p[0].toString() + "-" + two(p[1]) + "-" + two(p[2])
 }
+
+/** 统一的时间显示入口：UTC ISO → 马来西亚 UTC+8 的 "2026-10-16 14:20"（所有页面时间显示都走这里） */
+fun formatLocalDateTime(iso: String?): String {
+    val p = shiftedParts(iso) ?: return "-"
+    return p[0].toString() + "-" + two(p[1]) + "-" + two(p[2]) + " " + two(p[3]) + ":" + two(p[4])
+}

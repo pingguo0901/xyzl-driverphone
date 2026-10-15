@@ -35,6 +35,7 @@ import com.xyzl.driverphone.NewVehicleInput
 import com.xyzl.driverphone.PickerOption
 import com.xyzl.driverphone.VehicleCard
 import com.xyzl.driverphone.VehicleRepository
+import com.xyzl.driverphone.formatLocalDateTime
 import kotlinx.coroutines.launch
 
 private val OwnerOptions = listOf("是", "否")
@@ -42,12 +43,8 @@ private val OwnerOptions = listOf("是", "否")
 private fun sanitizePlate(input: String): String =
     input.uppercase().filter { (it.isLetterOrDigit() && it.code < 128) || it == ' ' }
 
-/** 时间戳显示：2026-10-12T14:20:31+08:00 → 2026-10-12 14:20 */
-private fun prettyTime(raw: String?): String {
-    if (raw.isNullOrBlank()) return "-"
-    val t = raw.replace("T", " ")
-    return if (t.length >= 16) t.substring(0, 16) else t
-}
+/** 时间戳显示：统一走 formatLocalDateTime（UTC → 马来西亚 UTC+8） */
+private fun prettyTime(raw: String?): String = formatLocalDateTime(raw)
 
 private fun statusLabel(status: String?): String = when (status) {
     "approved" -> "已通过"

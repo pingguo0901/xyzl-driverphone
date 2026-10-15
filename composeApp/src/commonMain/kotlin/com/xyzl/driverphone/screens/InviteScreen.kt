@@ -39,14 +39,23 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.InviteInfo
 import com.xyzl.driverphone.ProfileEditRepository
 import com.xyzl.driverphone.SecurityRepository
 import com.xyzl.driverphone.shareText
 
+/** 邀请码类型 → 页面标题 */
+private fun inviteLabel(inviteType: String): String = when (inviteType) {
+    "personal_to_customer" -> "客户邀请码"
+    "company_to_customer" -> "客户邀请码（公司）"
+    "company_to_driver" -> "司机邀请码"
+    else -> "邀请码"
+}
+
 /**
  * 邀请码页（se_invitation_codes）
- * 司机 → 所属公司 account_id + invite_type='company_to_customer'
- * 个人 → 我的 account_id + invite_type='personal_to_customer'
+ * driver → 所属公司的 company_to_customer（1 条）
+ * personal → 自己账户的 personal_to_customer + company_to_driver（2 条）
  */
 @Composable
 fun InviteScreen(userId: String? = null, onBack: () -> Unit = {}) {
@@ -54,8 +63,7 @@ fun InviteScreen(userId: String? = null, onBack: () -> Unit = {}) {
     val repo = remember { SecurityRepository() }
     val profileRepo = remember { ProfileEditRepository() }
 
-    var code by remember { mutableStateOf("") }
-    var link by remember { mutableStateOf("") }
+    var invites by remember { mutableStateOf<List<InviteInfo>>(emptyList()) }
     var loaded by remember { mutableStateOf(false) }
     var hint by remember { mutableStateOf<String?>(null) }
 
@@ -63,14 +71,10 @@ fun InviteScreen(userId: String? = null, onBack: () -> Unit = {}) {
         val id = userId
         if (id != null) {
             val role = profileRepo.userRole(id)
-            val invite = repo.myInvite(id, role)
-            code = invite?.code.orEmpty()
-            link = invite?.shareLink.orEmpty().ifBlank { if (code.isBlank()) "" else defaultShareLink(code) }
+            invites = repo.myInvites(id, role)
         }
         loaded = true
     }
-
-    val shareContent = if (link.isBlank()) "" else shareBody(link, code)
 
     Column(
         Modifier
@@ -82,71 +86,54 @@ fun InviteScreen(userId: String? = null, onBack: () -> Unit = {}) {
         FormPageHeader(title = "邀请码", onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
-        Card(
-            Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = FormCard),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        ) {
-            Column(Modifier.fillMaxWidth().padding(20.dp)) {
-                Text("我的邀请码", fontSize = 13.sp, color = FormMuted)
-                Spacer(Modifier.height(12.dp))
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        when {
-                            !loaded -> "加载中…"
-                            code.isBlank() -> "暂无邀请码"
-                            else -> code
-                        },
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = FormInk,
-                        modifier = Modifier.weight(1f),
-                    )
-                    PillAction(label = "复制", icon = true, enabled = code.isNotBlank()) {
-                        clipboard.setText(AnnotatedString(code))
-                        hint = "邀请码已复制"
+        when {
+            !loaded -> Text("加载中…", fontSize = 14.sp, color = FormMuted)
+            invites.isEmpty() -> Text("暂无邀请码", fontSize = 14.sp, color = FormMuted)
+            else -> invites.forEachIndexed { index, invite ->
+                val link = invite.shareLink.orEmpty().ifBlank { defaultShareLink(invite.code) }
+                Card(
+                    Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = FormCard),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                ) {
+                    Column(Modifier.fillMaxWidth().padding(20.dp)) {
+                        Text(inviteLabel(invite.inviteType), fontSize = 13.sp, color = FormMuted)
+                        Spacer(Modifier.height(10.dp))
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                invite.code,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = FormInk,
+                                modifier = Modifier.weight(1f),
+                            )
+                            PillAction(label = "复制", icon = true, enabled = invite.code.isNotBlank()) {
+                                clipboard.setText(AnnotatedString(invite.code))
+                                hint = "邀请码已复制"
+                            }
+                        }
+                        Spacer(Modifier.height(12.dp))
+                        Text(link, fontSize = 12.sp, color = FormMuted)
+                        Spacer(Modifier.height(12.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            PillAction(label = "复制链接", icon = true, enabled = link.isNotBlank()) {
+                                clipboard.setText(AnnotatedString(link))
+                                hint = "链接已复制"
+                            }
+                            PillAction(label = "分享", icon = false, enabled = link.isNotBlank()) {
+                                shareText(shareBody(link, invite.code))
+                            }
+                        }
                     }
+                }
+                if (index == invites.lastIndex) {
+                    Spacer(Modifier.height(4.dp))
                 }
             }
         }
 
-        Spacer(Modifier.height(20.dp))
-        FormSectionTitle("分享链接")
-        Spacer(Modifier.height(10.dp))
-
-        Card(
-            Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = FormCard),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        ) {
-            Column(Modifier.fillMaxWidth().padding(20.dp)) {
-                Text(
-                    when {
-                        !loaded -> "加载中…"
-                        link.isBlank() -> "暂无分享链接"
-                        else -> link
-                    },
-                    fontSize = 14.sp,
-                    color = FormInk,
-                )
-                Spacer(Modifier.height(16.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    PillAction(label = "复制链接", icon = true, enabled = link.isNotBlank()) {
-                        clipboard.setText(AnnotatedString(link))
-                        hint = "链接已复制"
-                    }
-                    PillAction(label = "分享", icon = false, enabled = link.isNotBlank()) {
-                        shareText(shareContent)
-                    }
-                }
-            }
-        }
-
-        Spacer(Modifier.height(16.dp))
-        FormNote("邀请码来自 se_invitation_codes：司机读归属公司的 company_to_customer，个人读自己的 personal_to_customer。")
-
+        FormNote("邀请码来自 se_invitation_codes：司机读所属公司的客户码；个人读自己的客户码 + 司机码（公司/独资另有公司客户码）。")
         Spacer(Modifier.height(110.dp))
     }
 
@@ -181,13 +168,13 @@ private fun PillAction(
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (icon) {
-            Icon(Icons.Filled.ContentCopy, contentDescription = label, tint = if (enabled) FormGreen else FormMuted, modifier = Modifier.size(15.dp))
-            Spacer(Modifier.width(5.dp))
-        } else {
-            Icon(Icons.Filled.Share, contentDescription = label, tint = if (enabled) FormGreen else FormMuted, modifier = Modifier.size(15.dp))
-            Spacer(Modifier.width(5.dp))
-        }
+        Icon(
+            if (icon) Icons.Filled.ContentCopy else Icons.Filled.Share,
+            contentDescription = label,
+            tint = if (enabled) FormGreen else FormMuted,
+            modifier = Modifier.size(15.dp),
+        )
+        Spacer(Modifier.width(5.dp))
         Text(label, fontSize = 12.sp, color = if (enabled) FormGreen else FormMuted, fontWeight = FontWeight.Medium)
     }
 }

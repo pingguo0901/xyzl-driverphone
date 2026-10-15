@@ -42,14 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.DeviceRow
 import com.xyzl.driverphone.SecurityRepository
+import com.xyzl.driverphone.formatLocalDateTime
 import kotlinx.coroutines.launch
 
-/** 时间显示：2026-10-12T14:20:31+08:00 → 2026-10-12 14:20 */
-private fun prettyLogin(raw: String?): String {
-    if (raw.isNullOrBlank()) return "-"
-    val t = raw.replace("T", " ")
-    return if (t.length >= 16) t.substring(0, 16) else t
-}
+/** 时间显示：统一走 formatLocalDateTime（UTC → 马来西亚 UTC+8） */
+private fun prettyLogin(raw: String?): String = formatLocalDateTime(raw)
 
 private fun deviceTypeLine(device: DeviceRow): String {
     val os = device.osName?.takeIf { it.isNotBlank() }

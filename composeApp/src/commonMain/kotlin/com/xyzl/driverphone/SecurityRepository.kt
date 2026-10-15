@@ -30,6 +30,8 @@ data class InviteInfo(
 
 /** 邀请码类型（库里 invite_type 是枚举） */
 private const val INVITE_PERSONAL = "personal_to_customer"
+private const val INVITE_DRIVER_CUSTOMER = "company_to_customer"
+private const val INVITE_COMPANY_DRIVER = "company_to_driver"
 private const val INVITE_PERSONAL_FALLBACK = "platform_to_customer"
 private const val INVITE_DRIVER = "company_to_customer"
 
@@ -142,9 +144,24 @@ class SecurityRepository(
     }
 
     /**
-     * 邀请码：
-     * driver → 所属公司 account_id + company_to_customer
-     * 其它（personal）→ 我的 account_id + personal_to_customer（库里没有这个枚举值时退回 platform_to_customer）
+     * 邀请码列表（按角色）：
+     * driver → 所属公司的 company_to_customer（1 条）
+     * 其它（personal）→ 自己账户的 personal_to_customer + company_to_driver（2 条）
+     */
+    suspend fun myInvites(userId: String, role: String?): List<InviteInfo> {
+        val accountId = accountId(userId)
+        return if (role == "driver") {
+            listOfNotNull(byAccount(accountId, INVITE_DRIVER_CUSTOMER))
+        } else {
+            listOfNotNull(
+                byAccount(accountId, INVITE_PERSONAL) ?: byAccount(accountId, INVITE_PERSONAL_FALLBACK),
+                byAccount(accountId, INVITE_COMPANY_DRIVER),
+            )
+        }
+    }
+
+    /**
+     * （旧）单条邀请码：driver → 公司客户码；其它 → 个人客户码
      */
     suspend fun myInvite(userId: String, role: String?): InviteInfo? {
         val accountId = accountId(userId)
