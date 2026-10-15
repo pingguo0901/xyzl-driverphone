@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.Settings
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
@@ -53,38 +54,62 @@ object UpdateManager {
     }
 
     fun downloadAndInstall(context: Context, apkUrl: String) {
-        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        // 主地址（GitHub）+ 备用镜像（Supabase），第一个失败自动换第二个
+        val urls = listOf(apkUrl, mirrorUrl(apkUrl)).filter { it.isNotBlank() }.distinct()
+        enqueue(context, urls, 0)
+    }
 
-        val destDir = context.externalCacheDir ?: context.cacheDir
-        val destFile = File(destDir, APK_FILENAME)
+    /** 由 GitHub tag 推导备用镜像地址（同一个包，换条线路） */
+    private fun mirrorUrl(apkUrl: String): String {
+        val m = Regex("download/(v[0-9.]+)/").find(apkUrl) ?: return ""
+        return "https://yldweqbpvlngmkhvjwrn.supabase.co/storage/v1/object/public/releases/composeApp-release-" +
+            m.groupValues[1] + ".apk"
+    }
+
+    private fun enqueue(context: Context, urls: List<String>, index: Int) {
+        if (index >= urls.size) return
+        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val destFile = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), APK_FILENAME)
         if (destFile.exists()) destFile.delete()
 
-        val request = DownloadManager.Request(Uri.parse(apkUrl)).apply {
+        val request = DownloadManager.Request(Uri.parse(urls[index])).apply {
             setTitle("星域司机更新下载中...")
             setDescription("正在下载最新版本")
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            setDestinationUri(Uri.fromFile(destFile))
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                setAllowedOverMetered(true)
-                setAllowedOverRoaming(true)
-            }
+            // Android 10+ 只允许写进应用自己的外部文件目录（cache 目录会直接下载失败）
+            setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, APK_FILENAME)
+            setAllowedOverMetered(true)
+            setAllowedOverRoaming(true)
         }
-        apkDownloadId = downloadManager.enqueue(request)
+        val id = downloadManager.enqueue(request)
+        apkDownloadId = id
 
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(ctx: Context, intent: Intent) {
-                val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-                if (id == apkDownloadId) {
-                    ctx.unregisterReceiver(this)
+                val got = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+                if (got != id) return
+                ctx.unregisterReceiver(this)
+                if (downloadSucceeded(downloadManager, id)) {
                     installApk(ctx, destFile)
+                } else {
+                    enqueue(ctx, urls, index + 1)
                 }
             }
         }
-        context.registerReceiver(
-            receiver,
-            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
-            Context.RECEIVER_NOT_EXPORTED
-        )
+        if (Build.VERSION.SDK_INT >= 33) {
+            context.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            context.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+        }
+    }
+
+    private fun downloadSucceeded(dm: DownloadManager, id: Long): Boolean {
+        val cursor = dm.query(DownloadManager.Query().setFilterById(id)) ?: return false
+        cursor.use { cur ->
+            if (!cur.moveToFirst()) return false
+            val status = cur.getInt(cur.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+            return status == DownloadManager.STATUS_SUCCESSFUL
+        }
     }
 
     private fun installApk(context: Context, file: File) {
