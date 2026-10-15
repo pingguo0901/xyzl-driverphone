@@ -101,6 +101,7 @@ private fun isPasswordValid(pwd: String): Boolean = PasswordRules.all { it.check
 fun RegisterScreen(
     onBack: () -> Unit = {},
     onSubmit: suspend (RegisterPayload) -> Result<RegisterResult> = { Result.success(RegisterResult("", null)) },
+    onRegistered: () -> Unit = {},
     onPickBirthday: (onPicked: (String) -> Unit) -> Unit = {},
     onPickImage: (source: ImageSource, onPicked: (String) -> Unit) -> Unit = { _, _ -> },
     onOpenPolicy: (Int) -> Unit = {},
@@ -441,7 +442,9 @@ fun RegisterScreen(
                             )
                         )
                         submitting = false
-                        result.onFailure { errorMsg = it.message ?: "注册失败，请重试" }
+                        result
+                            .onSuccess { onRegistered() }
+                            .onFailure { errorMsg = it.message ?: "注册失败，请重试" }
                     }
                 },
                 enabled = canSubmit && !submitting,

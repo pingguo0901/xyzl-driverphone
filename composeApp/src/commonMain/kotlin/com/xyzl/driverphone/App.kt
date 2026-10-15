@@ -150,6 +150,7 @@ fun App(
         var showEntry by remember { mutableStateOf(true) }
         var showLogin by remember { mutableStateOf(false) }
         var authError by remember { mutableStateOf<String?>(null) }
+        var showRegisterSuccess by remember { mutableStateOf(false) }
         var showRegister by remember { mutableStateOf(false) }
         var showPolicy by remember { mutableStateOf(false) }
         var preAuthPolicy by remember { mutableStateOf(-1) }
@@ -159,6 +160,23 @@ fun App(
         val authState by authStateFlow.collectAsState(initial = AuthState.Loading)
         val loggedIn = authState is AuthState.Authenticated
 
+
+        // 注册成功弹窗：确定 → 跳登录页
+        if (showRegisterSuccess) {
+            AlertDialog(
+                onDismissRequest = { },
+                title = { Text("注册成功") },
+                text = { Text("账号已创建，请用刚才的邮箱和密码登录。") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showRegisterSuccess = false
+                        showRegister = false
+                        showEntry = false
+                        showLogin = true
+                    }) { Text("确定") }
+                },
+            )
+        }
 
         // 忘记密码 / 验证码 / 重建密码 失败时的统一提示
         if (authError != null) {
@@ -372,6 +390,10 @@ fun App(
                     showRegister -> RegisterScreen(
                         onBack = { showRegister = false; showEntry = true },
                         onSubmit = { payload -> authRepository.registerFull(payload) },
+                        onRegistered = {
+                            showRegister = false
+                            showRegisterSuccess = true
+                        },
                         onPickBirthday = { cb -> pickBirthday(cb) },
                         onPickImage = { source, cb -> requestPick(source, cb) },
                         onOpenPolicy = { preAuthPolicy = it },
