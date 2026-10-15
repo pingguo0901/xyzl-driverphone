@@ -37,7 +37,7 @@ import kotlinx.coroutines.delay
 fun VerifyCodeScreen(
     email: String,
     onBack: () -> Unit = {},
-    onConfirm: () -> Unit = {},
+    onConfirm: (String) -> Unit = {},
     onResend: (String) -> Unit = {},
 ) {
     var code by remember { mutableStateOf("") }
@@ -107,7 +107,7 @@ fun VerifyCodeScreen(
         Spacer(Modifier.height(20.dp))
         FormPrimaryButton(
             text = "确认",
-            onClick = onConfirm,
+            onClick = { onConfirm(code) },
             enabled = code.length == 6,
         )
         Spacer(Modifier.height(110.dp))

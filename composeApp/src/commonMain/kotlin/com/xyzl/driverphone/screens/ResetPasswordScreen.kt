@@ -23,7 +23,7 @@ import com.xyzl.driverphone.sanitizePassword
 @Composable
 fun ResetPasswordScreen(
     onBack: () -> Unit = {},
-    onDone: () -> Unit = {},
+    onDone: (String) -> Unit = {},
 ) {
     var newPwd by remember { mutableStateOf("") }
     var confirmPwd by remember { mutableStateOf("") }
@@ -65,7 +65,7 @@ fun ResetPasswordScreen(
         Spacer(Modifier.height(8.dp))
         FormPrimaryButton(
             text = "确认",
-            onClick = onDone,
+            onClick = { onDone(newPwd) },
             enabled = canSubmit,
         )
         Spacer(Modifier.height(110.dp))

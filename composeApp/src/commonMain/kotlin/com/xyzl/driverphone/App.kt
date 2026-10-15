@@ -150,6 +150,7 @@ fun App(
     DriverPhoneTheme {
         var showEntry by remember { mutableStateOf(true) }
         var showLogin by remember { mutableStateOf(false) }
+        var authError by remember { mutableStateOf<String?>(null) }
         var showRegister by remember { mutableStateOf(false) }
         var showPolicy by remember { mutableStateOf(false) }
         var preAuthPolicy by remember { mutableStateOf(-1) }
@@ -158,6 +159,18 @@ fun App(
         val authStateFlow = remember { authRepository.observeAuthState() }
         val authState by authStateFlow.collectAsState(initial = AuthState.Loading)
         val loggedIn = authState is AuthState.Authenticated
+
+        // 忘记密码 / 验证码 / 重建密码 失败时的统一提示
+        if (authError != null) {
+            AlertDialog(
+                onDismissRequest = { authError = null },
+                title = { Text("提示") },
+                text = { Text(authError ?: "") },
+                confirmButton = {
+                    TextButton(onClick = { authError = null }) { Text("知道了") }
+                },
+            )
+        }
         var selectedTab by remember { mutableStateOf(AppTab.Home) }
         var showLedger by remember { mutableStateOf(false) }
         var showExpense by remember { mutableStateOf(false) }
@@ -387,13 +400,19 @@ fun App(
                         when {
                             showResetPassword -> ResetPasswordScreen(
                                 onBack = { showResetPassword = false },
-                                onDone = {
-                                    showResetPassword = false
-                                    showVerifyCode = false
-                                    showForgotPassword = false
-                                    showLogin = true
-                                    showEntry = false
-                                    showRegister = false
+                                onDone = { newPwd ->
+                                    scope.launch {
+                                        authRepository.updatePassword(newPwd)
+                                            .onSuccess {
+                                                showResetPassword = false
+                                                showVerifyCode = false
+                                                showForgotPassword = false
+                                                showLogin = true
+                                                showEntry = false
+                                                showRegister = false
+                                            }
+                                            .onFailure { authError = it.message ?: "设置新密码失败" }
+                                    }
                                 },
                             )
                             showVerifyCode -> VerifyCodeScreen(
@@ -402,17 +421,29 @@ fun App(
                                     showVerifyCode = false
                                     showForgotPassword = true
                                 },
-                                onConfirm = {
-                                    showVerifyCode = false
-                                    showResetPassword = true
+                                onConfirm = { code ->
+                                    scope.launch {
+                                        authRepository.verifyRecoveryCode(verifyEmail, code)
+                                            .onSuccess {
+                                                showVerifyCode = false
+                                                showResetPassword = true
+                                            }
+                                            .onFailure { authError = it.message ?: "验证码不正确" }
+                                    }
                                 },
                             )
                             else -> ForgotPasswordScreen(
                                 onBack = { showForgotPassword = false },
                                 onSendCode = { email ->
-                                    verifyEmail = email
-                                    showForgotPassword = false
-                                    showVerifyCode = true
+                                    scope.launch {
+                                        authRepository.sendPasswordResetCode(email)
+                                            .onSuccess {
+                                                verifyEmail = email
+                                                showForgotPassword = false
+                                                showVerifyCode = true
+                                            }
+                                            .onFailure { authError = it.message ?: "验证码发送失败" }
+                                    }
                                 },
                             )
                         }
@@ -605,9 +636,15 @@ fun App(
                     ForgotPasswordScreen(
                         onBack = { showForgotPassword = false },
                         onSendCode = { email ->
-                            verifyEmail = email
-                            showForgotPassword = false
-                            showVerifyCode = true
+                            scope.launch {
+                                authRepository.sendPasswordResetCode(email)
+                                    .onSuccess {
+                                        verifyEmail = email
+                                        showForgotPassword = false
+                                        showVerifyCode = true
+                                    }
+                                    .onFailure { authError = it.message ?: "验证码发送失败" }
+                            }
                         },
                     )
                 }
@@ -626,9 +663,15 @@ fun App(
                             showVerifyCode = false
                             showForgotPassword = true
                         },
-                        onConfirm = {
-                            showVerifyCode = false
-                            showResetPassword = true
+                        onConfirm = { code ->
+                            scope.launch {
+                                authRepository.verifyRecoveryCode(verifyEmail, code)
+                                    .onSuccess {
+                                        showVerifyCode = false
+                                        showResetPassword = true
+                                    }
+                                    .onFailure { authError = it.message ?: "验证码不正确" }
+                            }
                         },
                     )
                 }
@@ -643,17 +686,23 @@ fun App(
                 ) {
                     ResetPasswordScreen(
                         onBack = { showResetPassword = false },
-                        onDone = {
-                            showResetPassword = false
-                            showVerifyCode = false
-                            showForgotPassword = false
-                            showChangePassword = false
-                            scope.launch { authRepository.signOut() }
-                            showEntry = false
-                            showLogin = true
-                            showRegister = false
-                            showPolicy = false
-                            selectedTab = AppTab.Home
+                        onDone = { newPwd ->
+                            scope.launch {
+                                authRepository.updatePassword(newPwd)
+                                    .onSuccess {
+                                        authRepository.signOut()
+                                        showResetPassword = false
+                                        showVerifyCode = false
+                                        showForgotPassword = false
+                                        showChangePassword = false
+                                        showEntry = false
+                                        showLogin = true
+                                        showRegister = false
+                                        showPolicy = false
+                                        selectedTab = AppTab.Home
+                                    }
+                                    .onFailure { authError = it.message ?: "设置新密码失败" }
+                            }
                         },
                     )
                 }

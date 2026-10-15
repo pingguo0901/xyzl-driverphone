@@ -10,6 +10,8 @@ sealed class AuthState {
     data class Authenticated(
         val userId: String,
         val email: String?,
+        /** se_users.primary_role（决定进哪个首页）；查不到为 null */
+        val role: String? = null,
     ) : AuthState()
 
     /** 未登录（含已退出） */

@@ -1,6 +1,7 @@
 package com.xyzl.driverphone
 
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.status.SessionStatus
@@ -93,10 +94,14 @@ class AuthRepository(
     fun observeAuthState(): Flow<AuthState> =
         supabase.auth.sessionStatus.map { status ->
             when (status) {
-                is SessionStatus.Authenticated -> AuthState.Authenticated(
-                    userId = status.session.user?.id.orEmpty(),
-                    email = status.session.user?.email,
-                )
+                is SessionStatus.Authenticated -> {
+                    val userId = status.session.user?.id.orEmpty()
+                    AuthState.Authenticated(
+                        userId = userId,
+                        email = status.session.user?.email,
+                        role = getUserRole(userId),
+                    )
+                }
                 is SessionStatus.NotAuthenticated -> AuthState.Unauthenticated
                 is SessionStatus.Initializing -> AuthState.Loading
                 is SessionStatus.RefreshFailure -> AuthState.Error("登录状态刷新失败，请重新登录")
@@ -259,6 +264,36 @@ class AuthRepository(
         }
 
         return failures
+    }
+
+    // ---------------------------------------------------------- 登录后拿角色（决定进哪个首页）
+    suspend fun getUserRole(userId: String): String? = try {
+        supabase.postgrest.from("se_users")
+            .select(Columns.list("primary_role")) { filter { eq("id", userId) } }
+            .decodeList<JsonObject>()
+            .firstOrNull()?.get("primary_role")?.jsonPrimitive?.contentOrNull
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        null
+    }
+
+    // ---------------------------------------------------------- 忘记密码（全走 Supabase Auth）
+    /** 发送重置验证码到邮箱 */
+    suspend fun sendPasswordResetCode(email: String): Result<Unit> = apiCall {
+        supabase.auth.resetPasswordForEmail(email.trim())
+    }
+
+    /** 校验邮箱收到的验证码（Recovery 类型） */
+    suspend fun verifyRecoveryCode(email: String, code: String): Result<Unit> = apiCall {
+        supabase.auth.verifyEmailOtp(OtpType.Email.RECOVERY, email.trim(), code.trim())
+    }
+
+    /** 设置新密码（需已通过验证码，处于 recovery 会话） */
+    suspend fun updatePassword(newPassword: String): Result<Unit> = apiCall {
+        supabase.auth.updateUser {
+            this.password = newPassword
+        }
     }
 
     // ---------------------------------------------------------- 统一异常包装
