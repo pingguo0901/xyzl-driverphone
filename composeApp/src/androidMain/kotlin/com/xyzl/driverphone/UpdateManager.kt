@@ -18,7 +18,11 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 object UpdateManager {
-    private const val VERSION_URL = "https://raw.githubusercontent.com/pingguo0901/xyzl-driverphone/main/version.json"
+    /** 版本清单：主地址走 GitHub raw，国内网络常被墙 → 备用走 Supabase 镜像 */
+    private val VERSION_URLS = listOf(
+        "https://raw.githubusercontent.com/pingguo0901/xyzl-driverphone/main/version.json",
+        "https://yldweqbpvlngmkhvjwrn.supabase.co/storage/v1/object/public/releases/version.json",
+    )
     private const val APK_FILENAME = "xyzl-driverphone.apk"
     private var currentVersionCode = 0
     private var apkDownloadId = 0L
@@ -28,29 +32,34 @@ object UpdateManager {
     }
 
     suspend fun checkForUpdate(): VersionInfo? = withContext(Dispatchers.IO) {
-        try {
-            val url = URL(VERSION_URL)
-            val conn = url.openConnection() as HttpURLConnection
-            conn.connectTimeout = 5000
-            conn.readTimeout = 5000
-            conn.requestMethod = "GET"
-
-            if (conn.responseCode == 200) {
-                val text = conn.inputStream.bufferedReader().use { it.readText() }
-                val json = JSONObject(text)
-                val remoteCode = json.optInt("versionCode", 0)
-                if (remoteCode > currentVersionCode) {
-                    VersionInfo(
-                        versionCode = remoteCode,
-                        versionName = json.optString("versionName", ""),
-                        apkUrl = json.optString("apkUrl", ""),
-                        changelog = json.optString("changelog", "")
-                    )
-                } else null
-            } else null
-        } catch (e: Exception) {
-            null
+        for (versionUrl in VERSION_URLS) {
+            val info = fetchVersion(versionUrl)
+            if (info != null) return@withContext info
         }
+        null
+    }
+
+    /** 拉一个版本清单地址；失败（网络/被墙/解析不了）返回 null，交给下一个地址 */
+    private fun fetchVersion(versionUrl: String): VersionInfo? = try {
+        val conn = (URL(versionUrl).openConnection() as HttpURLConnection).apply {
+            connectTimeout = 6000
+            readTimeout = 6000
+            requestMethod = "GET"
+        }
+        if (conn.responseCode == 200) {
+            val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
+            val remoteCode = json.optInt("versionCode", 0)
+            if (remoteCode > currentVersionCode) {
+                VersionInfo(
+                    versionCode = remoteCode,
+                    versionName = json.optString("versionName", ""),
+                    apkUrl = json.optString("apkUrl", ""),
+                    changelog = json.optString("changelog", "")
+                )
+            } else null
+        } else null
+    } catch (e: Exception) {
+        null
     }
 
     fun downloadAndInstall(context: Context, apkUrl: String) {
