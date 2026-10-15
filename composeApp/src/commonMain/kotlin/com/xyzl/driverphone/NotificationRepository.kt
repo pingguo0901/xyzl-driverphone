@@ -56,6 +56,13 @@ data class NotificationItem(
     val type: String?,
     val isRead: Boolean,
     val createdAt: String?,
+    /** 官方通知：发送方名称（没填则取 sender_account_id 对应公司 display_name） */
+    val senderName: String? = null,
+    /** 官方通知：子标签，如【政策】【结算】【活动】 */
+    val noticeCategory: String? = null,
+    val senderAccountId: String? = null,
+    /** 官方通知头像：se_accounts.logo_url */
+    val avatarUrl: String? = null,
 ) {
     val official: Boolean get() = type == "official"
     val unread: Boolean get() = !isRead
@@ -68,7 +75,12 @@ class NotificationRepository(
     suspend fun list(userId: String): List<NotificationItem> {
         val rows = try {
             supabase.postgrest.from("se_notifications")
-                .select(Columns.list("id", "title", "body", "type", "is_read", "created_at")) {
+                .select(
+                    Columns.list(
+                        "id", "title", "body", "type", "is_read", "created_at",
+                        "sender_name", "notice_category", "sender_account_id",
+                    ),
+                ) {
                     filter { eq("user_id", userId) }
                     order("created_at", Order.DESCENDING)
                     limit(200)
@@ -79,8 +91,24 @@ class NotificationRepository(
         } catch (e: Exception) {
             emptyList()
         }
+        // 官方通知：按 sender_account_id 取公司名 + logo
+        val senderIds = rows.mapNotNull { it.str("sender_account_id") }.distinct()
+        val senders: Map<String, JsonObject> = if (senderIds.isEmpty()) emptyMap() else try {
+            supabase.postgrest.from("se_accounts")
+                .select(Columns.list("id", "display_name", "logo_url")) { filter { isIn("id", senderIds) } }
+                .decodeList<JsonObject>()
+                .mapNotNull { row -> row.str("id")?.let { it to row } }
+                .toMap()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            emptyMap()
+        }
+
         return rows.mapNotNull { row ->
             val id = row.str("id") ?: return@mapNotNull null
+            val senderAccountId = row.str("sender_account_id")
+            val sender = senderAccountId?.let { senders[it] }
             NotificationItem(
                 id = id,
                 title = row.str("title").orEmpty(),
@@ -88,9 +116,17 @@ class NotificationRepository(
                 type = row.str("type"),
                 isRead = row.bool("is_read"),
                 createdAt = row.str("created_at"),
+                senderName = row.str("sender_name") ?: sender?.str("display_name"),
+                noticeCategory = row.str("notice_category"),
+                senderAccountId = senderAccountId,
+                avatarUrl = sender?.str("logo_url"),
             )
         }
     }
+
+    /** 官方通知 Tab：type = 'official'，order by created_at desc */
+    suspend fun official(userId: String): List<NotificationItem> =
+        list(userId).filter { it.official }
 
     suspend fun unreadCount(userId: String): Int = list(userId).count { it.unread }
 
