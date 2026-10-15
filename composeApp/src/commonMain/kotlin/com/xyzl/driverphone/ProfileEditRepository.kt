@@ -287,6 +287,7 @@ class ProfileEditRepository(
         profileId: String?,
         type: String,
         uri: String,
+        expiryDate: String? = null,
     ): String? {
         val bytes = try {
             readUriBytes(uri)
@@ -336,6 +337,7 @@ class ProfileEditRepository(
                         put("status", "pending")
                         put("reject_reason", null)
                         put("uploaded_by_user_id", userId)
+                        if (!expiryDate.isNullOrBlank()) put("expiry_date", expiryDate)
                     },
                 ) { filter { eq("id", existingId) } }
             } else {
@@ -347,6 +349,7 @@ class ProfileEditRepository(
                         put("file_url", path)
                         put("status", "pending")
                         put("uploaded_by_user_id", userId)
+                        if (!expiryDate.isNullOrBlank()) put("expiry_date", expiryDate)
                     },
                 )
             }

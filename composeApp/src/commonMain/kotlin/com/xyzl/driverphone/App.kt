@@ -652,6 +652,7 @@ fun App(
                         onBack = { kycDocType = null },
                         onPickImage = { source, cb -> requestPick(source, cb) },
                         onPickDocument = { cb -> pickDocument(cb) },
+                        onPickDate = { cb -> pickBirthday(cb) },
                     )
                 }
             }

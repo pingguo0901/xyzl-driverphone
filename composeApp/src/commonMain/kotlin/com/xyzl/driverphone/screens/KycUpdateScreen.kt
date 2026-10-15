@@ -44,11 +44,13 @@ fun KycUpdateScreen(
     onBack: () -> Unit = {},
     onPickImage: (ImageSource, (String) -> Unit) -> Unit = { _, _ -> },
     onPickDocument: ((String) -> Unit) -> Unit = {},
+    onPickDate: ((String) -> Unit) -> Unit = {},
 ) {
     val repo = remember { ProfileEditRepository() }
     val scope = rememberCoroutineScope()
 
     var uri by remember { mutableStateOf<String?>(null) }
+    var expiry by remember { mutableStateOf("") }
     var saving by remember { mutableStateOf(false) }
     var dialogTitle by remember { mutableStateOf("") }
     var dialogBody by remember { mutableStateOf("") }
@@ -74,13 +76,18 @@ fun KycUpdateScreen(
                 onPickImage = onPickImage,
                 onPickDocument = onPickDocument,
             )
-            FormNote("请上传清晰的证件正面照，四角完整、文字可读。提交后状态变为「待审核」。")
+            FormPickerField(
+                label = "到期日期",
+                text = expiry,
+                onClick = { onPickDate { expiry = it } },
+            )
+            FormNote("到期日期必填（格式 YYYY-MM-DD，点上方选择）。请上传清晰的证件正面照，四角完整、文字可读；提交后状态变为「待审核」。")
             Spacer(Modifier.height(6.dp))
         }
 
         FormPrimaryButton(
             text = if (saving) "提交中…" else "确认更新",
-            enabled = uri != null && !saving,
+            enabled = uri != null && expiry.isNotBlank() && !saving,
             onClick = {
                 val id = userId
                 val file = uri
@@ -91,6 +98,10 @@ fun KycUpdateScreen(
                 } else if (file == null) {
                     dialogTitle = "还没选文件"
                     dialogBody = "请先拍照或从相册选一张证件照片"
+                    showDialog = true
+                } else if (expiry.isBlank()) {
+                    dialogTitle = "还没填到期日期"
+                    dialogBody = "请选择证件的到期日期（YYYY-MM-DD）"
                     showDialog = true
                 } else {
                     saving = true
@@ -103,6 +114,7 @@ fun KycUpdateScreen(
                             profileId = profile?.profileId,
                             type = docType,
                             uri = file,
+                            expiryDate = expiry,
                         )
                         saving = false
                         if (err == null) {
