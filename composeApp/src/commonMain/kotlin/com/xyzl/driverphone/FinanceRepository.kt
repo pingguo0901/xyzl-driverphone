@@ -57,8 +57,8 @@ class FinanceRepository(
 
         val salaryToday = ledgerSum(accountId, "trip_income", today)
         val salaryMonth = ledgerSum(accountId, "trip_income", monthStart)
-        val expenseToday = expenseSum(userId, accountId, today)
-        val expenseMonth = expenseSum(userId, accountId, monthStart)
+        val expenseToday = expenseSum(userId, accountId, today, exactDay = true)
+        val expenseMonth = expenseSum(userId, accountId, monthStart, exactDay = false)
         val trips = tripsDone(userId, today)
         val wallets = collection(userId, accountId)
 
@@ -168,7 +168,8 @@ class FinanceRepository(
         serviceDate: String?,
         note: String?,
     ): Boolean {
-        fun values(withServiceDate: Boolean) = buildJsonObject {
+        // service_date 已加到 se_expense_records（date，可空）——直接写实际开销日期
+        val values = buildJsonObject {
             if (accountId != null) put("account_id", accountId)
             put("owner_type", "account")
             if (accountId != null) put("owner_id", accountId)
@@ -181,20 +182,10 @@ class FinanceRepository(
             if (!note.isNullOrBlank()) put("note", note)
             put("status", "pending")
             put("created_by_user_id", userId)
-            if (withServiceDate && !serviceDate.isNullOrBlank()) put("service_date", serviceDate)
+            if (!serviceDate.isNullOrBlank()) put("service_date", serviceDate)
         }
-        val first = try {
-            supabase.postgrest.from("se_expense_records").insert(values(true))
-            true
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            false
-        }
-        if (first) return true
-        // service_date 列还不存在时退回（只写 created_at）
         return try {
-            supabase.postgrest.from("se_expense_records").insert(values(false))
+            supabase.postgrest.from("se_expense_records").insert(values)
             true
         } catch (e: CancellationException) {
             throw e
@@ -225,13 +216,14 @@ class FinanceRepository(
         return rows.sumOf { it.fDbl("amount") ?: 0.0 }
     }
 
-    private suspend fun expenseSum(userId: String, accountId: String?, since: String): Double {
+    /** 报销按 service_date（实际发生时间）统计；created_at 只是提交时间 */
+    private suspend fun expenseSum(userId: String, accountId: String?, since: String, exactDay: Boolean): Double {
         val rows = try {
             supabase.postgrest.from("se_expense_records")
                 .select(Columns.list("amount", "account_id", "driver_id")) {
                     filter {
                         if (accountId != null) eq("account_id", accountId) else eq("driver_id", userId)
-                        gte("created_at", since)
+                        if (exactDay) eq("service_date", since) else gte("service_date", since)
                     }
                     limit(1000)
                 }
