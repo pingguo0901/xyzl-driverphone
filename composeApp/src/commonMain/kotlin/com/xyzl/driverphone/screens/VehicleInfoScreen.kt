@@ -1,7 +1,5 @@
 package com.xyzl.driverphone.screens
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,73 +9,57 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.AuthRepository
 import com.xyzl.driverphone.ImageSource
+import com.xyzl.driverphone.NewVehicleInput
+import com.xyzl.driverphone.PickerOption
+import com.xyzl.driverphone.VehicleCard
+import com.xyzl.driverphone.VehicleRepository
+import kotlinx.coroutines.launch
 
-private val VehicleBrands = listOf(
-    "Perodua", "Proton", "Toyota", "Honda", "Nissan", "Mazda",
-    "Hyundai", "Kia", "Mitsubishi", "BMW", "Mercedes-Benz", "其他",
-)
-
-private val VehicleModels = listOf(
-    "Myvi", "Axia", "Bezza", "Alza", "Ativa", "Aruz",
-    "Saga", "Persona", "Iriz", "X50", "X70", "X90",
-    "Vios", "City", "Hilux", "Alphard", "其他",
-)
-
-private val SeatOptions = listOf("5座", "7座", "8座", "10座")
+private val OwnerOptions = listOf("是", "否")
 
 private fun sanitizePlate(input: String): String =
     input.uppercase().filter { (it.isLetterOrDigit() && it.code < 128) || it == ' ' }
 
-/** 一条车辆记录 */
-private data class VehicleRecord(
-    val brand: String,
-    val model: String,
-    val trim: String,
-    val plate: String,
-    val verifyTime: String = "",
-    val passTime: String = "",
-    val status: String = "",
-)
+/** 时间戳显示：2026-10-12T14:20:31+08:00 → 2026-10-12 14:20 */
+private fun prettyTime(raw: String?): String {
+    if (raw.isNullOrBlank()) return "-"
+    val t = raw.replace("T", " ")
+    return if (t.length >= 16) t.substring(0, 16) else t
+}
 
-/** 已授权车辆（公司司机，示例数据，待后端下发；为空则提示向公司索取） */
-private val AuthorizedVehicles = listOf(
-    VehicleRecord("Toyota", "Alphard", "8座", "JXY 8888"),
-)
+private fun statusLabel(status: String?): String = when (status) {
+    "approved" -> "已通过"
+    "pending" -> "审核中"
+    "rejected" -> "已拒绝"
+    else -> status ?: "-"
+}
 
-/** 我的车辆（已验证，示例数据） */
-private val MyVerifiedVehicles = listOf(
-    VehicleRecord("Toyota", "Alphard", "8座", "JXY 8888"),
-)
-
-/** 待通过验证车辆（示例数据） */
-private val PendingVehicles = listOf(
-    VehicleRecord("Honda", "CR-V", "7座", "WMB 2233", verifyTime = "12/10/2026 14:20", passTime = "-", status = "审核中"),
-)
-
-/** 车辆信息页：公司司机=已授权车辆 + 申请授权；个人=我的车辆 + 待通过验证 + 增加车辆 */
+/** 车辆信息页：我的车辆（已通过）+ 待通过验证；personal 才有右上角「增加车辆」 */
 @Composable
 fun VehicleInfoScreen(
+    userId: String? = null,
     onBack: () -> Unit = {},
     isCompanyDriver: Boolean = false,
     onPickImage: (ImageSource, (String) -> Unit) -> Unit = { _, _ -> },
@@ -85,23 +67,31 @@ fun VehicleInfoScreen(
 ) {
     var showAdd by remember { mutableStateOf(false) }
 
-    when {
-        isCompanyDriver -> CompanyVehicleView(onBack = onBack)
-        showAdd -> AddVehicleScreen(
+    if (isCompanyDriver) {
+        CompanyVehicleView(onBack = onBack)
+        return
+    }
+
+    if (showAdd) {
+        AddVehicleScreen(
+            userId = userId,
             onBack = { showAdd = false },
             onPickImage = onPickImage,
             onPickDocument = onPickDocument,
         )
-        else -> MyVehiclesView(onBack = onBack, onAdd = { showAdd = true })
+        return
     }
+
+    MyVehiclesView(
+        userId = userId,
+        onBack = onBack,
+        onAdd = { showAdd = true },
+    )
 }
 
-/** 公司司机：已授权车辆 + 申请授权车辆 */
+/** 公司司机：已授权车辆（公司分配，不在 se_vehicle_profiles 的 owner_id 维度里） */
 @Composable
 private fun CompanyVehicleView(onBack: () -> Unit) {
-    var vehicleId by remember { mutableStateOf("") }
-    var requested by remember { mutableStateOf(false) }
-
     Column(
         Modifier
             .fillMaxSize()
@@ -111,67 +101,46 @@ private fun CompanyVehicleView(onBack: () -> Unit) {
     ) {
         FormPageHeader(title = "车辆信息", onBack = onBack)
         Spacer(Modifier.height(16.dp))
-
         Card(
             Modifier.fillMaxWidth(),
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = CardDefaults.cardColors(containerColor = FormCard),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(Modifier.fillMaxWidth().padding(18.dp)) {
                 Text("已授权车辆", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
                 Spacer(Modifier.height(12.dp))
-                if (AuthorizedVehicles.isEmpty()) {
-                    Text("请向所属公司索取授权车辆", fontSize = 14.sp, color = FormMuted)
-                } else {
-                    AuthorizedVehicles.forEachIndexed { index, vehicle ->
-                        VehicleInfoLines(vehicle)
-                        if (index != AuthorizedVehicles.lastIndex) {
-                            Spacer(Modifier.height(12.dp))
-                        }
-                    }
-                }
+                Text("请向所属公司索取授权车辆", fontSize = 14.sp, color = FormMuted)
             }
         }
-
-        Spacer(Modifier.height(20.dp))
-        HorizontalDivider(color = FormChip, thickness = 1.dp)
-        Spacer(Modifier.height(20.dp))
-
-        FormSectionTitle("申请授权车辆")
-        FormTextField(
-            label = "车辆ID",
-            value = vehicleId,
-            placeholder = "请输入公司下发的车辆ID",
-            onValueChange = { vehicleId = it },
-        )
-        Spacer(Modifier.height(8.dp))
-        FormPrimaryButton(
-            text = "确认请求授权",
-            enabled = vehicleId.isNotBlank(),
-            onClick = { requested = true },
-        )
         Spacer(Modifier.height(110.dp))
-    }
-
-    if (requested) {
-        AlertDialog(
-            onDismissRequest = { requested = false },
-            containerColor = FormCard,
-            title = { Text("请求已提交", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
-            text = { Text("授权车辆请求已发送给所属公司，请等待公司授权。", fontSize = 14.sp, color = FormMuted) },
-            confirmButton = {
-                TextButton(onClick = { requested = false }) {
-                    Text("知道了", color = FormGreen, fontWeight = FontWeight.SemiBold)
-                }
-            },
-        )
     }
 }
 
-/** 个人司机：我的车辆 + 待通过验证车辆；右上角「增加车辆」 */
+/** 个人：我的车辆 + 待通过验证车辆 */
 @Composable
-private fun MyVehiclesView(onBack: () -> Unit, onAdd: () -> Unit) {
+private fun MyVehiclesView(
+    userId: String?,
+    onBack: () -> Unit,
+    onAdd: () -> Unit,
+) {
+    val repo = remember { VehicleRepository() }
+    var isPersonal by remember { mutableStateOf(false) }
+    var approved by remember { mutableStateOf<List<VehicleCard>>(emptyList()) }
+    var pending by remember { mutableStateOf<List<VehicleCard>>(emptyList()) }
+    var loaded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(userId) {
+        val id = userId ?: return@LaunchedEffect
+        isPersonal = AuthRepository().getUserRole(id) == "personal"
+        val accountId = repo.accountId(id)
+        if (accountId != null) {
+            approved = repo.vehicles(accountId, "approved")
+            pending = repo.vehicles(accountId, "pending")
+        }
+        loaded = true
+    }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -179,26 +148,28 @@ private fun MyVehiclesView(onBack: () -> Unit, onAdd: () -> Unit) {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeaderAction(title = "车辆信息", actionLabel = "增加车辆", onBack = onBack, onAction = onAdd)
+        if (isPersonal) {
+            FormPageHeaderAction(title = "车辆信息", actionLabel = "增加车辆", onBack = onBack, onAction = onAdd)
+        } else {
+            FormPageHeader(title = "车辆信息", onBack = onBack)
+        }
         Spacer(Modifier.height(16.dp))
 
         Card(
             Modifier.fillMaxWidth(),
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = CardDefaults.cardColors(containerColor = FormCard),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(Modifier.fillMaxWidth().padding(18.dp)) {
                 Text("我的车辆", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
                 Spacer(Modifier.height(12.dp))
-                if (MyVerifiedVehicles.isEmpty()) {
-                    Text("暂无已验证车辆", fontSize = 14.sp, color = FormMuted)
-                } else {
-                    MyVerifiedVehicles.forEachIndexed { index, vehicle ->
+                when {
+                    !loaded -> Text("加载中…", fontSize = 14.sp, color = FormMuted)
+                    approved.isEmpty() -> Text("暂无已验证车辆", fontSize = 14.sp, color = FormMuted)
+                    else -> approved.forEachIndexed { index, vehicle ->
                         VehicleInfoLines(vehicle)
-                        if (index != MyVerifiedVehicles.lastIndex) {
-                            Spacer(Modifier.height(12.dp))
-                        }
+                        if (index != approved.lastIndex) Spacer(Modifier.height(12.dp))
                     }
                 }
             }
@@ -210,25 +181,23 @@ private fun MyVehiclesView(onBack: () -> Unit, onAdd: () -> Unit) {
 
         Card(
             Modifier.fillMaxWidth(),
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = CardDefaults.cardColors(containerColor = FormCard),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(Modifier.fillMaxWidth().padding(18.dp)) {
                 Text("待通过验证车辆", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
                 Spacer(Modifier.height(12.dp))
-                if (PendingVehicles.isEmpty()) {
-                    Text("暂无待验证车辆", fontSize = 14.sp, color = FormMuted)
-                } else {
-                    PendingVehicles.forEachIndexed { index, vehicle ->
+                when {
+                    !loaded -> Text("加载中…", fontSize = 14.sp, color = FormMuted)
+                    pending.isEmpty() -> Text("暂无待验证车辆", fontSize = 14.sp, color = FormMuted)
+                    else -> pending.forEachIndexed { index, vehicle ->
                         VehicleInfoLines(vehicle)
                         Spacer(Modifier.height(8.dp))
-                        InfoLine("验证日期时间", vehicle.verifyTime)
-                        InfoLine("通过日期时间", vehicle.passTime)
-                        InfoLine("状态", vehicle.status)
-                        if (index != PendingVehicles.lastIndex) {
-                            Spacer(Modifier.height(14.dp))
-                        }
+                        InfoLine("验证日期时间", prettyTime(vehicle.verifyAt))
+                        InfoLine("通过日期时间", prettyTime(vehicle.verifiedAt))
+                        InfoLine("状态", statusLabel(vehicle.status))
+                        if (index != pending.lastIndex) Spacer(Modifier.height(14.dp))
                     }
                 }
             }
@@ -239,7 +208,7 @@ private fun MyVehiclesView(onBack: () -> Unit, onAdd: () -> Unit) {
 }
 
 @Composable
-private fun VehicleInfoLines(vehicle: VehicleRecord) {
+private fun VehicleInfoLines(vehicle: VehicleCard) {
     InfoLine("品牌", vehicle.brand)
     InfoLine("型号", vehicle.model)
     InfoLine("车款", vehicle.trim)
@@ -254,229 +223,273 @@ private fun InfoLine(label: String, value: String) {
     }
 }
 
-/** 增加车辆页：车辆资料 + 三份证明上传 + 车主确认 */
+/** 增加车辆页：品牌/型号/车款下拉 + 车牌 + 4 张照片 + 3 份证明 + 车主身份 */
 @Composable
 fun AddVehicleScreen(
+    userId: String? = null,
     onBack: () -> Unit = {},
     onPickImage: (ImageSource, (String) -> Unit) -> Unit = { _, _ -> },
     onPickDocument: ((String) -> Unit) -> Unit = {},
 ) {
+    val repo = remember { VehicleRepository() }
+    val scope = rememberCoroutineScope()
+
+    var brands by remember { mutableStateOf<List<PickerOption>>(emptyList()) }
+    var models by remember { mutableStateOf<List<PickerOption>>(emptyList()) }
+    var trims by remember { mutableStateOf<List<PickerOption>>(emptyList()) }
+
     var brand by remember { mutableStateOf("") }
     var model by remember { mutableStateOf("") }
-    var seats by remember { mutableStateOf("") }
+    var trim by remember { mutableStateOf("") }
     var plate by remember { mutableStateOf("") }
-    var frontViewUri by remember { mutableStateOf<String?>(null) }
-    var rearViewUri by remember { mutableStateOf<String?>(null) }
-    var frontSeatUri by remember { mutableStateOf<String?>(null) }
-    var rearSeatUri by remember { mutableStateOf<String?>(null) }
-    var roadTaxUri by remember { mutableStateOf<String?>(null) }
-    var carCardUri by remember { mutableStateOf<String?>(null) }
-    var insuranceUri by remember { mutableStateOf<String?>(null) }
-    var ownerAnswer by remember { mutableStateOf(0) }
-    var ownerIcUri by remember { mutableStateOf<String?>(null) }
-    var cannotGetOwnerIc by remember { mutableStateOf(false) }
-    var dialog by remember { mutableStateOf(0) }
+
+    var frontPhoto by remember { mutableStateOf<String?>(null) }
+    var backPhoto by remember { mutableStateOf<String?>(null) }
+    var frontSeatPhoto by remember { mutableStateOf<String?>(null) }
+    var backSeatPhoto by remember { mutableStateOf<String?>(null) }
+    var roadTaxFile by remember { mutableStateOf<String?>(null) }
+    var regCardFile by remember { mutableStateOf<String?>(null) }
+    var insuranceFile by remember { mutableStateOf<String?>(null) }
+
+    var isOwnerAnswer by remember { mutableStateOf(OwnerOptions.first()) }
+    var ownerIcFile by remember { mutableStateOf<String?>(null) }
+    var ownerIcUnavailable by remember { mutableStateOf(false) }
+
+    var saving by remember { mutableStateOf(false) }
+    var dialogTitle by remember { mutableStateOf("") }
+    var dialogBody by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) { brands = repo.brands() }
+
+    val isOwner = isOwnerAnswer == "是"
+    val brandId = brands.firstOrNull { it.label == brand }?.id
+    val modelId = models.firstOrNull { it.label == model }?.id
+    val trimId = trims.firstOrNull { it.label == trim }?.id
+
+    val ready = brandId != null && modelId != null && plate.isNotBlank() &&
+        frontPhoto != null && backPhoto != null && frontSeatPhoto != null && backSeatPhoto != null &&
+        roadTaxFile != null && regCardFile != null && insuranceFile != null &&
+        (isOwner || ownerIcFile != null || ownerIcUnavailable)
 
     Column(
         Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
         FormPageHeader(title = "增加车辆", onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
-        FormSelect(
-            label = "品牌",
-            value = brand,
-            placeholder = "选择品牌",
-            options = VehicleBrands,
-            onSelect = { brand = it },
-        )
-        FormSelect(
-            label = "型号",
-            value = model,
-            placeholder = "选择型号",
-            options = VehicleModels,
-            onSelect = { model = it },
-        )
-        FormSelect(
-            label = "车款",
-            value = seats,
-            placeholder = "选择车款",
-            options = SeatOptions,
-            onSelect = { seats = it },
-        )
-        FormTextField(
-            label = "车牌号",
-            value = plate,
-            placeholder = "例：JXY 8888",
-            onValueChange = { plate = sanitizePlate(it) },
-        )
+        Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
 
-        FormSectionTitle("车外观照片")
-        Text(
-            "上传车辆外观前后照片",
-            fontSize = 13.sp,
-            color = FormMuted,
-            modifier = Modifier.padding(start = 2.dp, bottom = 10.dp),
-        )
-        Row(
-            Modifier.fillMaxWidth().padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            FormUploadTile(
-                label = "车前",
-                hint = "车前",
-                uri = frontViewUri,
-                onPicked = { frontViewUri = it },
-                onPickImage = onPickImage,
-                onPickDocument = onPickDocument,
-                modifier = Modifier.weight(1f),
-            )
-            FormUploadTile(
-                label = "车后",
-                hint = "车后",
-                uri = rearViewUri,
-                onPicked = { rearViewUri = it },
-                onPickImage = onPickImage,
-                onPickDocument = onPickDocument,
-                modifier = Modifier.weight(1f),
-            )
-        }
-
-        FormSectionTitle("车辆内饰照片")
-        Text(
-            "上传车辆内饰前后排照片",
-            fontSize = 13.sp,
-            color = FormMuted,
-            modifier = Modifier.padding(start = 2.dp, bottom = 10.dp),
-        )
-        Row(
-            Modifier.fillMaxWidth().padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            FormUploadTile(
-                label = "车前排",
-                hint = "车前排",
-                uri = frontSeatUri,
-                onPicked = { frontSeatUri = it },
-                onPickImage = onPickImage,
-                onPickDocument = onPickDocument,
-                modifier = Modifier.weight(1f),
-            )
-            FormUploadTile(
-                label = "车后排",
-                hint = "车后排",
-                uri = rearSeatUri,
-                onPicked = { rearSeatUri = it },
-                onPickImage = onPickImage,
-                onPickDocument = onPickDocument,
-                modifier = Modifier.weight(1f),
-            )
-        }
-
-        FormSectionTitle("车辆证明")
-        FormUpload(
-            label = "路税证明",
-            hint = "上传马来西亚交通局合规路税证明（拍照 / 相册 / 文档）",
-            uri = roadTaxUri,
-            onPicked = { roadTaxUri = it },
-            onPickImage = onPickImage,
-            onPickDocument = onPickDocument,
-        )
-        FormUpload(
-            label = "车卡证明",
-            hint = "上传马来西亚交通局合规车卡证明（拍照 / 相册 / 文档）",
-            uri = carCardUri,
-            onPicked = { carCardUri = it },
-            onPickImage = onPickImage,
-            onPickDocument = onPickDocument,
-        )
-        FormUpload(
-            label = "保险证明",
-            hint = "上传马来西亚第三方保险证明（拍照 / 相册 / 文档）",
-            uri = insuranceUri,
-            onPicked = { insuranceUri = it },
-            onPickImage = onPickImage,
-            onPickDocument = onPickDocument,
-        )
-
-        FormSectionTitle("您是否为该车辆车主")
-        SegmentedTabs(
-            options = listOf("是", "否"),
-            selectedIndex = ownerAnswer,
-            onSelect = { ownerAnswer = it },
-        )
-        Spacer(Modifier.height(16.dp))
-
-        if (ownerAnswer == 1) {
-            FormUpload(
-                label = "车主马来西亚身份证",
-                hint = "上传马来西亚身份证（仅支持拍照）",
-                uri = ownerIcUri,
-                onPicked = { ownerIcUri = it },
-                onPickImage = onPickImage,
-                onPickDocument = onPickDocument,
-                allowGallery = false,
-                allowDocument = false,
-            )
-            Row(
-                Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Checkbox(
-                    checked = cannotGetOwnerIc,
-                    onCheckedChange = { cannotGetOwnerIc = it },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = FormGreen,
-                        uncheckedColor = FormMuted,
-                        checkmarkColor = Color.White,
-                    ),
-                )
-                Text("我无法获取该车主身份证", color = FormInk, fontSize = 14.sp)
+            if (brands.isEmpty()) {
+                FormNote("品牌列表是空的（se_vehicle_brands 没有 is_active = true 的数据），先让管理端加品牌。")
+                Spacer(Modifier.height(10.dp))
             }
-            Spacer(Modifier.height(8.dp))
+
+            FormSelect(
+                label = "品牌",
+                value = brand,
+                placeholder = "选择品牌",
+                options = brands.map { it.label },
+                onSelect = { picked ->
+                    brand = picked
+                    model = ""
+                    trim = ""
+                    val id = brands.firstOrNull { it.label == picked }?.id
+                    scope.launch { models = if (id == null) emptyList() else repo.models(id) }
+                },
+            )
+            FormSelect(
+                label = "型号",
+                value = model,
+                placeholder = "选择型号",
+                options = models.map { it.label },
+                onSelect = { picked ->
+                    model = picked
+                    trim = ""
+                    val id = models.firstOrNull { it.label == picked }?.id
+                    scope.launch { trims = if (id == null) emptyList() else repo.trims(id) }
+                },
+            )
+            FormSelect(
+                label = "车款",
+                value = trim,
+                placeholder = "选择车款",
+                options = trims.map { it.label },
+                onSelect = { trim = it },
+            )
+            FormTextField(
+                label = "车牌号",
+                value = plate,
+                placeholder = "例如 WXY 1234",
+                onValueChange = { plate = sanitizePlate(it) },
+            )
+
+            FormSectionTitle("车辆照片")
+            FormUpload(
+                label = "车前照片",
+                hint = "拍照或从相册选择",
+                uri = frontPhoto,
+                onPicked = { frontPhoto = it },
+                onPickImage = onPickImage,
+                onPickDocument = onPickDocument,
+            )
+            FormUpload(
+                label = "车后照片",
+                hint = "拍照或从相册选择",
+                uri = backPhoto,
+                onPicked = { backPhoto = it },
+                onPickImage = onPickImage,
+                onPickDocument = onPickDocument,
+            )
+            FormUpload(
+                label = "车前排照片",
+                hint = "拍照或从相册选择",
+                uri = frontSeatPhoto,
+                onPicked = { frontSeatPhoto = it },
+                onPickImage = onPickImage,
+                onPickDocument = onPickDocument,
+            )
+            FormUpload(
+                label = "车后排照片",
+                hint = "拍照或从相册选择",
+                uri = backSeatPhoto,
+                onPicked = { backSeatPhoto = it },
+                onPickImage = onPickImage,
+                onPickDocument = onPickDocument,
+            )
+
+            FormSectionTitle("车辆证明")
+            FormUpload(
+                label = "路税证明",
+                hint = "拍照或上传文件",
+                uri = roadTaxFile,
+                onPicked = { roadTaxFile = it },
+                onPickImage = onPickImage,
+                onPickDocument = onPickDocument,
+            )
+            FormUpload(
+                label = "车卡证明",
+                hint = "拍照或上传文件",
+                uri = regCardFile,
+                onPicked = { regCardFile = it },
+                onPickImage = onPickImage,
+                onPickDocument = onPickDocument,
+            )
+            FormUpload(
+                label = "保险证明",
+                hint = "拍照或上传文件",
+                uri = insuranceFile,
+                onPicked = { insuranceFile = it },
+                onPickImage = onPickImage,
+                onPickDocument = onPickDocument,
+            )
+
+            FormSectionTitle("是否车主")
+            SegmentedTabs(
+                options = OwnerOptions,
+                selectedIndex = OwnerOptions.indexOf(isOwnerAnswer).coerceAtLeast(0),
+                onSelect = { isOwnerAnswer = OwnerOptions[it] },
+            )
+            Spacer(Modifier.height(14.dp))
+
+            if (!isOwner) {
+                FormUpload(
+                    label = "车主马来西亚身份证",
+                    hint = "仅拍照上传",
+                    uri = ownerIcFile,
+                    onPicked = { ownerIcFile = it },
+                    onPickImage = onPickImage,
+                    onPickDocument = onPickDocument,
+                    allowDocument = false,
+                )
+                FormCheckRow(
+                    label = "我无法获取该车主身份证",
+                    selected = ownerIcUnavailable,
+                    onClick = { ownerIcUnavailable = !ownerIcUnavailable },
+                )
+            }
+
+            Spacer(Modifier.height(6.dp))
         }
 
-        Spacer(Modifier.height(6.dp))
         FormPrimaryButton(
-            text = "完成提交",
+            text = if (saving) "提交中…" else "完成提交",
+            enabled = ready && !saving,
             onClick = {
-                val ownerIncomplete = ownerAnswer == 1 && (ownerIcUri == null || cannotGetOwnerIc)
-                dialog = if (ownerIncomplete) 1 else 2
-            },
-        )
-        Spacer(Modifier.height(110.dp))
-    }
-
-    if (dialog == 1) {
-        AlertDialog(
-            onDismissRequest = { dialog = 0 },
-            containerColor = FormCard,
-            title = { Text("信息不全", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
-            text = { Text("信息不全，请联系平台客服协助办理，谢谢", fontSize = 14.sp, color = FormMuted) },
-            confirmButton = {
-                TextButton(onClick = { dialog = 0 }) {
-                    Text("知道了", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                val id = userId
+                val bId = brandId
+                val mId = modelId
+                if (id == null) {
+                    dialogTitle = "请先登录"
+                    dialogBody = "登录后才能提交车辆"
+                    showDialog = true
+                } else if (bId == null || mId == null) {
+                    dialogTitle = "资料没填全"
+                    dialogBody = "品牌和型号都要选"
+                    showDialog = true
+                } else {
+                    saving = true
+                    scope.launch {
+                        val accountId = repo.accountId(id)
+                        if (accountId == null) {
+                            saving = false
+                            dialogTitle = "提交失败"
+                            dialogBody = "找不到你的账户（se_account_members 没有你的记录）"
+                            showDialog = true
+                            return@launch
+                        }
+                        val err = repo.submitVehicle(
+                            userId = id,
+                            accountId = accountId,
+                            input = NewVehicleInput(
+                                brandId = bId,
+                                modelId = mId,
+                                trimId = trimId,
+                                plate = plate.trim(),
+                                isOwner = isOwner,
+                                frontPhoto = frontPhoto,
+                                backPhoto = backPhoto,
+                                frontSeatPhoto = frontSeatPhoto,
+                                backSeatPhoto = backSeatPhoto,
+                                roadTaxFile = roadTaxFile,
+                                registrationCardFile = regCardFile,
+                                insuranceFile = insuranceFile,
+                                ownerIcFile = ownerIcFile,
+                                ownerIcUnavailable = ownerIcUnavailable,
+                            ),
+                        )
+                        saving = false
+                        if (err == null) {
+                            dialogTitle = "提交成功"
+                            dialogBody = "车辆资料已提交，等待审核"
+                        } else {
+                            dialogTitle = "提交失败"
+                            dialogBody = err
+                        }
+                        showDialog = true
+                    }
                 }
             },
         )
+        Spacer(Modifier.height(16.dp))
     }
 
-    if (dialog == 2) {
+    if (showDialog) {
         AlertDialog(
-            onDismissRequest = { dialog = 0 },
+            onDismissRequest = { showDialog = false },
             containerColor = FormCard,
-            title = { Text("提交成功", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
-            text = { Text("车辆资料已提交，等待平台审核", fontSize = 14.sp, color = FormMuted) },
+            title = { Text(dialogTitle, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            text = { Text(dialogBody, fontSize = 14.sp, color = FormMuted) },
             confirmButton = {
                 TextButton(onClick = {
-                    dialog = 0
-                    onBack()
+                    val success = dialogTitle == "提交成功"
+                    showDialog = false
+                    if (success) onBack()
                 }) {
-                    Text("完成", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                    Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )

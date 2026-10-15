@@ -31,8 +31,12 @@ data class MyInfo(
     val wechatId: String? = null,
 )
 
-/** 隐私信息（se_driver_profiles） */
+/** 隐私信息（driver → se_driver_profiles；personal → se_personal_profiles） */
 data class MyPrivacy(
+    /** 读写的表名 */
+    val table: String = "se_driver_profiles",
+    /** 该表有没有 full_name 列（se_personal_profiles 目前只有 legal_name） */
+    val hasFullName: Boolean = true,
     val profileId: String? = null,
     val fullName: String = "",
     val gender: String? = null,
@@ -82,6 +86,15 @@ data class MyQr(
 class ProfileEditRepository(
     private val supabase: SupabaseClient = Supabase.client,
 ) {
+
+    /** 我的角色：se_users.primary_role */
+    suspend fun userRole(userId: String): String? = runCatchingNull {
+        supabase.postgrest.from("se_users")
+            .select(Columns.list("primary_role")) { filter { eq("id", userId) }; limit(1) }
+            .decodeList<JsonObject>()
+            .firstOrNull()
+            ?.s("primary_role")
+    }
 
     /** 我的账户 id（se_account_members） */
     suspend fun accountId(userId: String): String? = runCatchingNull {
@@ -162,11 +175,19 @@ class ProfileEditRepository(
 
     // ---------------------------------------------------------- 隐私信息
 
-    suspend fun myPrivacy(userId: String, accountId: String?): MyPrivacy? {
-        val row = driverProfile(userId, accountId) ?: return null
+    /** 角色决定读写哪张表：driver → se_driver_profiles，其它（personal）→ se_personal_profiles */
+    private fun privacyTable(role: String?): String =
+        if (role == "driver") "se_driver_profiles" else "se_personal_profiles"
+
+    suspend fun myPrivacy(userId: String, accountId: String?, role: String? = null): MyPrivacy? {
+        val table = privacyTable(role)
+        val row = privacyRow(table, userId, accountId) ?: return null
+        val hasFullName = row.containsKey("full_name")
         return MyPrivacy(
+            table = table,
+            hasFullName = hasFullName,
             profileId = row.s("id"),
-            fullName = row.s("full_name").orEmpty(),
+            fullName = if (hasFullName) row.s("full_name").orEmpty() else row.s("legal_name").orEmpty(),
             gender = row.s("gender"),
             birthday = row.s("birthday"),
             street = row.s("addr_line1").orEmpty(),
@@ -177,11 +198,11 @@ class ProfileEditRepository(
         )
     }
 
-    /** 司机档案行（先按 user_id 找，没有再按 owner_id=account_id 找） */
-    private suspend fun driverProfile(userId: String, accountId: String?): JsonObject? {
+/** 档案行（先按 user_id 找，没有再按 owner_id=account_id 找）；字段用 * 拿，好判断有没有 full_name */
+    private suspend fun privacyRow(table: String, userId: String, accountId: String?): JsonObject? {
         val byUser = runCatchingNull {
-            supabase.postgrest.from("se_driver_profiles")
-                .select(Columns.list("id", "full_name", "gender", "birthday", "addr_line1", "garden", "postcode", "city", "state")) {
+            supabase.postgrest.from(table)
+                .select(Columns.list("*")) {
                     filter { eq("user_id", userId) }
                     limit(1)
                 }
@@ -191,8 +212,8 @@ class ProfileEditRepository(
         if (byUser != null) return byUser
         val owner = accountId ?: return null
         return runCatchingNull {
-            supabase.postgrest.from("se_driver_profiles")
-                .select(Columns.list("id", "full_name", "gender", "birthday", "addr_line1", "garden", "postcode", "city", "state")) {
+            supabase.postgrest.from(table)
+                .select(Columns.list("*")) {
                     filter { eq("owner_id", owner) }
                     limit(1)
                 }
@@ -202,6 +223,8 @@ class ProfileEditRepository(
     }
 
     suspend fun savePrivacy(
+        table: String,
+        hasFullName: Boolean,
         profileId: String,
         fullName: String,
         gender: String?,
@@ -212,9 +235,9 @@ class ProfileEditRepository(
         city: String,
         state: String,
     ): String? = try {
-        supabase.postgrest.from("se_driver_profiles").update(
+        supabase.postgrest.from(table).update(
             buildJsonObject {
-                put("full_name", fullName)
+                if (hasFullName) put("full_name", fullName) else put("legal_name", fullName)
                 put("gender", gender)
                 put("birthday", birthday)
                 put("addr_line1", street)

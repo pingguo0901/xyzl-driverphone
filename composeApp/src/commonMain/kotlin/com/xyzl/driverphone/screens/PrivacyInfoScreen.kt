@@ -62,6 +62,9 @@ fun PrivacyInfoScreen(
 
     var loaded by remember { mutableStateOf(false) }
     var profileId by remember { mutableStateOf<String?>(null) }
+    var table by remember { mutableStateOf("se_driver_profiles") }
+    var hasFullName by remember { mutableStateOf(true) }
+    var isDriver by remember { mutableStateOf(false) }
     var initial by remember { mutableStateOf(MyPrivacy()) }
 
     var fullName by remember { mutableStateOf("") }
@@ -82,8 +85,12 @@ fun PrivacyInfoScreen(
     LaunchedEffect(userId) {
         val id = userId ?: return@LaunchedEffect
         val accountId = repo.accountId(id)
-        val info = repo.myPrivacy(id, accountId)
+        val role = repo.userRole(id)
+        isDriver = role == "driver"
+        val info = repo.myPrivacy(id, accountId, role)
         if (info != null) {
+            table = info.table
+            hasFullName = info.hasFullName
             initial = info
             profileId = info.profileId
             fullName = info.fullName
@@ -95,7 +102,7 @@ fun PrivacyInfoScreen(
             city = info.city
             state = info.state
         }
-        kyc = repo.kycDocs(id, info?.profileId)
+        kyc = if (isDriver) repo.kycDocs(id, info?.profileId) else emptyList()
         loaded = true
     }
 
@@ -190,6 +197,7 @@ fun PrivacyInfoScreen(
             onValueChange = { state = sanitizeEnglish(it) },
         )
 
+        if (isDriver) {
         FormSectionTitle("KYC认证")
         Card(
             Modifier.fillMaxWidth().padding(bottom = 8.dp),
@@ -214,6 +222,7 @@ fun PrivacyInfoScreen(
                 }
             }
         }
+        }
 
         Spacer(Modifier.height(10.dp))
         FormPrimaryButton(
@@ -223,12 +232,14 @@ fun PrivacyInfoScreen(
                 val pid = profileId
                 if (pid == null) {
                     dialogTitle = "无法保存"
-                    dialogBody = "找不到你的司机档案（se_driver_profiles 里没有你的记录）"
+                    dialogBody = if (isDriver) "找不到你的司机档案（se_driver_profiles 里没有你的记录）" else "找不到你的个人档案（se_personal_profiles 里没有你的记录）"
                     showDialog = true
                 } else {
                     saving = true
                     scope.launch {
                         val err = repo.savePrivacy(
+                            table = table,
+                            hasFullName = hasFullName,
                             profileId = pid,
                             fullName = fullName,
                             gender = gender,

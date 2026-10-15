@@ -96,7 +96,7 @@ fun KycUpdateScreen(
                     saving = true
                     scope.launch {
                         val accountId = repo.accountId(id)
-                        val profile = repo.myPrivacy(id, accountId)
+                        val profile = repo.myPrivacy(id, accountId, repo.userRole(id))
                         val err = repo.submitDocument(
                             userId = id,
                             accountId = accountId,

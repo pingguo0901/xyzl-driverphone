@@ -664,6 +664,7 @@ fun App(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     VehicleInfoScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
                         onBack = { showVehicleInfo = false },
                         isCompanyDriver = DriverIsCompany,
                         onPickImage = { source, cb -> requestPick(source, cb) },
