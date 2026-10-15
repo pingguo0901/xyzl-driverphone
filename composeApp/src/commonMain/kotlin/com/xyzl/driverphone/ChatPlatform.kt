@@ -11,5 +11,8 @@ expect fun startVoiceRecord(): Boolean
 expect fun stopVoiceRecord(onResult: (String?) -> Unit)
 
 /** 播放 / 停止播放语音消息（path 为录音文件路径） */
+/** 读取本地文件字节（聊天附件上传 Storage 用） */
+expect fun readFileBytes(uri: String): ByteArray?
+
 expect fun playVoice(path: String)
 expect fun stopVoicePlay()

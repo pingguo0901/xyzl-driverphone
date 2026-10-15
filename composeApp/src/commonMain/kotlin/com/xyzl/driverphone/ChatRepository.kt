@@ -4,6 +4,7 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
+import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -32,6 +33,8 @@ data class ChatThreadInfo(
     val peerAvatar: String?,
     val isMuted: Boolean = false,
     val isPinned: Boolean = false,
+    /** 附件上传用的 Storage 桶 */
+    val bucket: String = "se_chat-direct",
 )
 
 /** 一条消息 */
@@ -107,6 +110,7 @@ class ChatRepository(
             id = chosenRow.str("id").orEmpty(),
             threadType = chosenRow.str("thread_type").orEmpty(),
             table = tableFor(chosenRow.str("thread_type")),
+            bucket = bucketFor(chosenRow.str("thread_type")),
             peerUserId = peerId,
             peerName = peerId?.let { users[it]?.str("full_name") } ?: peerName,
             peerAvatar = peerId?.let { users[it]?.str("avatar_url") },
@@ -129,6 +133,80 @@ class ChatRepository(
         throw e
     } catch (e: Exception) {
         emptyList()
+    }
+
+    // ------------------------------------------------------------ 发送（附件先上 Storage，再把路径写进消息表）
+    suspend fun sendImage(info: ChatThreadInfo, userId: String, uri: String): Boolean {
+        val path = upload(info, uri) ?: return false
+        return insert(
+            info,
+            baseValues(info, userId, "image") { put("attachment_url", path) },
+        )
+    }
+
+    suspend fun sendFile(info: ChatThreadInfo, userId: String, uri: String, name: String): Boolean {
+        val bytes = readFileBytes(uri) ?: return false
+        val path = uploadBytes(info, bytes, extOf(uri)) ?: return false
+        return insert(
+            info,
+            baseValues(info, userId, "file") {
+                put("attachment_url", path)
+                put("file_name", name)
+                put("file_size", bytes.size.toLong())
+            },
+        )
+    }
+
+    suspend fun sendVoice(info: ChatThreadInfo, userId: String, uri: String, seconds: Int): Boolean {
+        val path = upload(info, uri) ?: return false
+        return insert(
+            info,
+            baseValues(info, userId, "voice") {
+                put("voice_url", path)
+                put("voice_duration_sec", seconds)
+            },
+        )
+    }
+
+    suspend fun sendContactCard(info: ChatThreadInfo, userId: String, contactUserId: String?, title: String): Boolean = insert(
+        info,
+        baseValues(info, userId, "contact_card") {
+            if (contactUserId != null) put("contact_card_user_id", contactUserId)
+            put("content", title)
+        },
+    )
+
+    /** 通话：本轮只记一条 missed（真通话以后接 RTC） */
+    suspend fun logMissedCall(userId: String, calleeUserId: String?, video: Boolean): Boolean = try {
+        supabase.postgrest.from("se_call_records").insert(
+            buildJsonObject {
+                put("caller_user_id", userId)
+                if (calleeUserId != null) put("callee_user_id", calleeUserId)
+                put("call_type", if (video) "video" else "voice")
+                put("status", "missed")
+                put("started_at", "now")
+            },
+        )
+        true
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        false
+    }
+
+    private suspend fun upload(info: ChatThreadInfo, uri: String): String? {
+        val bytes = readFileBytes(uri) ?: return null
+        return uploadBytes(info, bytes, extOf(uri))
+    }
+
+    private suspend fun uploadBytes(info: ChatThreadInfo, bytes: ByteArray, ext: String): String? = try {
+        val path = info.threadType + "/" + info.id + "/" + uniqueStamp() + "." + ext
+        supabase.storage.from(info.bucket).upload(path, bytes)
+        path
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        null
     }
 
     // ------------------------------------------------------------ 发送
@@ -236,6 +314,21 @@ class ChatRepository(
         )
     }
 }
+
+/** 会话类型 → Storage 桶 */
+private fun bucketFor(threadType: String?): String = when (threadType) {
+    "business" -> "se_chat-business"
+    "support" -> "se_chat-support"
+    else -> "se_chat-direct"
+}
+
+private fun extOf(uri: String): String {
+    val name = uri.substringAfterLast('/')
+    val ext = name.substringAfterLast('.', "")
+    return if (ext.length in 2..5) ext.lowercase() else "bin"
+}
+
+private fun uniqueStamp(): String = "m" + kotlin.random.Random.nextLong().toString(16).removePrefix("-")
 
 /** 会话类型 → 消息表 */
 private fun tableFor(threadType: String?): String = when (threadType) {

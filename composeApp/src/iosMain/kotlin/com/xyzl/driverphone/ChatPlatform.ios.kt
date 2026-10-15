@@ -14,6 +14,8 @@ actual fun stopVoiceRecord(onResult: (String?) -> Unit) {
     onResult(null)
 }
 
+actual fun readFileBytes(uri: String): ByteArray? = null
+
 actual fun playVoice(path: String) {
 }
 

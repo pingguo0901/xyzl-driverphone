@@ -71,6 +71,7 @@ import com.xyzl.driverphone.ChatRepository
 import com.xyzl.driverphone.ChatThreadInfo
 import com.xyzl.driverphone.ImageSource
 import com.xyzl.driverphone.PermissionScene
+import com.xyzl.driverphone.ProfileRepository
 import com.xyzl.driverphone.currentLocation
 import com.xyzl.driverphone.formatClock
 import com.xyzl.driverphone.formatDate
@@ -112,6 +113,7 @@ fun ChatConversationScreen(
     val listState = rememberLazyListState()
     val myName = "我"
     val repo = remember { ChatRepository() }
+    val profiles = remember { ProfileRepository() }
     val scope = rememberCoroutineScope()
     val messages = remember { mutableStateListOf<ChatMessage>() }
     var thread by remember { mutableStateOf<ChatThreadInfo?>(null) }
@@ -126,6 +128,26 @@ fun ChatConversationScreen(
         val parts = currentTimeParts()
         seq += 1
         messages.add(ChatMessage(seq, mine, senderName, body, parts.second, parts.first, tick))
+    }
+
+    fun sendCard(title: String, subtitle: String) {
+        add(true, myName, ChatBody.Card(title, subtitle), ChatTick.Sent)
+        cardSheet = false
+        val info = thread
+        if (info != null && userId != null) {
+            scope.launch {
+                val contactId = profiles.byName(title.substringBefore(" · ").trim())?.userId
+                repo.sendContactCard(info, userId, contactId, title)
+            }
+        }
+    }
+
+    fun startCall(video: Boolean) {
+        hint = if (video) "视频通话即将开放" else "语音通话即将开放"
+        val info = thread
+        if (userId != null) {
+            scope.launch { repo.logMissedCall(userId, info?.peerUserId, video) }
+        }
     }
 
     // 进聊天窗：按对方名字找会话 → 拉真实消息 → 标记已读
@@ -235,8 +257,12 @@ fun ChatConversationScreen(
                                                 mine = true,
                                                 senderName = myName,
                                                 body = ChatBody.Voice(path, maxOf(1, seconds)),
-                                                tick = if (path == null) ChatTick.Sending else ChatTick.Delivered,
+                                                tick = if (path == null) ChatTick.Sending else ChatTick.Sent,
                                             )
+                                            val info = thread
+                                            if (path != null && info != null && userId != null) {
+                                                scope.launch { repo.sendVoice(info, userId, path, maxOf(1, seconds)) }
+                                            }
                                         }
                                     } else {
                                         recording = false
@@ -308,18 +334,26 @@ fun ChatConversationScreen(
                         requestScenePermission(PermissionScene.Photos)
                         pickMediaMultiple(10) { uris ->
                             if (uris.isNotEmpty()) {
-                                add(true, myName, ChatBody.Album(uris.take(10)), ChatTick.Delivered)
+                                add(true, myName, ChatBody.Album(uris.take(10)), ChatTick.Sent)
+                                val info = thread
+                                if (info != null && userId != null) {
+                                    scope.launch { uris.take(10).forEach { repo.sendImage(info, userId, it) } }
+                                }
                             }
                         }
                     }
                     PanelItem("拍照", Icons.Filled.PhotoCamera) {
                         requestScenePermission(PermissionScene.Camera)
                         pickImage(ImageSource.Camera) { uri ->
-                            add(true, myName, ChatBody.Album(listOf(uri)), ChatTick.Delivered)
+                            add(true, myName, ChatBody.Album(listOf(uri)), ChatTick.Sent)
+                            val info = thread
+                            if (info != null && userId != null) {
+                                scope.launch { repo.sendImage(info, userId, uri) }
+                            }
                         }
                     }
-                    PanelItem("语音通话", Icons.Filled.Call) { onOpenCall(false) }
-                    PanelItem("视频通话", Icons.Filled.Videocam) { onOpenCall(true) }
+                    PanelItem("语音通话", Icons.Filled.Call) { startCall(false) }
+                    PanelItem("视频通话", Icons.Filled.Videocam) { startCall(true) }
                 }
                 Spacer(Modifier.height(16.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -332,13 +366,26 @@ fun ChatConversationScreen(
                                 ChatBody.Location(label, coords),
                                 if (coords == null) ChatTick.Sent else ChatTick.Delivered,
                             )
+                            val info = thread
+                            val parts = coords?.split(",")
+                            if (info != null && userId != null && parts != null && parts.size == 2) {
+                                val lat = parts[0].trim().toDoubleOrNull()
+                                val lng = parts[1].trim().toDoubleOrNull()
+                                if (lat != null && lng != null) {
+                                    scope.launch { repo.sendLocation(info, userId, lat, lng, label) }
+                                }
+                            }
                         }
                     }
                     PanelItem("名片", Icons.Filled.ContactPage) { cardSheet = true }
                     PanelItem("文件", Icons.Filled.Description) {
                         pickDocument { uri ->
                             val name = uri.substringAfterLast('/').ifBlank { "文件" }
-                            add(true, myName, ChatBody.File(name), ChatTick.Delivered)
+                            add(true, myName, ChatBody.File(name), ChatTick.Sent)
+                            val info = thread
+                            if (info != null && userId != null) {
+                                scope.launch { repo.sendFile(info, userId, uri, name) }
+                            }
                         }
                     }
                 }
@@ -356,16 +403,13 @@ fun ChatConversationScreen(
                     Text("发送名片", color = FormInk, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(10.dp))
                     CardOption("星域臻旅 · 公司名片", "XY-0001 · 星域臻旅") {
-                        add(true, myName, ChatBody.Card("星域臻旅 · 公司名片", "XY-0001 · 星域臻旅"), ChatTick.Delivered)
-                        cardSheet = false
+                        sendCard("星域臻旅 · 公司名片", "XY-0001 · 星域臻旅")
                     }
                     CardOption("调度 · 陈师傅", "XY-S-0231 · 星域臻旅 · 调度中心") {
-                        add(true, myName, ChatBody.Card("调度 · 陈师傅", "XY-S-0231 · 星域臻旅 · 调度中心"), ChatTick.Delivered)
-                        cardSheet = false
+                        sendCard("调度 · 陈师傅", "XY-S-0231 · 星域臻旅 · 调度中心")
                     }
                     CardOption("客服小星", "XY-S-0102 · 星域臻旅 · 客服中心") {
-                        add(true, myName, ChatBody.Card("客服小星", "XY-S-0102 · 星域臻旅 · 客服中心"), ChatTick.Delivered)
-                        cardSheet = false
+                        sendCard("客服小星", "XY-S-0102 · 星域臻旅 · 客服中心")
                     }
                 }
             }

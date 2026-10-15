@@ -20,7 +20,7 @@ import kotlinx.serialization.json.put
  * 接单开关  se_driver_profiles.is_online
  * 值班车辆  se_driver_profiles.current_vehicle_id → se_vehicle_profiles(plate_no / make / model)
  * 当前任务  se_order_parents(accepted_at / 客户信息 / execution_status) + se_bookings(pickup / dropoff)
- * 滑块      se_order_parents.execution_status + execution_status_updated_at
+ * 滑块      se_order_parents.execution_status；接人写 accepted_at='now'，放人写 completed_at='now'
  */
 
 /** 值班车辆 */
@@ -120,6 +120,10 @@ class HomeRepository(
             put("execution_status", status)
             // 'now' 是 PostgreSQL 认的 timestamptz 字面量，让数据库自己盖时间戳
             put("execution_status_updated_at", "now")
+            when (status) {
+                ExecutionStatus.ONGOING -> put("accepted_at", "now")
+                ExecutionStatus.DONE -> put("completed_at", "now")
+            }
         },
     )
 

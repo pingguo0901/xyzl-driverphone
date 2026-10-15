@@ -115,6 +115,21 @@ actual fun stopVoiceRecord(onResult: (String?) -> Unit) {
     }
 }
 
+actual fun readFileBytes(uri: String): ByteArray? {
+    val parsed = Uri.parse(uri)
+    return try {
+        // 录音等直接给文件路径，没有 scheme
+        if (parsed.scheme == null) {
+            File(uri).readBytes()
+        } else {
+            val activity = activityRef ?: return null
+            activity.contentResolver.openInputStream(parsed)?.use { it.readBytes() }
+        }
+    } catch (e: Exception) {
+        null
+    }
+}
+
 actual fun playVoice(path: String) {
     stopVoicePlay()
     try {

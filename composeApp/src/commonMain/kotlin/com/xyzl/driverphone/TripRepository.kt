@@ -16,7 +16,8 @@ import kotlinx.serialization.json.contentOrNull
  * 列表：se_order_parents where assigned_driver_id = 我 order by accepted_at desc
  * 起点 / 目的地：se_bookings（parent_id 关联订单）；详情用 pickup_points / dropoff_points（jsonb 数组）
  * 金额：settlement_method='Cash' 且 customer_pay_amount > 0 → 币种 + 金额，否则「无需收钱」
- *   —— 这三个字段实际在 se_order_bookings（同样 parent_id 关联），不在 se_order_parents
+ *   —— 优先读 se_order_parents（2026-10-16 起这三个字段已加到主表，直接派单也有）；
+ *      主表为空时退回 se_order_bookings（丢单/拿单表）
  */
 
 /** 列表用的一行 */
@@ -42,7 +43,7 @@ data class TripItem(
 data class TripDetail(
     val orderId: String,
     val acceptedAt: String?,
-    /** 放人时间：库里没有 completed_at，取 execution_status_updated_at */
+    /** 放人时间：se_order_parents.completed_at */
     val completedAt: String?,
     val whatsapp: String?,
     val wechat: String?,
@@ -104,9 +105,9 @@ class TripRepository(
                 customerPhone = row.str("customer_phone"),
                 executionStatus = row.str("execution_status"),
                 orderStatus = row.str("status"),
-                settlementMethod = pay?.str("settlement_method"),
-                payAmount = pay?.dbl("customer_pay_amount"),
-                payCurrency = pay?.str("customer_pay_currency"),
+                settlementMethod = row.str("settlement_method") ?: pay?.str("settlement_method"),
+                payAmount = row.dbl("customer_pay_amount") ?: pay?.dbl("customer_pay_amount"),
+                payCurrency = row.str("customer_pay_currency") ?: pay?.str("customer_pay_currency"),
             )
         }
     }
@@ -172,7 +173,7 @@ class TripRepository(
         return TripDetail(
             orderId = orderId,
             acceptedAt = order.str("accepted_at"),
-            completedAt = order.str("execution_status_updated_at"),
+            completedAt = order.str("completed_at"),
             whatsapp = order.str("customer_whatsapp"),
             wechat = order.str("customer_wechat_id"),
             adults = order.int("adult_count"),
@@ -180,9 +181,9 @@ class TripRepository(
             luggage = booking?.int("luggage_count"),
             pickups = pickups,
             dropoffs = dropoffs,
-            settlementMethod = pay?.str("settlement_method"),
-            payAmount = pay?.dbl("customer_pay_amount"),
-            payCurrency = pay?.str("customer_pay_currency"),
+            settlementMethod = order.str("settlement_method") ?: pay?.str("settlement_method"),
+            payAmount = order.dbl("customer_pay_amount") ?: pay?.dbl("customer_pay_amount"),
+            payCurrency = order.str("customer_pay_currency") ?: pay?.str("customer_pay_currency"),
             salary = order.dbl("driver_income"),
             salaryCurrency = order.str("currency"),
             executionStatus = order.str("execution_status"),
@@ -245,12 +246,14 @@ class TripRepository(
 private val TRIP_COLUMNS = Columns.list(
     "id", "accepted_at", "customer_name", "customer_phone",
     "execution_status", "status", "deleted_at",
+    "settlement_method", "customer_pay_amount", "customer_pay_currency",
 )
 
 private val DETAIL_COLUMNS = Columns.list(
-    "id", "accepted_at", "execution_status_updated_at", "customer_whatsapp",
+    "id", "accepted_at", "completed_at", "customer_whatsapp",
     "customer_wechat_id", "adult_count", "child_count", "driver_income",
     "currency", "execution_status", "status",
+    "settlement_method", "customer_pay_amount", "customer_pay_currency",
 )
 
 /** numeric 字段 */
