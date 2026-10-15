@@ -24,6 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -49,6 +51,8 @@ import androidx.compose.ui.graphics.Color
 import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -69,6 +73,23 @@ private val Gold = Color(0xFF3B82F6)
 private val GoldLight = Color(0xFF3B82F6)
 private val FieldBorder: Color @Composable get() = LocalAppColors.current.surfaceVariant
 private val LabelGray: Color @Composable get() = LocalAppColors.current.muted
+
+private val OkGreen = Color(0xFF16A34A)
+private val ErrRed = Color(0xFFDC2626)
+
+/** 创建密码的每一条规则：label 文案 + check 判定 */
+private class PasswordRule(val label: String, val check: (String) -> Boolean)
+
+private val PasswordRules = listOf(
+    PasswordRule("必须 8-14 个字") { pwd -> pwd.length in 8..14 },
+    PasswordRule("必须包含 1 个大写字母") { pwd -> pwd.any { it.isUpperCase() } },
+    PasswordRule("必须包含 1 个小写字母") { pwd -> pwd.any { it.isLowerCase() } },
+    PasswordRule("必须包含 1 个数字") { pwd -> pwd.any { it.isDigit() } },
+    PasswordRule("必须包含 1 个特殊标点符号") { pwd -> pwd.any { c -> !c.isLetterOrDigit() && !c.isWhitespace() } },
+)
+
+/** 全部规则通过才算合法密码 */
+private fun isPasswordValid(pwd: String): Boolean = PasswordRules.all { it.check(pwd) }
 
 /** 注册页：账号资料 + KYC 认证 */
 @OptIn(ExperimentalLayoutApi::class)
@@ -94,6 +115,13 @@ fun RegisterScreen(
     var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var wechat by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmVisible by remember { mutableStateOf(false) }
+
+    val passwordOk = isPasswordValid(password)
+    val confirmMismatch = confirmPassword.isNotEmpty() && confirmPassword != password
     var icUri by remember { mutableStateOf<String?>(null) }
     var licenseUri by remember { mutableStateOf<String?>(null) }
     var passportUri by remember { mutableStateOf<String?>(null) }
@@ -102,8 +130,8 @@ fun RegisterScreen(
     val canSubmit = nickname.isNotBlank() && fullName.isNotBlank() && gender.isNotBlank() &&
         birthday.isNotBlank() && street.isNotBlank() && garden.isNotBlank() &&
         postcode.isNotBlank() && city.isNotBlank() && state.isNotBlank() &&
-        phone.isNotBlank() && email.isNotBlank() && icUri != null &&
-        licenseUri != null && passportUri != null && agreed
+        phone.isNotBlank() && email.isNotBlank() && passwordOk && !confirmMismatch &&
+        icUri != null && licenseUri != null && passportUri != null && agreed
 
     val bg = Brush.verticalGradient(listOf(LocalAppColors.current.background, LocalAppColors.current.background, LocalAppColors.current.background))
 
@@ -237,6 +265,83 @@ fun RegisterScreen(
                 value = wechat, placeholder = "选填 · 英文 / 数字 / 标点",
                 onValueChange = { wechat = sanitizeWechat(it) },
             )
+
+            SectionTitle("创建密码", required = true)
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("请输入 8-14 位密码", color = LocalAppColors.current.muted) },
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Filled.Visibility
+                            else Icons.Filled.VisibilityOff,
+                            contentDescription = "切换密码可见",
+                            tint = LocalAppColors.current.muted,
+                        )
+                    }
+                },
+                visualTransformation = if (passwordVisible) VisualTransformation.None
+                else PasswordVisualTransformation(),
+                shape = RoundedCornerShape(14.dp),
+                singleLine = true,
+                colors = fieldColors(),
+            )
+
+            // 规则逐条显示：满足打绿 ✅，不满足打红 ✖️
+            Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                PasswordRules.forEach { rule ->
+                    val ok = rule.check(password)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = if (ok) "✅" else "✖️",
+                            fontSize = 12.sp,
+                            color = if (ok) OkGreen else ErrRed,
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = rule.label,
+                            color = if (ok) OkGreen else ErrRed,
+                            fontSize = 12.sp,
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            SectionTitle("确认密码", required = true)
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("请再次输入密码", color = LocalAppColors.current.muted) },
+                trailingIcon = {
+                    IconButton(onClick = { confirmVisible = !confirmVisible }) {
+                        Icon(
+                            imageVector = if (confirmVisible) Icons.Filled.Visibility
+                            else Icons.Filled.VisibilityOff,
+                            contentDescription = "切换密码可见",
+                            tint = LocalAppColors.current.muted,
+                        )
+                    }
+                },
+                visualTransformation = if (confirmVisible) VisualTransformation.None
+                else PasswordVisualTransformation(),
+                isError = confirmMismatch,
+                shape = RoundedCornerShape(14.dp),
+                singleLine = true,
+                colors = fieldColors(),
+            )
+            if (confirmMismatch) {
+                Text(
+                    text = "确认密码与创建密码不符合",
+                    color = ErrRed,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 6.dp),
+                )
+            }
 
             Spacer(Modifier.height(10.dp))
             Text("KYC认证", fontSize = 20.sp, color = GoldLight, fontWeight = FontWeight.Bold)
