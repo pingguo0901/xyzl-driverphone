@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,7 +54,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import com.xyzl.driverphone.ExecutionStatus
+import com.xyzl.driverphone.HomeRepository
+import com.xyzl.driverphone.HomeSnapshot
+import com.xyzl.driverphone.HomeTask
+import com.xyzl.driverphone.HomeVehicle
 import com.xyzl.driverphone.LocalAppColors
+import com.xyzl.driverphone.formatHomeTimestamp
+import com.xyzl.driverphone.waDigits
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -82,8 +90,15 @@ private val WhatsAppGreen = Color(0xFF25D366)
 private val WeChatGreen = Color(0xFF07C160)
 
 @Composable
-fun HomeScreen(onOpenNotifications: () -> Unit = {}) {
-    var online by remember { mutableStateOf(false) }
+fun HomeScreen(userId: String?, onOpenNotifications: () -> Unit = {}) {
+    val repo = remember { HomeRepository() }
+    val scope = rememberCoroutineScope()
+    var snapshot by remember { mutableStateOf(HomeSnapshot()) }
+
+    // 进首页拉一次真实数据：铃铛未读 / 接单开关 / 值班车辆 / 当前任务
+    LaunchedEffect(userId) {
+        if (userId != null) snapshot = repo.load(userId)
+    }
 
     Column(
         modifier = Modifier
@@ -93,15 +108,49 @@ fun HomeScreen(onOpenNotifications: () -> Unit = {}) {
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        ScreenHeader(title = "首页", onOpenNotifications = onOpenNotifications)
+        ScreenHeader(
+            title = "首页",
+            onOpenNotifications = onOpenNotifications,
+            unreadCount = snapshot.unreadCount,
+        )
 
         GreenDivider()
 
-        OnlineStatusCard(online = online, onToggle = { online = !online })
+        OnlineStatusCard(
+            online = snapshot.isOnline,
+            onToggle = {
+                val driverId = snapshot.driverProfileId
+                if (driverId != null) {
+                    val previous = snapshot.isOnline
+                    // 先动界面（等网络回来才变色太钝），写库失败再翻回来
+                    snapshot = snapshot.copy(isOnline = !previous)
+                    scope.launch {
+                        if (!repo.setOnline(driverId, !previous)) {
+                            snapshot = snapshot.copy(isOnline = previous)
+                        }
+                    }
+                }
+            },
+        )
 
         GreenDivider()
 
-        DutyVehicleCard()
+        DutyVehicleCard(
+            vehicle = snapshot.vehicle,
+            vehicles = snapshot.vehicles,
+            onPick = { picked ->
+                val driverId = snapshot.driverProfileId
+                if (driverId != null) {
+                    val previous = snapshot.vehicle
+                    snapshot = snapshot.copy(vehicle = picked)
+                    scope.launch {
+                        if (!repo.setCurrentVehicle(driverId, picked.id)) {
+                            snapshot = snapshot.copy(vehicle = previous)
+                        }
+                    }
+                }
+            },
+        )
 
         GreenDivider()
 
@@ -112,7 +161,21 @@ fun HomeScreen(onOpenNotifications: () -> Unit = {}) {
             color = InkDark,
         )
 
-        CurrentTaskCard()
+        CurrentTaskCard(
+            task = snapshot.task,
+            onAdvance = { next ->
+                val task = snapshot.task
+                if (task != null) {
+                    val previous = task
+                    snapshot = snapshot.copy(task = task.copy(executionStatus = next))
+                    scope.launch {
+                        if (!repo.setExecutionStatus(task.orderId, next)) {
+                            snapshot = snapshot.copy(task = previous)
+                        }
+                    }
+                }
+            },
+        )
     }
 }
 
@@ -195,11 +258,14 @@ private fun OnlineStatusCard(
     }
 }
 
-/** 值班车辆卡片：显示当前值班车辆，点击可更换 */
+/** 值班车辆卡片：当前值班车辆（se_driver_profiles.current_vehicle_id），点击可更换 */
 @Composable
-private fun DutyVehicleCard() {
+private fun DutyVehicleCard(
+    vehicle: HomeVehicle?,
+    vehicles: List<HomeVehicle>,
+    onPick: (HomeVehicle) -> Unit,
+) {
     var showPicker by remember { mutableStateOf(false) }
-    var vehicle by remember { mutableStateOf("JXY 8888 · 丰田 Innova") }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -239,7 +305,7 @@ private fun DutyVehicleCard() {
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    vehicle,
+                    vehicle?.title ?: "未设置值班车辆",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = InkDark,
@@ -261,11 +327,6 @@ private fun DutyVehicleCard() {
     }
 
     if (showPicker) {
-        val vehicles = listOf(
-            "JXY 8888 · 丰田 Innova",
-            "WMB 2233 · 本田 CR-V",
-            "VKL 5566 · 日产 Serena",
-        )
         AlertDialog(
             onDismissRequest = { showPicker = false },
             containerColor = LocalAppColors.current.card,
@@ -279,15 +340,20 @@ private fun DutyVehicleCard() {
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    vehicles.forEach { v ->
-                        NavOptionRow(
-                            label = v,
-                            color = if (v == vehicle) OnlineGreen else MutedGray,
-                            onClick = {
-                                vehicle = v
-                                showPicker = false
-                            },
-                        )
+                    if (vehicles.isEmpty()) {
+                        Text("没有可用车辆", fontSize = 14.sp, color = MutedGray)
+                    } else {
+                        vehicles.forEach { item ->
+                            // 当前值班车辆 → 蓝点（NavOptionRow 左侧圆点）
+                            NavOptionRow(
+                                label = item.title,
+                                color = if (item.id == vehicle?.id) OnlineGreen else MutedGray,
+                                onClick = {
+                                    onPick(item)
+                                    showPicker = false
+                                },
+                            )
+                        }
                     }
                 }
             },
@@ -301,11 +367,13 @@ private fun DutyVehicleCard() {
     }
 }
 
-/** 当前任务卡片：接单时间 / 起终点 / 乘客联系方式 / WhatsApp微信 / 滑动确认滑块 */
+/** 当前任务卡片：接单时间 / 起终点 / 客户联系方式 / 滑块写 se_order_parents.execution_status */
 @Composable
-private fun CurrentTaskCard() {
-    var stage by remember { mutableIntStateOf(0) } // 0=接人 1=放人 2=完成
-    var navAddress by remember { mutableStateOf<String?>(null) } // 待导航地址（null=关闭弹窗）
+private fun CurrentTaskCard(
+    task: HomeTask?,
+    onAdvance: (String) -> Unit,
+) {
+    var navAddress by remember { mutableStateOf<String?>(null) }
 
     Card(
         modifier = Modifier
@@ -321,55 +389,71 @@ private fun CurrentTaskCard() {
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(Modifier.padding(20.dp)) {
-            // 接单时间
-            InfoRow("接单时间", "14/10/2026 14:30")
-
-            Spacer(Modifier.height(16.dp))
-            HorizontalDivider(color = DividerGray, thickness = 1.dp)
-
-            // 起点
-            Spacer(Modifier.height(16.dp))
-            FieldWithAction(
-                label = "起点",
-                value = "吉隆坡国际机场",
-                onAction = { navAddress = "吉隆坡国际机场" },
-            )
-
-            Spacer(Modifier.height(14.dp))
-
-            // 目的地
-            FieldWithAction(
-                label = "目的地",
-                value = "武吉免登",
-                onAction = { navAddress = "武吉免登" },
-            )
-
-            Spacer(Modifier.height(16.dp))
-            HorizontalDivider(color = DividerGray, thickness = 1.dp)
-
-            // 乘客联系方式：名称 · WhatsApp号码 / 名称 · 微信号（按钮同行）
-            Spacer(Modifier.height(16.dp))
-            ContactRow(
-                text = "张先生 · +60 12-345 6789",
-                isWhatsApp = true,
-                onClick = { openUrl("https://wa.me/60123456789?text=Hi%2C%20I%20am%20driver.") },
-            )
-            Spacer(Modifier.height(10.dp))
-            ContactRow(
-                text = "张先生 · wxid_zhang888",
-                isWhatsApp = false,
-                onClick = { openUrl("weixin://") },
-            )
-
-            // 滑动确认滑块
-            Spacer(Modifier.height(16.dp))
-            if (stage >= 2) {
-                CompletedBar()
-            } else {
-                SlideToConfirmBar(
-                    label = if (stage == 0) "滑动确认接人" else "滑动确认放人",
-                    onConfirm = { stage++ },
+            if (task == null) {
+                Text(
+                    "暂无进行中的任务",
+                    fontSize = 15.sp,
+                    color = MutedGray,
                 )
+            } else {
+                val status = task.executionStatus
+                val name = task.customerName ?: "客户"
+                val waNumber = waDigits(task.customerWhatsapp ?: task.customerPhone)
+
+                InfoRow("接单时间", formatHomeTimestamp(task.acceptedAt) ?: "—")
+
+                Spacer(Modifier.height(16.dp))
+                HorizontalDivider(color = DividerGray, thickness = 1.dp)
+
+                Spacer(Modifier.height(16.dp))
+                FieldWithAction(
+                    label = "起点",
+                    value = task.pickup ?: "—",
+                    onAction = { task.pickup?.let { navAddress = it } },
+                )
+
+                Spacer(Modifier.height(14.dp))
+
+                FieldWithAction(
+                    label = "目的地",
+                    value = task.dropoff ?: "—",
+                    onAction = { task.dropoff?.let { navAddress = it } },
+                )
+
+                Spacer(Modifier.height(16.dp))
+                HorizontalDivider(color = DividerGray, thickness = 1.dp)
+
+                // 客户：名称 · 电话 / 名称 · 微信号（品牌按钮同行）
+                Spacer(Modifier.height(16.dp))
+                ContactRow(
+                    text = name + " · " + (task.customerPhone ?: "未填电话"),
+                    isWhatsApp = true,
+                    onClick = {
+                        if (waNumber != null) openUrl("https://wa.me/" + waNumber)
+                    },
+                )
+                Spacer(Modifier.height(10.dp))
+                ContactRow(
+                    text = name + " · " + (task.customerWechat ?: "未填微信"),
+                    isWhatsApp = false,
+                    onClick = { openUrl("weixin://") },
+                )
+
+                // 滑块：待完成/迟到 → 进行中；超时/进行中 → 已完成
+                Spacer(Modifier.height(16.dp))
+                when {
+                    status == ExecutionStatus.DONE -> CompletedBar()
+                    status == ExecutionStatus.OVERDUE || status == ExecutionStatus.ONGOING ->
+                        SlideToConfirmBar(
+                            label = "滑动确认放人",
+                            onConfirm = { onAdvance(ExecutionStatus.DONE) },
+                        )
+                    else ->
+                        SlideToConfirmBar(
+                            label = "滑动确认接人",
+                            onConfirm = { onAdvance(ExecutionStatus.ONGOING) },
+                        )
+                }
             }
         }
     }

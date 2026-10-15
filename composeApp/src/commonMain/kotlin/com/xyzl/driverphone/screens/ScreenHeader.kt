@@ -36,6 +36,7 @@ fun ScreenHeader(
     title: String,
     onOpenNotifications: () -> Unit,
     modifier: Modifier = Modifier,
+    unreadCount: Int? = null,
     extraEnd: @Composable () -> Unit = {},
 ) {
     Box(modifier.fillMaxWidth().height(44.dp)) {
@@ -69,7 +70,7 @@ fun ScreenHeader(
                         modifier = Modifier.size(20.dp),
                     )
                 }
-                val unread = ChatListStore.totalUnread()
+                val unread = unreadCount ?: ChatListStore.totalUnread()
                 if (unread > 0) {
                     Box(
                         modifier = Modifier

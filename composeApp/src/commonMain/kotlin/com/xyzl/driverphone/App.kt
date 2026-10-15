@@ -481,7 +481,10 @@ fun App(
                     .hazeSource(state = hazeState)
             ) {
                 when (selectedTab) {
-                    AppTab.Home -> HomeScreen(onOpenNotifications = { showNotifications = true })
+                    AppTab.Home -> HomeScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                        onOpenNotifications = { showNotifications = true },
+                    )
                     AppTab.Trips -> TripsScreen(onOpenNotifications = { showNotifications = true })
                     AppTab.Chat -> ChatScreen(
                         onOpenNotifications = { showNotifications = true },
