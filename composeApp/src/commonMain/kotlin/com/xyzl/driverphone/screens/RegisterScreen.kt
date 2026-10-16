@@ -39,6 +39,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -102,6 +103,7 @@ fun RegisterScreen(
     onBack: () -> Unit = {},
     onSubmit: suspend (RegisterPayload) -> Result<RegisterResult> = { Result.success(RegisterResult("", null)) },
     onRegistered: () -> Unit = {},
+    onSubmittingChange: (Boolean) -> Unit = {},
     onPickBirthday: (onPicked: (String) -> Unit) -> Unit = {},
     onPickImage: (source: ImageSource, onPicked: (String) -> Unit) -> Unit = { _, _ -> },
     onOpenPolicy: (Int) -> Unit = {},
@@ -130,6 +132,12 @@ fun RegisterScreen(
     var submitting by remember { mutableStateOf(false) }
     var errorMsg by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
+
+    // 万一注册页被销毁，别把「注册中」旗子一直举着（举着会导致永远进不了首页）
+    DisposableEffect(Unit) {
+        onDispose { onSubmittingChange(false) }
+    }
+
     var icUri by remember { mutableStateOf<String?>(null) }
     var licenseUri by remember { mutableStateOf<String?>(null) }
     var passportUri by remember { mutableStateOf<String?>(null) }
@@ -419,6 +427,7 @@ fun RegisterScreen(
                 onClick = {
                     errorMsg = null
                     submitting = true
+                    onSubmittingChange(true)
                     scope.launch {
                         val result = onSubmit(
                             RegisterPayload(
@@ -442,6 +451,7 @@ fun RegisterScreen(
                             )
                         )
                         submitting = false
+                        onSubmittingChange(false)
                         result
                             .onSuccess { onRegistered() }
                             .onFailure { errorMsg = it.message ?: "注册失败，请重试" }

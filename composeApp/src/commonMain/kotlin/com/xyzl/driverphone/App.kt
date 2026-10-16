@@ -152,6 +152,9 @@ fun App(
         var showLogin by remember { mutableStateOf(false) }
         var authError by remember { mutableStateOf<String?>(null) }
         var showRegisterSuccess by remember { mutableStateOf(false) }
+        // 注册进行中：会话可能已到手，但业务档案还没写完 —— 先别当成已登录，
+        // 否则注册页会被换掉，注册协程被取消，档案就永远写不进去
+        var registering by remember { mutableStateOf(false) }
         var showRegister by remember { mutableStateOf(false) }
         var showPolicy by remember { mutableStateOf(false) }
         var preAuthPolicy by remember { mutableStateOf(-1) }
@@ -159,7 +162,7 @@ fun App(
         val authRepository = remember { AuthRepository() }
         val authStateFlow = remember { authRepository.observeAuthState() }
         val authState by authStateFlow.collectAsState(initial = AuthState.Loading)
-        val loggedIn = authState is AuthState.Authenticated
+        val loggedIn = authState is AuthState.Authenticated && !registering
 
         // 铃铛红点：绑定当前用户 + 拉一次真实未读通知数
         LaunchedEffect(authState) {
@@ -399,6 +402,7 @@ fun App(
                     showRegister -> RegisterScreen(
                         onBack = { showRegister = false; showEntry = true },
                         onSubmit = { payload -> authRepository.registerFull(payload) },
+                        onSubmittingChange = { registering = it },
                         onRegistered = {
                             showRegister = false
                             showRegisterSuccess = true

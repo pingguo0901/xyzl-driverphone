@@ -282,6 +282,14 @@ class AuthRepository(
             passportUri = payload.passportUri,
         )
 
+        // 会话先于档案到位：刷新一次，让登录态重新取 primary_role（不刷新会带着 null）
+        try {
+            supabase.auth.refreshCurrentSession()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (ignored: Exception) {
+        }
+
         return RegisterResult(userId = userId, accountId = accountId, kycFailures = failures)
     }
 
