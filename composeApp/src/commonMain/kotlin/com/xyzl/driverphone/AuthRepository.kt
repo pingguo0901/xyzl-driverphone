@@ -210,6 +210,47 @@ class AuthRepository(
         response
     }
 
+    // ---------------------------------------------------------- RPC：register_driver（注册页真正该用的那个）
+    /**
+     * 注册页唯一写档案入口：把注册页所有必填字段【一次性】交给 register_driver，单事务落库。
+     * register_driver 按「有没有邀请码」自己判断角色 ——
+     *   无码 → personal（写 se_personal_profiles），有码 → driver（写 se_driver_profiles），
+     * 性别 / 生日 / 门牌及街道 / 花园 / 邮编 / 城市 / 州属 全部由 RPC 直接写进去。
+     * 失败一律 RAISE EXCEPTION（不会返回 success:false）→ 这里再兜一层，原文抛给注册页显示。
+     */
+    suspend fun registerDriver(
+        userId: String,
+        payload: RegisterPayload,
+    ): Result<JsonElement> = apiCall {
+        val response: JsonElement = supabase.postgrest.rpc(
+            function = "register_driver",
+            parameters = buildJsonObject {
+                put("p_user_id", userId)
+                put("p_email", payload.email.trim())
+                put("p_nickname", payload.nickname)
+                put("p_full_name", payload.fullName)
+                putBlankAsNull("p_gender", payload.gender)
+                putBlankAsNull("p_birthday", payload.birthday)   // date 列：空串会报错，必须传 null
+                putBlankAsNull("p_addr_line1", payload.street)
+                putBlankAsNull("p_garden", payload.garden)
+                putBlankAsNull("p_postcode", payload.postcode)
+                putBlankAsNull("p_city", payload.city)
+                putBlankAsNull("p_state", payload.state)
+                putBlankAsNull("p_phone", payload.phone)
+                putBlankAsNull("p_wechat_id", payload.wechatId)
+                val code = payload.inviteCode
+                if (code.isNullOrBlank()) put("p_invite_code", JsonNull)
+                else put("p_invite_code", code.trim())
+            },
+        ).decodeAs<JsonElement>()
+        val success = (response as? JsonObject)
+            ?.get("success")
+            ?.let { (it as? JsonPrimitive)?.booleanOrNull }
+            ?: false
+        if (!success) throw IllegalStateException("注册资料写入失败：" + response.toString())
+        response
+    }
+
     // ---------------------------------------------------------- 一步注册（注册页用这个）
     /** signUp → register_user → 补齐档案字段 → 上传 KYC 证件照 */
     suspend fun registerFull(payload: RegisterPayload): Result<RegisterResult> = apiCall {
@@ -232,13 +273,11 @@ class AuthRepository(
 
         // 业务档案已经存在（上次写到一半 / 重复提交）→ 不再重复建号建档案，只把字段补齐
         val hasProfile = userRowExists(userId)
-        val rpc: JsonElement? = if (hasProfile) null else registerUser(
+        // 注册页必填字段一次性交给 register_driver（单事务写进 se_personal_profiles / se_driver_profiles，
+        // 不再依赖"建号后补一次 update"——那一步会被取消/超时打断，字段就留 NULL）
+        val rpc: JsonElement? = if (hasProfile) null else registerDriver(
             userId = userId,
-            email = payload.email,
-            fullName = payload.fullName,
-            phone = payload.phone,
-            role = payload.role,
-            inviteCode = payload.inviteCode,
+            payload = payload,
         ).getOrElse { throw it }
         val accountId = (rpc as? JsonObject)?.get("account_id")?.jsonPrimitive?.contentOrNull
             ?: ownerAccountId(userId)

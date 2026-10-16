@@ -131,6 +131,7 @@ fun RegisterScreen(
     val confirmMismatch = confirmPassword.isNotEmpty() && confirmPassword != password
     var submitting by remember { mutableStateOf(false) }
     var errorMsg by remember { mutableStateOf<String?>(null) }
+    var showRequiredHint by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     // 万一注册页被销毁，别把「注册中」旗子一直举着（举着会导致永远进不了首页）
@@ -148,6 +149,27 @@ fun RegisterScreen(
         postcode.isNotBlank() && city.isNotBlank() && state.isNotBlank() &&
         phone.isNotBlank() && email.isNotBlank() && passwordOk && !confirmMismatch &&
         icUri != null && licenseUri != null && passportUri != null && agreed
+
+    // 必填项清单（顺序与页面一致）→ 提交时缺哪项就用红字点名
+    val missingRequired = buildList {
+        if (nickname.isBlank()) add("昵称")
+        if (fullName.isBlank()) add("姓名")
+        if (gender.isBlank()) add("性别")
+        if (birthday.isBlank()) add("生日日期")
+        if (street.isBlank()) add("门牌及街道")
+        if (garden.isBlank()) add("花园")
+        if (postcode.isBlank()) add("邮编")
+        if (city.isBlank()) add("城市")
+        if (state.isBlank()) add("州属")
+        if (phone.isBlank()) add("手机号")
+        if (email.isBlank()) add("邮箱")
+        if (!passwordOk) add("密码（未达标）")
+        if (confirmMismatch) add("两次密码不一致")
+        if (icUri == null) add("身份证照片")
+        if (licenseUri == null) add("驾照照片")
+        if (passportUri == null) add("护照照片")
+        if (!agreed) add("勾选协议")
+    }
 
     val bg = Brush.verticalGradient(listOf(LocalAppColors.current.background, LocalAppColors.current.background, LocalAppColors.current.background))
 
@@ -412,6 +434,15 @@ fun RegisterScreen(
                 }
             }
 
+            if (showRequiredHint && missingRequired.isNotEmpty()) {
+                Text(
+                    text = "⚠️ 还有必填项没填：" + missingRequired.joinToString("、"),
+                    color = ErrRed,
+                    fontSize = 14.sp,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                )
+            }
+
             if (errorMsg != null) {
                 Text(
                     text = errorMsg ?: "",
@@ -426,9 +457,15 @@ fun RegisterScreen(
             Button(
                 onClick = {
                     errorMsg = null
-                    submitting = true
-                    onSubmittingChange(true)
                     scope.launch {
+                        // 必填项没填全 → 红字点名拦住，不提交
+                        if (!canSubmit) {
+                            showRequiredHint = true
+                            return@launch
+                        }
+                        showRequiredHint = false
+                        submitting = true
+                        onSubmittingChange(true)
                         val result = onSubmit(
                             RegisterPayload(
                                 email = email,
@@ -457,7 +494,7 @@ fun RegisterScreen(
                             .onFailure { errorMsg = it.message ?: "注册失败，请重试" }
                     }
                 },
-                enabled = canSubmit && !submitting,
+                enabled = !submitting,
                 modifier = Modifier.fillMaxWidth().height(54.dp),
                 shape = RoundedCornerShape(999.dp),
                 colors = ButtonDefaults.buttonColors(
