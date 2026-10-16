@@ -71,11 +71,73 @@ class AuthRepository(
 
     // ---------------------------------------------------------- 注册：只建 Auth 账号
     suspend fun signUp(email: String, password: String): Result<String> = apiCall {
-        val user: UserInfo = supabase.auth.signUpWith(Email) {
-            this.email = email.trim()
-            this.password = password
-        } ?: throw IllegalStateException("注册失败：Supabase 未返回用户（若后台开了邮箱确认，请先关闭）")
-        user.id
+        ensureAuthUser(email, password)
+    }
+
+    /**
+     * 拿到（必要时创建）Auth 账号的 userId —— 幂等，能自愈：
+     * ① 先 signUp；
+     * ② 没拿到用户（邮箱已注册 / 上次注册只建了 Auth 没写业务表 / 返回体没有 user）→ 用同样的邮箱+密码登录一次；
+     * ③ 已经登录且邮箱对得上 → 直接用当前会话。
+     * 只有三种都失败才报错，绝不因为 Auth 层的小状况把用户卡死在注册页。
+     */
+    private suspend fun ensureAuthUser(email: String, password: String): String {
+        val target = email.trim()
+        var signUpError: Throwable? = null
+        val created = try {
+            supabase.auth.signUpWith(Email) {
+                this.email = target
+                this.password = password
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            signUpError = e
+            null
+        }
+        created?.id?.let { return it }
+
+        supabase.auth.currentUserOrNull()
+            ?.takeIf { it.email?.equals(target, ignoreCase = true) == true }
+            ?.let { return it.id }
+
+        try {
+            supabase.auth.signInWith(Email) {
+                this.email = target
+                this.password = password
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            throw IllegalStateException(friendlySignUpError(signUpError, e), e)
+        }
+        val signedIn = supabase.auth.currentUserOrNull()
+        if (signedIn != null && signedIn.email?.equals(target, ignoreCase = true) == true) return signedIn.id
+        throw IllegalStateException("注册失败：拿不到登录状态，请重试")
+    }
+
+    /** 这个用户在业务表 se_users 里有没有档案（用来判断是不是「注册写到一半」） */
+    private suspend fun userRowExists(userId: String): Boolean = try {
+        supabase.postgrest.from("se_users")
+            .select(Columns.list("id")) { filter { eq("id", userId) } }
+            .decodeList<JsonObject>()
+            .isNotEmpty()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        false
+    }
+
+    /** 已有档案时补拿 account_id（自己开的号自己就是 owner） */
+    private suspend fun ownerAccountId(userId: String): String? = try {
+        supabase.postgrest.from("se_accounts")
+            .select(Columns.list("id")) { filter { eq("owner_user_id", userId) } }
+            .decodeList<JsonObject>()
+            .firstOrNull()?.get("id")?.jsonPrimitive?.contentOrNull
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        null
     }
 
     // ---------------------------------------------------------- 登录 / 退出
@@ -151,9 +213,26 @@ class AuthRepository(
     // ---------------------------------------------------------- 一步注册（注册页用这个）
     /** signUp → register_user → 补齐档案字段 → 上传 KYC 证件照 */
     suspend fun registerFull(payload: RegisterPayload): Result<RegisterResult> = apiCall {
-        val userId = signUp(payload.email, payload.password).getOrElse { throw it }
+        try {
+            finishRegistration(payload)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // 业务表没写完就不把人放进首页：退掉会话，停在注册页重试（重试会自动补完）
+            try {
+                supabase.auth.signOut()
+            } catch (ignored: Exception) {
+            }
+            throw e
+        }
+    }
 
-        val rpc = registerUser(
+    private suspend fun finishRegistration(payload: RegisterPayload): RegisterResult {
+        val userId = ensureAuthUser(payload.email, payload.password)
+
+        // 业务档案已经存在（上次写到一半 / 重复提交）→ 不再重复建号建档案，只把字段补齐
+        val hasProfile = userRowExists(userId)
+        val rpc: JsonElement? = if (hasProfile) null else registerUser(
             userId = userId,
             email = payload.email,
             fullName = payload.fullName,
@@ -162,6 +241,7 @@ class AuthRepository(
             inviteCode = payload.inviteCode,
         ).getOrElse { throw it }
         val accountId = (rpc as? JsonObject)?.get("account_id")?.jsonPrimitive?.contentOrNull
+            ?: ownerAccountId(userId)
 
         // ① se_users：昵称 / 手机 / 邮箱 / 微信号（性别生日也存一份）
         supabase.postgrest.from("se_users").update(
@@ -202,7 +282,7 @@ class AuthRepository(
             passportUri = payload.passportUri,
         )
 
-        RegisterResult(userId = userId, accountId = accountId, kycFailures = failures)
+        return RegisterResult(userId = userId, accountId = accountId, kycFailures = failures)
     }
 
     // ---------------------------------------------------------- KYC 证件照
@@ -335,6 +415,14 @@ class AuthRepository(
  * 认证/登录失败一律给用户看短句，不暴露底层错误码与原始报文。
  * Auth 找不到该用户 / 密码不匹配 → 「账号与密码错误」
  */
+fun friendlySignUpError(signUpError: Throwable?, signInError: Throwable): String {
+    val su = (signUpError?.message ?: "").lowercase()
+    if (su.contains("already") || su.contains("exists")) {
+        return "该邮箱已注册，但密码对不上。如果你就是本人，请直接登录；忘记密码可以点「忘记密码」。"
+    }
+    return friendlyLoginError(signInError)
+}
+
 fun friendlyLoginError(e: Throwable): String {
     val m = (e.message ?: "").lowercase()
     return when {
