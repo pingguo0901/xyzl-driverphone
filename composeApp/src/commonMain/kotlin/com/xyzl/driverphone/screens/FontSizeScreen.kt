@@ -32,13 +32,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.AppFontStore
 import kotlin.math.roundToInt
 
-/** 设置字体大小页：虚拟聊天预览 + 7 档滑块 */
+/** 设置字体大小页：虚拟聊天预览 + 7 档滑块（全局 LocalDensity.fontScale 立即生效） */
 @Composable
 fun FontSizeScreen(onBack: () -> Unit = {}) {
-    var level by remember { mutableStateOf(DisplayPrefs.fontSizeLevel) }
-    val previewSize: TextUnit = (12 + level * 2).sp
+    var level by remember { mutableStateOf(AppFontStore.level) }
+    val previewSize: TextUnit = (14f * AppFontStore.scale).sp
 
     Column(
         Modifier
@@ -49,10 +50,7 @@ fun FontSizeScreen(onBack: () -> Unit = {}) {
         FormPageHeaderCancelDone(
             title = "字体大小",
             onCancel = onBack,
-            onDone = {
-                DisplayPrefs.fontSizeLevel = level
-                onBack()
-            },
+            onDone = { AppFontStore.set(level); onBack() },
         )
         Spacer(Modifier.height(16.dp))
 
@@ -61,11 +59,16 @@ fun FontSizeScreen(onBack: () -> Unit = {}) {
         Spacer(Modifier.height(14.dp))
         FormNote("拖动下面的滑块，可设置字体大小。设置后，会改变聊天和应用全部的字体大小。如果在使用过程中存在问题或意见，可反馈给官方团队。")
 
-        // 字体大小档位：固定在最底部
         Spacer(Modifier.height(14.dp))
         Slider(
             value = level.toFloat(),
-            onValueChange = { level = it.roundToInt().coerceIn(1, 7) },
+            onValueChange = {
+                val next = it.roundToInt().coerceIn(1, 7)
+                if (next != level) {
+                    level = next
+                    AppFontStore.set(next) // 立即生效 + 持久化
+                }
+            },
             valueRange = 1f..7f,
             steps = 5,
             colors = SliderDefaults.colors(
@@ -94,7 +97,6 @@ private fun FontPreview(fontSize: TextUnit, modifier: Modifier = Modifier) {
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        // 我方
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             Box(
                 Modifier
@@ -108,7 +110,6 @@ private fun FontPreview(fontSize: TextUnit, modifier: Modifier = Modifier) {
             Spacer(Modifier.width(8.dp))
             Avatar("我", FormGreen)
         }
-        // 对方
         Row(Modifier.fillMaxWidth()) {
             Avatar("对", FormChip, FormInk)
             Spacer(Modifier.width(8.dp))

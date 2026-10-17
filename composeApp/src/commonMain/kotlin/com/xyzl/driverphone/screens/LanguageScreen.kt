@@ -16,13 +16,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.xyzl.driverphone.AppLanguage
+import com.xyzl.driverphone.AppLanguageStore
+import com.xyzl.driverphone.LocalStrings
 
-private val LanguageOptions = listOf("中文", "英文")
-
-/** 设置语言页：左上角取消 + 右上角完成 + 语言列表（选中右侧绿色打勾） */
+/** 设置语言页：中文 / 英文，选择后全局文案立即切换 */
 @Composable
 fun LanguageScreen(onBack: () -> Unit = {}) {
-    var selected by remember { mutableStateOf(DisplayPrefs.language) }
+    val strings = LocalStrings.current
+    var selected by remember { mutableStateOf(AppLanguageStore.language) }
 
     Column(
         Modifier
@@ -32,23 +34,23 @@ fun LanguageScreen(onBack: () -> Unit = {}) {
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
         FormPageHeaderCancelDone(
-            title = "多语言",
+            title = strings.language,
             onCancel = onBack,
             onDone = {
-                DisplayPrefs.language = selected
+                AppLanguageStore.set(selected)
                 onBack()
             },
         )
         Spacer(Modifier.height(16.dp))
 
         FormGroup {
-            LanguageOptions.forEachIndexed { index, option ->
+            AppLanguage.entries.forEachIndexed { index, option ->
                 FormCheckRow(
-                    label = option,
+                    label = if (option == AppLanguage.ZH) "中文" else "English",
                     selected = selected == option,
                     onClick = { selected = option },
                 )
-                if (index != LanguageOptions.lastIndex) {
+                if (index != AppLanguage.entries.lastIndex) {
                     HorizontalDivider(color = FormDivide, thickness = 1.dp)
                 }
             }

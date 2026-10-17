@@ -9,20 +9,34 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.xyzl.driverphone.PreferencesRepository
+import com.xyzl.driverphone.UserPreferences
+import kotlinx.coroutines.launch
 
-/** 聊天设置页 */
+/** 聊天设置页（读写 se_notification_preferences） */
 @Composable
-fun ChatSettingsScreen(onBack: () -> Unit = {}) {
-    var earpiece by remember { mutableStateOf(true) }
-    var separateSend by remember { mutableStateOf(false) }
-    var autoDownload by remember { mutableStateOf(true) }
-    var keepOriginal by remember { mutableStateOf(false) }
+fun ChatSettingsScreen(onBack: () -> Unit = {}, userId: String? = null) {
+    val repo = remember { PreferencesRepository() }
+    val scope = rememberCoroutineScope()
+    var prefs by remember { mutableStateOf(UserPreferences()) }
+
+    LaunchedEffect(userId) {
+        if (userId != null) prefs = repo.load(userId)
+    }
+
+    fun save(next: UserPreferences) {
+        prefs = next
+        val uid = userId ?: return
+        scope.launch { repo.save(uid, next) }
+    }
 
     Column(
         Modifier
@@ -37,8 +51,8 @@ fun ChatSettingsScreen(onBack: () -> Unit = {}) {
         FormGroup {
             FormSwitchRow(
                 label = "使用听筒播放消息",
-                checked = earpiece,
-                onCheckedChange = { earpiece = it },
+                checked = prefs.chatUseEarpiece,
+                onCheckedChange = { save(prefs.copy(chatUseEarpiece = it)) },
             )
         }
 
@@ -46,8 +60,8 @@ fun ChatSettingsScreen(onBack: () -> Unit = {}) {
         FormGroup {
             FormSwitchRow(
                 label = "使用独立的发送按钮",
-                checked = separateSend,
-                onCheckedChange = { separateSend = it },
+                checked = prefs.chatUseStandaloneSend,
+                onCheckedChange = { save(prefs.copy(chatUseStandaloneSend = it)) },
             )
         }
         Spacer(Modifier.height(8.dp))
@@ -57,8 +71,8 @@ fun ChatSettingsScreen(onBack: () -> Unit = {}) {
         FormGroup {
             FormSwitchRow(
                 label = "自动下载在其他设备查看过的内容",
-                checked = autoDownload,
-                onCheckedChange = { autoDownload = it },
+                checked = prefs.chatAutoDownloadViewed,
+                onCheckedChange = { save(prefs.copy(chatAutoDownloadViewed = it)) },
             )
         }
         Spacer(Modifier.height(8.dp))
@@ -68,12 +82,12 @@ fun ChatSettingsScreen(onBack: () -> Unit = {}) {
         FormGroup {
             FormSwitchRow(
                 label = "保留查看过的原图、原视频",
-                checked = keepOriginal,
-                onCheckedChange = { keepOriginal = it },
+                checked = prefs.chatKeepOriginalMedia,
+                onCheckedChange = { save(prefs.copy(chatKeepOriginalMedia = it)) },
             )
         }
         Spacer(Modifier.height(8.dp))
-        FormNote("开启后，保留「已发送」和「已接收并查看」的原图原视频在 WeChat。开启前的原图原视频不受影响。")
+        FormNote("开启后，保留「已发送」和「已接收并查看」的原图原视频。开启前的原图原视频不受影响。")
 
         Spacer(Modifier.height(110.dp))
     }

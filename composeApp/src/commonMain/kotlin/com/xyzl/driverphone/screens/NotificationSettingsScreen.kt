@@ -14,24 +14,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.xyzl.driverphone.PermissionScene
+import com.xyzl.driverphone.PreferencesRepository
+import com.xyzl.driverphone.UserPreferences
 import com.xyzl.driverphone.requestScenePermission
+import kotlinx.coroutines.launch
 
-/** 通知设置页：司机端未打开时 / 司机端打开时 */
+/** 通知设置页：司机端未打开时 / 司机端打开时（读写 se_notification_preferences） */
 @Composable
-fun NotificationSettingsScreen(onBack: () -> Unit = {}) {
-    var systemMessage by remember { mutableStateOf(true) }
-    var callWhenClosed by remember { mutableStateOf(true) }
-    var inAppBanner by remember { mutableStateOf(true) }
-    var messageSound by remember { mutableStateOf(true) }
-    var callWhenOpen by remember { mutableStateOf(true) }
-    var vibrate by remember { mutableStateOf(true) }
+fun NotificationSettingsScreen(onBack: () -> Unit = {}, userId: String? = null) {
+    val repo = remember { PreferencesRepository() }
+    val scope = rememberCoroutineScope()
+    var prefs by remember { mutableStateOf(UserPreferences()) }
 
+    LaunchedEffect(userId) {
+        if (userId != null) prefs = repo.load(userId)
+    }
     // 进通知设置时申请通知权限（Android 13+ 才需要）
     LaunchedEffect(Unit) { requestScenePermission(PermissionScene.Notification) }
+
+    fun save(next: UserPreferences) {
+        prefs = next
+        val uid = userId ?: return
+        scope.launch { repo.save(uid, next) }
+    }
 
     Column(
         Modifier
@@ -47,14 +57,14 @@ fun NotificationSettingsScreen(onBack: () -> Unit = {}) {
         FormGroup {
             FormSwitchRow(
                 label = "系统消息通知",
-                checked = systemMessage,
-                onCheckedChange = { systemMessage = it },
+                checked = prefs.systemMessage,
+                onCheckedChange = { save(prefs.copy(systemMessage = it)) },
             )
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
             FormSwitchRow(
                 label = "语音通话通知",
-                checked = callWhenClosed,
-                onCheckedChange = { callWhenClosed = it },
+                checked = prefs.voiceCall,
+                onCheckedChange = { save(prefs.copy(voiceCall = it)) },
             )
         }
 
@@ -63,26 +73,26 @@ fun NotificationSettingsScreen(onBack: () -> Unit = {}) {
         FormGroup {
             FormSwitchRow(
                 label = "司机端内消息横幅",
-                checked = inAppBanner,
-                onCheckedChange = { inAppBanner = it },
+                checked = prefs.inAppBanner,
+                onCheckedChange = { save(prefs.copy(inAppBanner = it)) },
             )
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
             FormSwitchRow(
                 label = "消息提示音",
-                checked = messageSound,
-                onCheckedChange = { messageSound = it },
+                checked = prefs.messageSound,
+                onCheckedChange = { save(prefs.copy(messageSound = it)) },
             )
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
             FormSwitchRow(
                 label = "语音通话通知",
-                checked = callWhenOpen,
-                onCheckedChange = { callWhenOpen = it },
+                checked = prefs.voiceCall,
+                onCheckedChange = { save(prefs.copy(voiceCall = it)) },
             )
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
             FormSwitchRow(
                 label = "振动",
-                checked = vibrate,
-                onCheckedChange = { vibrate = it },
+                checked = prefs.vibrate,
+                onCheckedChange = { save(prefs.copy(vibrate = it)) },
             )
         }
 

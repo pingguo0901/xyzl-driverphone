@@ -132,6 +132,14 @@ enum class AppTab(val label: String) {
     Profile("我"),
 }
 
+private fun tabLabel(tab: AppTab, strings: AppStrings): String = when (tab) {
+    AppTab.Home -> strings.tabHome
+    AppTab.Trips -> strings.tabTrips
+    AppTab.Chat -> strings.tabChat
+    AppTab.Finance -> strings.tabFinance
+    AppTab.Profile -> strings.tabProfile
+}
+
 private fun tabIcon(tab: AppTab): ImageVector = when (tab) {
     AppTab.Home -> Icons.Filled.Home
     AppTab.Trips -> Icons.Filled.DirectionsCar
@@ -781,7 +789,10 @@ fun App(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    NotificationSettingsScreen(onBack = { showNotificationSettings = false })
+                    NotificationSettingsScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                        onBack = { showNotificationSettings = false },
+                    )
                 }
             }
 
@@ -845,6 +856,7 @@ fun App(
                     TranslationScreen(
                         onBack = { showTranslation = false },
                         onOpenTranslateTo = { showTranslateTo = true },
+                        userId = (authState as? AuthState.Authenticated)?.userId,
                     )
                 }
             }
@@ -856,7 +868,10 @@ fun App(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    TranslateToScreen(onBack = { showTranslateTo = false })
+                    TranslateToScreen(
+                        onBack = { showTranslateTo = false },
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                    )
                 }
             }
 
@@ -867,7 +882,10 @@ fun App(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    ChatSettingsScreen(onBack = { showChatSettings = false })
+                    ChatSettingsScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                        onBack = { showChatSettings = false },
+                    )
                 }
             }
 
@@ -878,7 +896,10 @@ fun App(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    ChatRecordsScreen(onBack = { showChatRecords = false })
+                    ChatRecordsScreen(
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                        onBack = { showChatRecords = false },
+                    )
                 }
             }
 
@@ -1115,6 +1136,7 @@ private fun CapsuleBottomBar(
     hazeState: HazeState,
     modifier: Modifier = Modifier,
 ) {
+    val strings = LocalStrings.current
     val density = LocalDensity.current
     val itemPositions = remember { mutableStateMapOf<AppTab, IntOffset>() }
     val itemWidths = remember { mutableStateMapOf<AppTab, Int>() }
@@ -1179,6 +1201,7 @@ private fun CapsuleBarItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val strings = LocalStrings.current
     val contentColor = if (selected) LocalAppColors.current.ink else LocalAppColors.current.muted
 
     Row(
@@ -1193,14 +1216,14 @@ private fun CapsuleBarItem(
     ) {
         Icon(
             imageVector = tabIcon(tab),
-            contentDescription = tab.label,
+            contentDescription = tabLabel(tab, strings),
             tint = contentColor,
             modifier = Modifier.size(22.dp),
         )
         if (selected) {
             Spacer(Modifier.width(6.dp))
             Text(
-                text = tab.label,
+                text = tabLabel(tab, strings),
                 color = contentColor,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,

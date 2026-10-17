@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.xyzl.driverphone.screens.DisplayPrefs
 
@@ -153,7 +155,14 @@ private val AppShapes = Shapes(
 @Composable
 fun DriverPhoneTheme(content: @Composable () -> Unit) {
     val dark = if (DisplayPrefs.followSystem) isSystemInDarkTheme() else DisplayPrefs.darkMode
-    CompositionLocalProvider(LocalAppColors provides if (dark) DarkAppColors else LightAppColors) {
+    val baseDensity = LocalDensity.current
+    val language = AppLanguageStore.language
+    CompositionLocalProvider(
+        LocalAppColors provides if (dark) DarkAppColors else LightAppColors,
+        LocalDensity provides Density(baseDensity.density, AppFontStore.scale),
+        LocalStrings provides appStrings(language),
+        LocalAppLanguage provides language,
+    ) {
         MaterialTheme(
             colorScheme = if (dark) DarkScheme else LightScheme,
             shapes = AppShapes,

@@ -20,12 +20,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.exportChatRecordsPdf
 
-/** 聊天记录管理页：清空 / 导出全部聊天记录 */
+/** 聊天记录管理页：导出 PDF / 清空本地聊天记录 */
 @Composable
-fun ChatRecordsScreen(onBack: () -> Unit = {}) {
+fun ChatRecordsScreen(onBack: () -> Unit = {}, userId: String? = null) {
+    val strings = LocalStrings.current
     var confirmClear by remember { mutableStateOf(false) }
-    var showExported by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf<String?>(null) }
+    var messageTitle by remember { mutableStateOf("") }
+
+    fun allLines(): List<String> {
+        val lines = mutableListOf<String>()
+        ChatListStore.driver.forEach { lines += "[" + it.time + "] " + it.name + ": " + it.message }
+        ChatListStore.official.forEach { lines += "[" + it.time + "] " + it.name + ": " + it.message }
+        ChatStore.messages.forEach { msg ->
+            val body = when (val b = msg.body) {
+                is ChatBody.Text -> b.text
+                is ChatBody.Album -> "[图片 x" + b.uris.size + "]"
+                is ChatBody.File -> "[文件] " + b.name
+                is ChatBody.Location -> "[位置] " + b.name + " " + (b.coords ?: "")
+                is ChatBody.Card -> "[名片] " + b.title
+                is ChatBody.Voice -> "[语音] " + b.seconds + "s"
+            }
+            lines += "[" + msg.date + " " + msg.time + "] " + msg.senderName + ": " + body
+        }
+        return lines
+    }
 
     Column(
         Modifier
@@ -34,34 +56,39 @@ fun ChatRecordsScreen(onBack: () -> Unit = {}) {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "聊天记录管理", onBack = onBack)
+        FormPageHeader(title = strings.chatRecords, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
         FormNote("清空或导出会作用于本机保存的全部聊天记录。")
         Spacer(Modifier.height(12.dp))
 
         FormPrimaryButton(
-            text = "导出全部聊天记录",
-            onClick = { showExported = true },
+            text = strings.exportChats,
+            onClick = {
+                val path = exportChatRecordsPdf(allLines())
+                messageTitle = if (path == null) strings.failed else strings.exportedTitle
+                message = if (path == null) "导出失败，请稍后重试。" else strings.exportedText + "\n" + path
+            },
         )
         Spacer(Modifier.height(14.dp))
         FormPrimaryButton(
-            text = "清空全部聊天记录",
+            text = strings.clearChats,
             onClick = { confirmClear = true },
             danger = true,
         )
         Spacer(Modifier.height(110.dp))
     }
 
-    if (showExported) {
+    val shown = message
+    if (shown != null) {
         AlertDialog(
-            onDismissRequest = { showExported = false },
+            onDismissRequest = { message = null },
             containerColor = FormCard,
-            title = { Text("导出完成", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
-            text = { Text("聊天记录已导出到本机文件。", fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
+            title = { Text(messageTitle, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            text = { Text(shown, fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
             confirmButton = {
-                TextButton(onClick = { showExported = false }) {
-                    Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                TextButton(onClick = { message = null }) {
+                    Text(strings.confirm, color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )
@@ -74,13 +101,20 @@ fun ChatRecordsScreen(onBack: () -> Unit = {}) {
             title = { Text("清空聊天记录", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
             text = { Text("清空后本机全部聊天记录将被删除且无法恢复。", fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
             confirmButton = {
-                TextButton(onClick = { confirmClear = false }) {
-                    Text("清空", color = FormRed, fontWeight = FontWeight.SemiBold)
+                TextButton(onClick = {
+                    ChatStore.clearAll()
+                    ChatListStore.driver.clear()
+                    ChatListStore.official.clear()
+                    confirmClear = false
+                    messageTitle = strings.clearedTitle
+                    message = strings.clearedText
+                }) {
+                    Text(strings.clear, color = FormRed, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { confirmClear = false }) {
-                    Text("取消", color = FormMuted)
+                    Text(strings.cancel, color = FormMuted)
                 }
             },
         )

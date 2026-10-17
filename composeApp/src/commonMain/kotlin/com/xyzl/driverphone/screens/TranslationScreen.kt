@@ -10,19 +10,44 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.xyzl.driverphone.PreferencesRepository
+import com.xyzl.driverphone.TranslateLanguage
+import com.xyzl.driverphone.UserPreferences
+import kotlinx.coroutines.launch
 
-/** 翻译页：将文字翻译为 + 自动翻译开关 */
+/** 翻译页：将文字翻译为 + 自动翻译开关（读写 se_notification_preferences） */
 @Composable
 fun TranslationScreen(
     onBack: () -> Unit = {},
     onOpenTranslateTo: () -> Unit = {},
+    userId: String? = null,
 ) {
+    val repo = remember { PreferencesRepository() }
+    val scope = rememberCoroutineScope()
+    var prefs by remember { mutableStateOf(UserPreferences()) }
+
+    LaunchedEffect(userId) {
+        if (userId != null) {
+            prefs = repo.load(userId)
+            DisplayPrefs.translateTo = prefs.translateTarget.label
+        }
+    }
+
+    fun save(next: UserPreferences) {
+        prefs = next
+        DisplayPrefs.translateTo = next.translateTarget.label
+        val uid = userId ?: return
+        scope.launch { repo.save(uid, next) }
+    }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -36,7 +61,7 @@ fun TranslationScreen(
         FormGroup {
             FormValueRow(
                 label = "将文字翻译为",
-                value = DisplayPrefs.translateTo,
+                value = prefs.translateTarget.label,
                 onClick = onOpenTranslateTo,
             )
         }
@@ -47,8 +72,8 @@ fun TranslationScreen(
         FormGroup {
             FormSwitchRow(
                 label = "自动翻译聊天中收到的消息",
-                checked = DisplayPrefs.autoTranslateChat,
-                onCheckedChange = { DisplayPrefs.autoTranslateChat = it },
+                checked = prefs.autoTranslateChat,
+                onCheckedChange = { save(prefs.copy(autoTranslateChat = it)) },
             )
         }
         Spacer(Modifier.height(10.dp))
@@ -58,11 +83,16 @@ fun TranslationScreen(
     }
 }
 
-/** 将文字翻译为页：左上角取消 + 右上角完成 + 语言列表 */
+/** 将文字翻译为页：zh / en / ms / ta */
 @Composable
-fun TranslateToScreen(onBack: () -> Unit = {}) {
-    var selected by remember { mutableStateOf(DisplayPrefs.translateTo) }
-    val options = listOf("中文", "英文")
+fun TranslateToScreen(onBack: () -> Unit = {}, userId: String? = null) {
+    val repo = remember { PreferencesRepository() }
+    val scope = rememberCoroutineScope()
+    var selected by remember { mutableStateOf(TranslateLanguage.of(null)) }
+
+    LaunchedEffect(userId) {
+        if (userId != null) selected = repo.load(userId).translateTarget
+    }
 
     Column(
         Modifier
@@ -75,20 +105,27 @@ fun TranslateToScreen(onBack: () -> Unit = {}) {
             title = "将文字翻译为",
             onCancel = onBack,
             onDone = {
-                DisplayPrefs.translateTo = selected
+                DisplayPrefs.translateTo = selected.label
+                val uid = userId
+                if (uid != null) {
+                    scope.launch {
+                        val current = repo.load(uid)
+                        repo.save(uid, current.copy(translateTarget = selected))
+                    }
+                }
                 onBack()
             },
         )
         Spacer(Modifier.height(16.dp))
 
         FormGroup {
-            options.forEachIndexed { index, option ->
+            TranslateLanguage.entries.forEachIndexed { index, option ->
                 FormCheckRow(
-                    label = option,
+                    label = option.label,
                     selected = selected == option,
                     onClick = { selected = option },
                 )
-                if (index != options.lastIndex) {
+                if (index != TranslateLanguage.entries.lastIndex) {
                     HorizontalDivider(color = FormDivide, thickness = 1.dp)
                 }
             }

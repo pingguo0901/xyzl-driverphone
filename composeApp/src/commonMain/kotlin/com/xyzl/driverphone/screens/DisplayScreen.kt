@@ -57,13 +57,13 @@ fun DisplayScreen(
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
             FormValueRow(
                 label = "字体大小",
-                value = DisplayPrefs.fontSizeLevel.toString() + " / 7 档",
+                value = com.xyzl.driverphone.AppFontStore.level.toString() + " / 7 档",
                 onClick = onOpenFontSize,
             )
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
             FormValueRow(
                 label = "多语言",
-                value = DisplayPrefs.language,
+                value = com.xyzl.driverphone.AppLanguageStore.language.label,
                 onClick = onOpenLanguage,
             )
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
