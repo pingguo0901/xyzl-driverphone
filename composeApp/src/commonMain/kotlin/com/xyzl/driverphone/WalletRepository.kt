@@ -72,6 +72,7 @@ class WalletRepository(
                 .select(Columns.list("id", "account_id", "owner_id", "wallet_type", "currency", "total_balance", "available_balance", "account_number")) {
                     filter { eq("owner_id", userId) }
                     order("wallet_type", Order.ASCENDING)
+                    order("currency", Order.ASCENDING)
                 }
                 .decodeList<JsonObject>()
         } ?: emptyList()
@@ -84,6 +85,7 @@ class WalletRepository(
                     .select(Columns.list("id", "account_id", "owner_id", "wallet_type", "currency", "total_balance", "available_balance", "account_number")) {
                         filter { eq("account_id", acc) }
                         order("wallet_type", Order.ASCENDING)
+                        order("currency", Order.ASCENDING)
                     }
                     .decodeList<JsonObject>()
             } ?: emptyList()
