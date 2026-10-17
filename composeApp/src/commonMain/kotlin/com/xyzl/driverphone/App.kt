@@ -76,6 +76,7 @@ import com.xyzl.driverphone.screens.KycPolicyScreen
 import com.xyzl.driverphone.screens.PrivacyPolicyScreen
 import com.xyzl.driverphone.screens.RefundPolicyScreen
 import com.xyzl.driverphone.screens.UserServiceAgreementScreen
+import com.xyzl.driverphone.screens.DriverServiceAgreementScreen
 import com.xyzl.driverphone.screens.ChatRecordsScreen
 import com.xyzl.driverphone.screens.ChatSettingsScreen
 import com.xyzl.driverphone.screens.MyReviewsScreen
@@ -443,6 +444,7 @@ fun App(
                             5 -> DisclaimerScreen(onBack = closePreAuthPolicy)
                             6 -> FinalComplianceScreen(onBack = closePreAuthPolicy)
                             7 -> EulaScreen(onBack = closePreAuthPolicy)
+                            8 -> DriverServiceAgreementScreen(onBack = closePreAuthPolicy)
                             else -> FinalComplianceScreen(onBack = closePreAuthPolicy)
                         }
                     }
@@ -1119,6 +1121,7 @@ fun App(
                         5 -> DisclaimerScreen(onBack = closePolicy)
                         6 -> FinalComplianceScreen(onBack = closePolicy)
                         7 -> EulaScreen(onBack = closePolicy)
+                        8 -> DriverServiceAgreementScreen(onBack = closePolicy)
                         else -> FinalComplianceScreen(onBack = closePolicy)
                     }
                 }

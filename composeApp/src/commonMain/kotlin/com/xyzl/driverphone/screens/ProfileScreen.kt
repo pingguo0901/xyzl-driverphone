@@ -60,6 +60,7 @@ private val sections: List<Pair<String, List<String>>> = listOf(
     "通用" to listOf("我的值班", "通知", "界面与显示", "聊天", "聊天记录管理", "我的评价"),
     "平台政策与协议" to listOf(
         "用户服务协议",
+        "司机服务协议",
         "隐私政策",
         "KYC实名认证合规条款",
         "退款与交易合规政策",
@@ -112,6 +113,7 @@ fun ProfileScreen(
             "聊天记录管理" -> onOpenChatRecords()
             "我的评价" -> onOpenMyReviews()
             "用户服务协议" -> onOpenPolicy(0)
+            "司机服务协议" -> onOpenPolicy(8)
             "隐私政策" -> onOpenPolicy(1)
             "KYC实名认证合规条款" -> onOpenPolicy(2)
             "退款与交易合规政策" -> onOpenPolicy(3)
