@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -34,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,8 +45,13 @@ import com.xyzl.driverphone.LocalAppColors
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.PayeeInfo
+import com.xyzl.driverphone.WalletInfo
+import com.xyzl.driverphone.WalletRepository
 import com.xyzl.driverphone.pickBirthday
+import com.xyzl.driverphone.walletBalanceText
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private val TrCard: Color @Composable get() = LocalAppColors.current.card
 private val TrChip: Color @Composable get() = LocalAppColors.current.surfaceVariant
@@ -58,19 +65,20 @@ private data class TransferAccount(
     val currency: String,
     val amount: String,
     val accountNo: String,
+    val walletId: String,
+    val accountId: String,
 )
 
-private val TransferAccounts = listOf(
-    TransferAccount("我的钱包", "MYR", "MYR 1,672.90", "8821 0000 1234 5678"),
-    TransferAccount("代收 SGD", "SGD", "SGD 386.50", "8821 0000 5678 1234"),
-    TransferAccount("代收 MYR", "MYR", "MYR 1,286.40", "8821 0000 4321 8765"),
-)
-
-private val PastPayees = listOf(
-    "陈女士" to "8821 0000 2222 3333",
-    "张先生" to "8821 0000 4444 5555",
-    "王先生" to "8821 0000 6666 7777",
-)
+private fun transferAccounts(wallets: List<WalletInfo>): List<TransferAccount> = wallets.map { w ->
+    TransferAccount(
+        label = w.title,
+        currency = w.currency,
+        amount = walletBalanceText(w.currency, w.totalBalance),
+        accountNo = w.accountNumber,
+        walletId = w.id,
+        accountId = w.accountId,
+    )
+}
 
 /** 金额（分）→ 始终两位小数，如 1234 → 12.34 */
 private fun formatCents(cents: Long): String {
@@ -82,10 +90,22 @@ private fun centsLabel(currency: String, cents: Long): String = currency + " " +
 
 /** 转账：表单（4 步）→ 确认详情 → 时间线 */
 @Composable
-fun WalletTransferTab() {
+fun WalletTransferTab(userId: String? = null, wallets: List<WalletInfo> = emptyList()) {
+    val accounts = transferAccounts(wallets)
+    val repo = remember { WalletRepository() }
+    val scope = rememberCoroutineScope()
+    var payees by remember { mutableStateOf<List<PayeeInfo>>(emptyList()) }
+    var submitting by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(userId) {
+        if (userId != null) payees = repo.payees(userId)
+    }
+
     var phase by remember { mutableStateOf(0) } // 0 表单, 1 确认, 2 时间线
     var step by remember { mutableStateOf(0) } // 当前展开步骤 0=全收起
     var fromIndex by remember { mutableStateOf<Int?>(null) }
+    var toPayee by remember { mutableStateOf<PayeeInfo?>(null) }
     var toName by remember { mutableStateOf<String?>(null) }
     var toNo by remember { mutableStateOf<String?>(null) }
     var currency by remember { mutableStateOf("MYR") }
@@ -99,10 +119,12 @@ fun WalletTransferTab() {
 
     if (phase == 0 && showNewTransfer) {
         NewTransferView(
+            payees = payees,
             onBack = { showNewTransfer = false },
-            onPicked = { name, no ->
-                toName = name
-                toNo = no
+            onPicked = { payee ->
+                toPayee = payee
+                toName = payee.name
+                toNo = payee.accountNumber
                 showNewTransfer = false
                 step = 3
             },
@@ -122,7 +144,7 @@ fun WalletTransferTab() {
                     Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
                         if (doneSteps) {
                             TransferSummary(
-                                from = fromIndex,
+                                fromAcc = fromIndex?.let { accounts.getOrNull(it) },
                                 toNo = toNo,
                                 currency = currency,
                                 amountCents = amountCents,
@@ -131,8 +153,11 @@ fun WalletTransferTab() {
                                 onEdit = { doneSteps = false; step = 1 },
                             )
                         } else {
-                            StepRow(1, "从", fromSummary(fromIndex), step == 1, { step = if (step == 1) 0 else 1 }) {
-                                TransferAccounts.forEachIndexed { index, acc ->
+                            StepRow(1, "从", fromSummary(fromIndex, accounts), step == 1, { step = if (step == 1) 0 else 1 }) {
+                                if (accounts.isEmpty()) {
+                                    Text("暂无钱包账户", fontSize = 13.sp, color = TrMuted, modifier = Modifier.padding(vertical = 12.dp))
+                                }
+                                accounts.forEachIndexed { index, acc ->
                                     PayeeRow(
                                         title = acc.label,
                                         subtitle = acc.currency + " ｜ " + acc.amount,
@@ -152,10 +177,14 @@ fun WalletTransferTab() {
                                     Spacer(Modifier.width(8.dp))
                                     Text("新转账", fontSize = 14.sp, color = TrGreen, fontWeight = FontWeight.Medium)
                                 }
-                                PastPayees.forEach { (name, no) ->
-                                    PayeeRow(title = name, subtitle = no) {
-                                        toName = name
-                                        toNo = no
+                                if (payees.isEmpty()) {
+                                    Text("暂无联系人，点「新转账」按账号搜索", fontSize = 13.sp, color = TrMuted, modifier = Modifier.padding(vertical = 12.dp))
+                                }
+                                payees.forEach { payee ->
+                                    PayeeRow(title = payee.name, subtitle = payee.accountNumber) {
+                                        toPayee = payee
+                                        toName = payee.name
+                                        toNo = payee.accountNumber
                                         step = 3
                                     }
                                 }
@@ -210,12 +239,37 @@ fun WalletTransferTab() {
             Spacer(Modifier.height(12.dp))
         }
         1 -> TransferConfirm(
-            from = fromIndex,
+            fromAcc = fromIndex?.let { accounts.getOrNull(it) },
             toName = toName,
             toNo = toNo,
             currency = currency,
             amountCents = amountCents,
-            onConfirm = { phase = 2 },
+            submitting = submitting,
+            onConfirm = {
+                val from = fromIndex?.let { accounts.getOrNull(it) }
+                val to = toPayee
+                val uid = userId
+                if (from == null || to == null || uid == null) {
+                    error = "转账信息不完整，请返回检查"
+                } else {
+                    submitting = true
+                    scope.launch {
+                        val result = repo.createTransfer(
+                            userId = uid,
+                            from = WalletInfo(from.walletId, from.accountId, "", from.currency, 0.0, 0.0, from.accountNo),
+                            to = to,
+                            amount = amountCents / 100.0,
+                            remark = remark,
+                            paymentDate = payDate,
+                        )
+                        submitting = false
+                        result.fold(
+                            onSuccess = { phase = 2 },
+                            onFailure = { error = it.message ?: "转账提交失败" },
+                        )
+                    }
+                }
+            },
         )
         else -> TransferTimeline(
             onFinish = {
@@ -223,6 +277,7 @@ fun WalletTransferTab() {
                 doneSteps = false
                 step = 0
                 fromIndex = null
+                toPayee = null
                 toName = null
                 toNo = null
                 amountCents = 0
@@ -232,10 +287,21 @@ fun WalletTransferTab() {
             },
         )
     }
+
+    val message = error
+    if (message != null) {
+        AlertDialog(
+            onDismissRequest = { error = null },
+            containerColor = TrCard,
+            title = { Text("转账失败", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = TrInk) },
+            text = { Text(message, fontSize = 14.sp, color = TrMuted) },
+            confirmButton = { TextButton(onClick = { error = null }) { Text("确定", color = TrGreen) } },
+        )
+    }
 }
 
-private fun fromSummary(index: Int?): String? =
-    if (index == null) null else TransferAccounts.getOrNull(index)?.label
+private fun fromSummary(index: Int?, accounts: List<TransferAccount>): String? =
+    if (index == null) null else accounts.getOrNull(index)?.label
 
 private fun toSummary(name: String?): String? = name
 
@@ -369,9 +435,13 @@ private fun TransferAmountPad(
 
 /** 新转账页：帐户号码搜索 */
 @Composable
-private fun NewTransferView(onBack: () -> Unit, onPicked: (String, String) -> Unit) {
+private fun NewTransferView(
+    payees: List<PayeeInfo>,
+    onBack: () -> Unit,
+    onPicked: (PayeeInfo) -> Unit,
+) {
     var query by remember { mutableStateOf("") }
-    var result by remember { mutableStateOf<Pair<String, String>?>(null) }
+    var result by remember { mutableStateOf<PayeeInfo?>(null) }
     var searched by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
@@ -387,14 +457,15 @@ private fun NewTransferView(onBack: () -> Unit, onPicked: (String, String) -> Un
             enabled = query.isNotBlank(),
             onClick = {
                 searched = true
-                result = if (query.isNotBlank()) "何先生" to query else null
+                val q = query.trim()
+                result = payees.firstOrNull { it.accountNumber.replace(" ", "").contains(q.replace(" ", "")) }
             },
         )
         Spacer(Modifier.height(16.dp))
         if (searched) {
             val found = result
             if (found != null) {
-                PayeeRow(title = found.first, subtitle = found.second) { onPicked(found.first, found.second) }
+                PayeeRow(title = found.name, subtitle = found.accountNumber) { onPicked(found) }
             } else {
                 Text("未找到该帐户", fontSize = 13.sp, color = TrMuted)
             }
@@ -406,7 +477,7 @@ private fun NewTransferView(onBack: () -> Unit, onPicked: (String, String) -> Un
 
 @Composable
 private fun TransferSummary(
-    from: Int?,
+    fromAcc: TransferAccount?,
     toNo: String?,
     currency: String,
     amountCents: Long,
@@ -415,7 +486,7 @@ private fun TransferSummary(
     onEdit: () -> Unit,
 ) {
     Column(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
-        SummaryRow("1  从", listOfNotNull(from?.let { TransferAccounts.getOrNull(it)?.label }, from?.let { TransferAccounts.getOrNull(it)?.accountNo }))
+        SummaryRow("1  从", listOfNotNull(fromAcc?.label, fromAcc?.accountNo))
         SummaryRow("2  给", listOfNotNull(toNo))
         SummaryRow("3  转账金额", listOf(centsLabel(currency, amountCents)))
         SummaryRow("4  其他详情", listOfNotNull(remark.takeIf { it.isNotBlank() }, payDate.takeIf { it.isNotBlank() }))
@@ -441,14 +512,14 @@ private fun SummaryRow(label: String, lines: List<String>) {
 /** 确认详情页 */
 @Composable
 private fun TransferConfirm(
-    from: Int?,
+    fromAcc: TransferAccount?,
     toName: String?,
     toNo: String?,
     currency: String,
     amountCents: Long,
+    submitting: Boolean = false,
     onConfirm: () -> Unit,
 ) {
-    val fromAcc = from?.let { TransferAccounts.getOrNull(it) }
     val payDate = remember { currentTimeParts().first }
     Column(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
@@ -467,7 +538,7 @@ private fun TransferConfirm(
                 Text(centsLabel(currency, amountCents), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TrInk)
             }
         }
-        FormPrimaryButton(text = "确认转账", onClick = onConfirm)
+        FormPrimaryButton(text = if (submitting) "提交中…" else "确认转账", enabled = !submitting, onClick = onConfirm)
         Spacer(Modifier.height(12.dp))
     }
 }

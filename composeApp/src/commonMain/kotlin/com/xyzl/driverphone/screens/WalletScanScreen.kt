@@ -45,9 +45,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xyzl.driverphone.ImageSource
+import com.xyzl.driverphone.WalletQrInfo
+import com.xyzl.driverphone.WalletRepository
 import com.xyzl.driverphone.decodeQrFromImage
 import com.xyzl.driverphone.openUrl
 import com.xyzl.driverphone.pickImage
+import com.xyzl.driverphone.qrMatrixFor
 import com.xyzl.driverphone.saveQrToGallery
 import com.xyzl.driverphone.setTorchEnabled
 import kotlinx.coroutines.delay
@@ -57,9 +60,6 @@ private val ScanChip: Color @Composable get() = LocalAppColors.current.surfaceVa
 private val ScanInk: Color @Composable get() = LocalAppColors.current.ink
 private val ScanMuted: Color @Composable get() = LocalAppColors.current.muted
 private val ScanGreen = Color(0xFF3B82F6)
-
-private const val WalletDriverName = "陈师傅"
-private const val PayQrBase = "https://xyzl.my/pay/DRV8821"
 
 /** 25x25 二维码模块矩阵（与二维码页一致的示例矩阵） */
 private val WalletQrMatrix = listOf(
@@ -92,8 +92,12 @@ private val WalletQrMatrix = listOf(
 
 /** 钱包扫码页：扫码 / 收款 左右选项 */
 @Composable
-fun WalletScanTab() {
+fun WalletScanTab(userId: String? = null) {
     var mode by remember { mutableStateOf(0) } // 0 扫码, 1 收款
+    var qr by remember { mutableStateOf<WalletQrInfo?>(null) }
+    LaunchedEffect(userId) {
+        if (userId != null) qr = WalletRepository().qrInfo(userId)
+    }
     var torchOn by remember { mutableStateOf(false) }
     var scanned by remember { mutableStateOf<String?>(null) }
     var notFound by remember { mutableStateOf(false) }
@@ -107,7 +111,7 @@ fun WalletScanTab() {
             if (mode == 0) {
                 ScanFrameView()
             } else {
-                ReceiveQrView()
+                ReceiveQrView(qr)
             }
         }
 
@@ -215,7 +219,9 @@ private fun ScanFrameView() {
 
 /** 收款：展示二维码 + 下载二维码 / 输入特定金额（金额二维码 60 秒有效） */
 @Composable
-private fun ReceiveQrView() {
+private fun ReceiveQrView(qr: WalletQrInfo?) {
+    val WalletDriverName = qr?.name ?: "我"
+    val PayQrBase = qr?.token ?: "https://xyzl.my/pay"
     var amount by remember { mutableStateOf<String?>(null) }
     var currency by remember { mutableStateOf("MYR") }
     var showAmountDialog by remember { mutableStateOf(false) }
@@ -225,6 +231,7 @@ private fun ReceiveQrView() {
     var hint by remember { mutableStateOf<String?>(null) }
 
     val payload = if (amount != null) "$PayQrBase?amount=$amount&cur=$currency" else PayQrBase
+    val matrix = remember(payload) { qrMatrixFor(payload) ?: WalletQrMatrix }
 
     // 金额二维码有效时间 60 秒，过时自动返回上一页（退出金额模式）
     LaunchedEffect(amount) {
@@ -259,7 +266,7 @@ private fun ReceiveQrView() {
                     Text(WalletDriverName, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ScanInk)
                     Spacer(Modifier.height(14.dp))
                     Box(Modifier.size(200.dp).clip(RoundedCornerShape(12.dp))) {
-                        WalletQrCanvas(Modifier.fillMaxSize())
+                        WalletQrCanvas(matrix, Modifier.fillMaxSize())
                     }
                 }
             }
@@ -366,8 +373,8 @@ private fun ReceiveQrView() {
 }
 
 @Composable
-private fun WalletQrCanvas(modifier: Modifier = Modifier) {
-    val modules = WalletQrMatrix.size
+private fun WalletQrCanvas(matrix: List<String>, modifier: Modifier = Modifier) {
+    val modules = matrix.size
     Canvas(modifier) {
         val cell = size.minDimension / modules
         val originX = (size.width - cell * modules) / 2f
@@ -375,7 +382,7 @@ private fun WalletQrCanvas(modifier: Modifier = Modifier) {
         drawRect(Color.White, topLeft = Offset.Zero, size = size)
         for (y in 0 until modules) {
             for (x in 0 until modules) {
-                if (WalletQrMatrix[y][x] == '1') {
+                if (matrix[y][x] == '1') {
                     drawRect(
                         Color.Black,
                         topLeft = Offset(originX + x * cell, originY + y * cell),

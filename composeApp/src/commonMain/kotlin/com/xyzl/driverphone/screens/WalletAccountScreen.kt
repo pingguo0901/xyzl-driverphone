@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xyzl.driverphone.WalletRepository
 import com.xyzl.driverphone.model.LedgerEntry
 import com.xyzl.driverphone.model.formatMoney
 
@@ -63,8 +65,20 @@ data class WalletAccount(
 
 /** 钱包账户页：标题 + 帐号(复制) + 可用/当前余额 + 该账户交易流水 */
 @Composable
-fun WalletAccountScreen(account: WalletAccount, onBack: () -> Unit = {}) {
+fun WalletAccountScreen(
+    account: WalletAccount,
+    onBack: () -> Unit = {},
+    accountId: String? = null,
+    categoryFilter: List<String>? = null,
+) {
     var selected by remember { mutableStateOf<LedgerEntry?>(null) }
+    var entries by remember { mutableStateOf(account.entries) }
+
+    LaunchedEffect(accountId, account.currency) {
+        if (accountId != null) {
+            entries = WalletRepository().ledger(accountId, account.currency, categoryFilter)
+        }
+    }
 
     val currentEntry = selected
     if (currentEntry != null) {
@@ -154,10 +168,10 @@ fun WalletAccountScreen(account: WalletAccount, onBack: () -> Unit = {}) {
                         color = AcctInk,
                         modifier = Modifier.padding(top = 14.dp, bottom = 6.dp),
                     )
-                    if (account.entries.isEmpty()) {
+                    if (entries.isEmpty()) {
                         Text("暂无记录", fontSize = 13.sp, color = AcctMuted, modifier = Modifier.padding(vertical = 16.dp))
                     } else {
-                        account.entries.forEachIndexed { index, entry ->
+                        entries.forEachIndexed { index, entry ->
                             Row(
                                 Modifier
                                     .fillMaxWidth()
@@ -181,7 +195,7 @@ fun WalletAccountScreen(account: WalletAccount, onBack: () -> Unit = {}) {
                                     Text(entry.status, fontSize = 12.sp, color = AcctGreen)
                                 }
                             }
-                            if (index != account.entries.lastIndex) {
+                            if (index != entries.lastIndex) {
                                 HorizontalDivider(color = AcctDivider, thickness = 1.dp)
                             }
                         }

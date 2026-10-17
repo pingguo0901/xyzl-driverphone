@@ -1032,7 +1032,11 @@ fun App(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    WalletScreen(onBack = { showWallet = false }, isCompanyDriver = DriverIsCompany)
+                    WalletScreen(
+                        onBack = { showWallet = false },
+                        isCompanyDriver = DriverIsCompany,
+                        userId = (authState as? AuthState.Authenticated)?.userId,
+                    )
                 }
             }
 

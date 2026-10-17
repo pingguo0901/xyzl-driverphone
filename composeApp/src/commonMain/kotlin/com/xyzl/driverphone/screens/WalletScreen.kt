@@ -33,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,8 +47,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.xyzl.driverphone.model.LedgerEntries
-import com.xyzl.driverphone.model.LedgerKind
+import com.xyzl.driverphone.WalletInfo
+import com.xyzl.driverphone.WalletRepository
+import com.xyzl.driverphone.walletBalanceText
 
 private val WalletCard: Color @Composable get() = LocalAppColors.current.card
 private val WalletChip: Color @Composable get() = LocalAppColors.current.surfaceVariant
@@ -55,31 +57,23 @@ private val WalletInk: Color @Composable get() = LocalAppColors.current.ink
 private val WalletMuted: Color @Composable get() = LocalAppColors.current.muted
 private val WalletGreen = Color(0xFF3B82F6)
 
-/** 账户索引：0 钱包余额 / 1 代收 SGD / 2 代收 MYR */
-private fun walletAccount(index: Int): WalletAccount = when (index) {
-    0 -> WalletAccount(
-        title = "钱包余额",
-        accountNo = "8821 0000 1234 5678",
-        currency = "MYR",
-        available = "MYR 1,672.90",
-        current = "MYR 1,758.90",
-        entries = LedgerEntries,
-    )
-    1 -> WalletAccount(
-        title = "代收 SGD",
-        accountNo = "8821 0000 5678 1234",
-        currency = "SGD",
-        available = "SGD 386.50",
-        current = "SGD 386.50",
-        entries = LedgerEntries.filter { it.currency == "SGD" && it.kind == LedgerKind.TRANSFER },
-    )
-    else -> WalletAccount(
-        title = "代收 MYR",
-        accountNo = "8821 0000 4321 8765",
-        currency = "MYR",
-        available = "MYR 1,286.40",
-        current = "MYR 1,286.40",
-        entries = LedgerEntries.filter { it.currency == "MYR" && it.kind == LedgerKind.TRANSFER },
+/** 账户索引：0 钱包余额 / 1 代收 SGD / 2 代收 MYR（余额读 se_wallets） */
+private fun walletForIndex(index: Int, wallets: List<WalletInfo>): WalletInfo? = when (index) {
+    0 -> wallets.firstOrNull { it.walletType == "main" && it.currency == "MYR" }
+    1 -> wallets.firstOrNull { it.walletType == "collection" && it.currency == "SGD" }
+    else -> wallets.firstOrNull { it.walletType == "collection" && it.currency == "MYR" }
+}
+
+private fun walletAccount(index: Int, wallets: List<WalletInfo>): WalletAccount {
+    val currency = if (index == 1) "SGD" else "MYR"
+    val w = walletForIndex(index, wallets)
+    return WalletAccount(
+        title = when (index) { 0 -> "钱包余额"; 1 -> "代收 SGD"; else -> "代收 MYR" },
+        accountNo = w?.accountNumber ?: "-",
+        currency = currency,
+        available = walletBalanceText(currency, w?.availableBalance ?: 0.0),
+        current = walletBalanceText(currency, w?.totalBalance ?: 0.0),
+        entries = emptyList(),
     )
 }
 
@@ -88,13 +82,25 @@ private fun walletAccount(index: Int): WalletAccount = when (index) {
 fun WalletScreen(
     onBack: () -> Unit = {},
     isCompanyDriver: Boolean = true,
+    userId: String? = null,
 ) {
     var tab by remember { mutableStateOf(0) }
     var accountIndex by remember { mutableStateOf<Int?>(null) }
+    var wallets by remember { mutableStateOf<List<WalletInfo>>(emptyList()) }
+    val repo = remember { WalletRepository() }
+
+    LaunchedEffect(userId) {
+        if (userId != null) wallets = repo.wallets(userId)
+    }
 
     val openIndex = accountIndex
     if (openIndex != null) {
-        WalletAccountScreen(account = walletAccount(openIndex), onBack = { accountIndex = null })
+        WalletAccountScreen(
+            account = walletAccount(openIndex, wallets),
+            onBack = { accountIndex = null },
+            accountId = walletForIndex(openIndex, wallets)?.accountId,
+            categoryFilter = if (openIndex == 0) null else listOf("collection", "transfer"),
+        )
         return
     }
 
@@ -108,11 +114,11 @@ fun WalletScreen(
 
         Box(Modifier.fillMaxWidth().weight(1f)) {
             when (tab) {
-                0 -> WalletHomeTab(onOpenAccount = { accountIndex = it })
-                1 -> WalletTransferTab()
-                2 -> WalletScanTab()
-                3 -> LedgerScreen(onBack = onBack, embedded = true, showPrint = true)
-                4 -> if (isCompanyDriver) WalletApplyTab() else WalletHomeTab(onOpenAccount = { accountIndex = it })
+                0 -> WalletHomeTab(accounts = (0..2).map { walletAccount(it, wallets) }, onOpenAccount = { accountIndex = it })
+                1 -> WalletTransferTab(userId = userId, wallets = wallets)
+                2 -> WalletScanTab(userId = userId)
+                3 -> LedgerScreen(userId = userId, onBack = onBack, embedded = true, showPrint = true)
+                4 -> if (isCompanyDriver) WalletApplyTab() else WalletHomeTab(accounts = (0..2).map { walletAccount(it, wallets) }, onOpenAccount = { accountIndex = it })
             }
         }
 
@@ -122,14 +128,14 @@ fun WalletScreen(
 
 /** 首页：钱包余额 + 代收SGD / 代收MYR 两张并排卡片 */
 @Composable
-private fun WalletHomeTab(onOpenAccount: (Int) -> Unit) {
+private fun WalletHomeTab(accounts: List<WalletAccount>, onOpenAccount: (Int) -> Unit) {
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(8.dp))
-        BalanceCard(label = "钱包余额", amount = "MYR 1,672.90", big = true, onClick = { onOpenAccount(0) })
+        BalanceCard(label = accounts[0].title, amount = accounts[0].current, big = true, onClick = { onOpenAccount(0) })
         Spacer(Modifier.height(14.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            BalanceCard("代收 SGD", "SGD 386.50", modifier = Modifier.weight(1f), onClick = { onOpenAccount(1) })
-            BalanceCard("代收 MYR", "MYR 1,286.40", modifier = Modifier.weight(1f), onClick = { onOpenAccount(2) })
+            BalanceCard(accounts[1].title, accounts[1].current, modifier = Modifier.weight(1f), onClick = { onOpenAccount(1) })
+            BalanceCard(accounts[2].title, accounts[2].current, modifier = Modifier.weight(1f), onClick = { onOpenAccount(2) })
         }
         Spacer(Modifier.height(24.dp))
     }
