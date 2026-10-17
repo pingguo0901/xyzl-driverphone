@@ -313,7 +313,12 @@ fun DisclaimerScreen(onBack: () -> Unit = {}) {
 
 @Composable
 fun FinalComplianceScreen(onBack: () -> Unit = {}) {
-    PolicyScreen(title = "合规最终说明", blocks = finalCompliancePolicy, onBack = onBack)
+    val en = AppLanguageStore.language == AppLanguage.EN
+    PolicyScreen(
+        title = if (en) "Final Compliance Statement" else "合规最终说明",
+        blocks = if (en) finalCompliancePolicyEn else finalCompliancePolicy,
+        onBack = onBack
+    )
 }
 
 /** 终端用户软件许可协议（EULA） */
@@ -744,3 +749,11 @@ fun RateScheduleScreen(onBack: () -> Unit = {}) {
         onBack = onBack
     )
 }
+
+/** English version of the final compliance statement (extra page, not part of the 9-doc bundle). */
+private val finalCompliancePolicyEn = listOf(
+    "P|1. This document applies to all three ends: Passenger APP, Driver APP, Merchant Backend and Web Portal.",
+    "P|2. Fully compliant with Malaysian laws and regulations (PDPA 2024, LHDN, SSM, cross-border travel compliance).",
+    "P|3. Ready for: app store submission, official website publication, user registration consent, legal filing, financing compliance and annual corporate review.",
+    "P|4. Fully aligned with your existing Supabase database audit rules, data retention rules, KYC table structure and Storage compliance retention cycle.",
+)
