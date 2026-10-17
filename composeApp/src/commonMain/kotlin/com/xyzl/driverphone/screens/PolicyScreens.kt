@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.AppLanguage
+import com.xyzl.driverphone.AppLanguageStore
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -250,32 +253,62 @@ fun PolicyScreen(title: String, blocks: List<String>, onBack: () -> Unit = {}) {
 
 @Composable
 fun UserServiceAgreementScreen(onBack: () -> Unit = {}) {
-    PolicyScreen(title = "用户服务协议", blocks = userServicePolicy, onBack = onBack)
+    val en = AppLanguageStore.language == AppLanguage.EN
+    PolicyScreen(
+        title = if (en) "User Service Agreement" else "用户服务协议",
+        blocks = if (en) userServicePolicyEn else userServicePolicy,
+        onBack = onBack
+    )
 }
 
 @Composable
 fun PrivacyPolicyScreen(onBack: () -> Unit = {}) {
-    PolicyScreen(title = "隐私政策", blocks = privacyPolicy, onBack = onBack)
+    val en = AppLanguageStore.language == AppLanguage.EN
+    PolicyScreen(
+        title = if (en) "Privacy Policy" else "隐私政策",
+        blocks = if (en) privacyPolicyEn else privacyPolicy,
+        onBack = onBack
+    )
 }
 
 @Composable
 fun KycPolicyScreen(onBack: () -> Unit = {}) {
-    PolicyScreen(title = "KYC实名认证合规条款", blocks = kycPolicy, onBack = onBack)
+    val en = AppLanguageStore.language == AppLanguage.EN
+    PolicyScreen(
+        title = if (en) "KYC Verification Terms" else "KYC实名认证合规条款",
+        blocks = if (en) kycPolicyEn else kycPolicy,
+        onBack = onBack
+    )
 }
 
 @Composable
 fun RefundPolicyScreen(onBack: () -> Unit = {}) {
-    PolicyScreen(title = "退款与交易合规政策", blocks = refundPolicy, onBack = onBack)
+    val en = AppLanguageStore.language == AppLanguage.EN
+    PolicyScreen(
+        title = if (en) "Refund Policy" else "退款与交易合规政策",
+        blocks = if (en) refundPolicyEn else refundPolicy,
+        onBack = onBack
+    )
 }
 
 @Composable
 fun DataRetentionPolicyScreen(onBack: () -> Unit = {}) {
-    PolicyScreen(title = "数据留存与审计合规政策", blocks = dataRetentionPolicy, onBack = onBack)
+    val en = AppLanguageStore.language == AppLanguage.EN
+    PolicyScreen(
+        title = if (en) "Data Retention & Information Security Statement" else "数据留存与审计合规政策",
+        blocks = if (en) dataRetentionPolicyEn else dataRetentionPolicy,
+        onBack = onBack
+    )
 }
 
 @Composable
 fun DisclaimerScreen(onBack: () -> Unit = {}) {
-    PolicyScreen(title = "免责声明", blocks = disclaimerPolicy, onBack = onBack)
+    val en = AppLanguageStore.language == AppLanguage.EN
+    PolicyScreen(
+        title = if (en) "Platform Disclaimer" else "免责声明",
+        blocks = if (en) disclaimerPolicyEn else disclaimerPolicy,
+        onBack = onBack
+    )
 }
 
 @Composable
@@ -340,7 +373,12 @@ private val eulaPolicy = listOf(
 
 @Composable
 fun EulaScreen(onBack: () -> Unit = {}) {
-    PolicyScreen(title = "终端用户软件许可协议", blocks = eulaPolicy, onBack = onBack)
+    val en = AppLanguageStore.language == AppLanguage.EN
+    PolicyScreen(
+        title = if (en) "End User License Agreement (EULA)" else "终端用户软件许可协议",
+        blocks = if (en) eulaPolicyEn else eulaPolicy,
+        onBack = onBack
+    )
 }
 
 /** 司机服务协议（平台 ↔ 入驻司机） */
@@ -414,6 +452,295 @@ private val driverServicePolicy = listOf(
 
 @Composable
 fun DriverServiceAgreementScreen(onBack: () -> Unit = {}) {
-    PolicyScreen(title = "司机服务协议", blocks = driverServicePolicy, onBack = onBack)
+    val en = AppLanguageStore.language == AppLanguage.EN
+    PolicyScreen(
+        title = if (en) "Driver Service Agreement" else "司机服务协议",
+        blocks = if (en) driverServicePolicyEn else driverServicePolicy,
+        onBack = onBack
+    )
 }
 
+
+/** English version (bundle). */
+private val userServicePolicyEn = listOf(
+    "P|Platform: Xingyu Zhenlü (hereinafter referred to as \"the Platform\")",
+    "P|This agreement is electronically accepted by passengers upon ticking consent and completing required verification on the passenger mobile application.",
+    "H|1. Parties to Agreement",
+    "P|Service Provider (Platform): Xingyu Zhenlü",
+    "P|SSM Registered Details: Fill with your SSM information",
+    "P|Registered Address: Alamat (Your registered address)",
+    "P|User (Passenger): Natural person registering and using the passenger APP, aged above the legal age of majority.",
+    "P|This Agreement takes effect once you tick “I have read and accept this User Service Agreement” on the APP.",
+    "H|2. Service Scope",
+    "P|2.1 The Platform acts only as an information intermediary. The Platform matches passengers with registered drivers for cross-border private car charter services between Malaysia and Singapore. The Platform is NOT a carrier and does not provide transportation service itself.",
+    "P|2.2 The Platform provides digital tools including order submission, quotation viewing, online payment, itinerary tracking and order record management.",
+    "P|2.3 The actual transportation service is provided by the contracted driver. All carriage liabilities shall be borne by the driver.",
+    "H|3. User Representations & Obligations",
+    "P|3.1 You warrant all information submitted to the Platform (name, contact, travel documents) is true, accurate and valid.",
+    "P|3.2 For cross-border travel, you shall hold valid passport, visa and immigration documents required by Malaysia and Singapore. The Platform shall not be liable if you are denied entry by immigration authorities.",
+    "P|3.3 You shall not request drivers to violate traffic laws, cross-border customs rules or carry prohibited goods.",
+    "P|3.4 You shall not damage the driver’s vehicle or property, harass or threaten the driver.",
+    "P|3.5 You shall pay all confirmed order fares in accordance with the pricing shown on the Platform.",
+    "H|4. Order, Cancellation & Refund",
+    "P|4.1 Order is confirmed after payment. Cancellation shall follow the Refund Policy published within the APP.",
+    "P|4.2 If the driver fails to show up or breaches the agreement, the Platform will handle complaints and refunds per published rules.",
+    "H|5. Privacy",
+    "P|Your personal data will be processed in accordance with the Platform’s Privacy Policy.",
+    "H|6. Platform Rights",
+    "P|6.1 The Platform reserves the right to suspend or terminate your account for fraud, false information, violation of agreement terms or abusive behaviour.",
+    "P|6.2 The Platform may update this Agreement. Continued use of the APP after update constitutes acceptance of revised terms.",
+    "H|7. Limitation of Liability",
+    "P|The Platform is only an information matching intermediary. It shall not be liable for personal injury, accident, property loss arising from the actual transportation service, which shall be covered by driver’s insurance and the driver’s liability.",
+    "H|8. Governing Law & Dispute Resolution",
+    "P|This Agreement is governed by the laws of Malaysia. Any dispute shall first be resolved amicably; failing which, disputes shall be submitted to courts of competent jurisdiction in Malaysia.",
+    "H|9. Miscellaneous",
+    "P|This agreement forms part of a bundle together with Privacy Policy, KYC Terms and Refund Policy.",
+    "P|Electronic Consent:",
+    "P|☐ I have read and agree to the User Service Agreement, Privacy Policy and KYC Terms.",
+)
+
+/** English version (bundle). */
+private val driverServicePolicyEn = listOf(
+    "P|Effective upon driver’s consent tick and completion of KYC verification in the Driver APP.",
+    "P|Important Notice: Template only. Legal review by Malaysian licensed lawyer recommended before deployment.",
+    "H|1. Parties",
+    "P|Party A (Platform Operator): Xingyu Zhenlü (“Platform”)",
+    "P|SSM Registered Details: Fill your SSM data",
+    "P|Address: Alamat (Registered Address)",
+    "P|Party B (Registered Driver): Natural person completing registration and KYC on Driver APP.",
+    "P|The Driver confirms they hold valid driving licence, vehicle documents and qualification to conduct cross-border passenger transport between MY and SG.",
+    "P|This Agreement becomes effective when the driver ticks consent and finishes KYC verification.",
+    "H|2. Service Description",
+    "P|2.1 The Platform provides information intermediary service: pushing cross-border charter orders, itinerary data, order management, settlement and notification tools. The Platform is not an employer. No employment or labour relationship exists between Platform and Driver.",
+    "P|2.2 The Driver accepts orders via APP and provides passenger transportation service according to agreed time, pickup location and route.",
+    "P|2.3 The Driver acknowledges that the Driver is the carrier and bears all transportation liabilities. The Platform shall not be treated as the transport carrier.",
+    "H|3. Driver Eligibility & KYC Undertakings",
+    "P|3.1 Driver must submit valid documents for KYC: Malaysian ID / Passport, valid driving licence, vehicle registration, vehicle insurance. The Platform may verify and store document copies.",
+    "P|3.2 Driver warrants:",
+    "P|• Driving licence remains valid with correct vehicle class endorsement",
+    "P|• Vehicle road tax and insurance are fully maintained",
+    "P|• No serious traffic offence or dangerous driving criminal record",
+    "P|• All submitted documents are genuine and unaltered",
+    "P|• Obey traffic, customs and immigration laws of Malaysia and Singapore during cross-border trips",
+    "P|3.3 The Platform may re-audit driver qualifications periodically. If documents expire, Platform may suspend order access until updated.",
+    "H|4. Fees, Commission & Settlement",
+    "P|4.1 The Platform collects service commission per completed order. Commission rates are published in the Rate Schedule inside Driver APP.",
+    "P|4.2 Order funds collected by Platform will be settled to Driver’s bound account after deducting platform commission, payment gateway fees, compensation or penalty charges.",
+    "P|4.3 Driver is responsible to file income tax to LHDN Malaysia independently. Platform does NOT withhold personal tax on behalf of Driver.",
+    "P|4.4 For passenger refunds or compensation claims, Platform may deduct relevant amount from pending settlement before releasing funds.",
+    "H|5. Driver Obligations",
+    "P|5.1 Accept and complete orders punctually. If unable to fulfil, cancel in APP in advance and bear penalties as per rules.",
+    "P|5.2 Maintain good service conduct. No harassment, insult or unauthorised surcharge / forced tipping to passengers.",
+    "P|5.3 Obey traffic rules strictly. No drunk driving, speeding or dangerous driving. Safeguard passenger safety.",
+    "P|5.4 Keep passenger belongings safe and assist returning lost items.",
+    "P|5.5 Protect passenger privacy: No unauthorised photo, recording or disclosure of passenger identity, contact number or travel itinerary.",
+    "P|5.6 Remind passengers to prepare passport, visa and immigration documents for cross-border trips. Never assist passengers to smuggle or carry prohibited goods.",
+    "P|5.7 Only use your own account. Account lending or renting to third parties is prohibited.",
+    "H|6. Platform Rights & Obligations",
+    "P|6.1 Maintain APP system, push orders, process payment and store trip records.",
+    "P|6.2 Receive passenger complaints and conduct investigation and adjudication for order disputes.",
+    "P|6.3 Implement rating system. Low rating drivers may receive restricted order allocation, temporary suspension or permanent account termination.",
+    "P|6.4 Platform does not guarantee order volume or minimum income.",
+    "P|6.5 Platform protects driver personal data as per Privacy Policy, and will not disclose data unless legally requested by authorities.",
+    "H|7. Order Cancellation, Breach & Liability Allocation",
+    "P|7.1 If driver cancels accepted order without valid reason, late pickup or refuses service, Platform may deduct penalty to compensate passenger.",
+    "P|7.2 All losses caused by driver violation, vehicle breakdown or expired documents shall be borne by Driver.",
+    "P|7.3 Passenger-initiated cancellation follows the published Refund Policy.",
+    "H|8. Account Suspension & Termination",
+    "P|8.1 The driver only holds usage right to the account; account transfer or sale is forbidden.",
+    "P|8.2 Platform may immediately suspend order access or permanently terminate account if:",
+    "P|• KYC documents are forged or false",
+    "P|• Dangerous driving, illegal passenger carriage, smuggling or immigration law breach",
+    "P|• Repeated complaints, insulting passengers or off-platform transaction (jump order)",
+    "P|• Using platform for illegal activities",
+    "P|• Failure to renew expired qualification documents",
+    "P|8.3 Upon termination: Platform settles payment for completed orders after deduction of penalties; driver loses order access. Platform retains trip and document records for statutory retention period.",
+    "H|9. Disclaimer & Limitation of Liability",
+    "P|9.1 Platform is purely information intermediary and shall not be liable for traffic accident, personal injury or property loss. Such liabilities are covered by driver and vehicle insurance.",
+    "P|9.2 Platform maintains APP service but does not guarantee uninterrupted service. Platform shall not compensate loss caused by server downtime or network failure.",
+    "P|9.3 Force majeure (border closure, policy change, natural disaster) releases both parties from liability.",
+    "H|10. Governing Law & Dispute",
+    "P|This Agreement is governed by laws of Malaysia. Parties shall negotiate disputes amicably; failing which, disputes shall be submitted to Malaysian competent courts.",
+    "H|11. Miscellaneous",
+    "P|11.1 Platform may revise this Agreement. Continued APP usage after update means acceptance of revised terms.",
+    "P|11.2 Electronic tick acceptance in APP constitutes valid electronic contract.",
+    "P|11.3 This document works together with Privacy Policy, KYC Terms and Refund Policy as full contractual terms.",
+    "P|Electronic Consent:",
+    "P|☐ I have read and fully understood the Driver Service Agreement, Privacy Policy and KYC Terms and agree to abide.",
+)
+
+/** English version (bundle). */
+private val privacyPolicyEn = listOf(
+    "P|Xingyu Zhenlü (“Platform”) respects your personal privacy. This policy applies to passengers, drivers and all users accessing our mobile application.",
+    "H|1. What data we collect",
+    "P|• Identity data (for KYC): Name, NRIC/Passport number, driving licence, vehicle documents, photo / scanned copies of identity documents",
+    "P|• Contact data: Phone number, email",
+    "P|• Trip data: pickup/drop-off location, travel time, order records, GPS location during trip",
+    "P|• Payment data: payment transaction records (we do NOT store full bank / card sensitive credentials)",
+    "P|• App log: device info, login time, error logs",
+    "H|2. Purpose of data collection",
+    "P|• User identity verification and KYC compliance",
+    "P|• Order matching, trip arrangement and communication",
+    "P|• Payment settlement, commission calculation, dispute investigation",
+    "P|• Safety monitoring, fraud prevention and platform risk control",
+    "P|• Comply with Malaysian statutory requirements and government authority requests.",
+    "H|3. Data Sharing",
+    "P|We will NOT sell your personal data to third parties. Data may be shared only:",
+    "P|1. With your explicit consent",
+    "P|2. Required by Malaysian law, court order or government authority",
+    "P|3. Necessary service providers (payment gateway, cloud service, KYC verification vendor), under strict data protection obligation.",
+    "H|4. Data Storage & Retention",
+    "P|Data will be retained only as long as required by business and Malaysian legal requirements. After retention period, data will be securely anonymised or deleted.",
+    "H|5. User Rights",
+    "P|You have the right to request access, correction or deletion of your personal data subject to applicable Malaysian personal data laws.",
+    "H|6. Data Security",
+    "P|We adopt industry-standard technical safeguards to protect stored data from unauthorised access, loss or leakage. Absolute security cannot be guaranteed.",
+    "H|7. Minor",
+    "P|Our service is not intended for minors under legal age.",
+    "H|8. Update of Policy",
+    "P|We may update this Privacy Policy. Notification will be shown in APP. Continued use equals acceptance of updated version.",
+    "H|9. Contact",
+    "P|For privacy enquiries, contact the Platform administrator.",
+    "P|Governing Law: Malaysia",
+)
+
+/** English version (bundle). */
+private val kycPolicyEn = listOf(
+    "P|These terms apply to all drivers and users required to complete KYC verification on Xingyu Zhenlü Platform.",
+    "P|1. Purpose of KYC",
+    "P|KYC is required for identity validation, fraud prevention, regulatory compliance, risk control and safety of cross-border transport service.",
+    "P|2. Obligation to submit true documents",
+    "P|You must submit genuine, unmodified, valid identity documents (Malaysian NRIC, passport, driving licence, vehicle papers as requested). All information must match your real identity.",
+    "P|Forged, altered or fake documents will result in immediate account suspension, termination and report to relevant authorities.",
+    "P|3. Data processing",
+    "P|Your uploaded ID scans, photos and biometric data (Face ID verification) will be processed for identity checking. Data is handled in accordance with our Privacy Policy.",
+    "P|4. Verification Process",
+    "P|The Platform or authorised third-party KYC vendor will validate your submitted materials. Verification may be rejected if documents blurry, expired or inconsistent. You shall resubmit materials upon rejection.",
+    "P|5. Periodic re-verification",
+    "P|The Platform reserves right to request re-KYC at any time, for example before document expiry. Failure to complete re-verification will suspend service access.",
+    "P|6. Consent",
+    "P|By submitting documents and completing face verification, you consent to the Platform processing your identity information for KYC purpose.",
+    "P|7. Governing law: Malaysia",
+)
+
+/** English version (bundle). */
+private val refundPolicyEn = listOf(
+    "P|This Refund Policy applies to all orders booked via Xingyu Zhenlü passenger APP.",
+    "P|1. Order Cancellation Timelines & Refund Ratio",
+    "P|Cancellation rules depend on how long before trip commencement the cancellation is submitted, detailed inside APP order page.",
+    "P|• Early cancellation: higher refund percentage",
+    "P|• Short notice / last-minute cancellation: partial refund or no refund",
+    "P|• No-show by passenger: normally non-refundable",
+    "P|2. Driver-side breach",
+    "P|If driver cancels confirmed order without valid reason or fails to arrive, Platform will process refund according to applicable rules.",
+    "P|3. Non-refundable scenarios",
+    "P|• Trip has already been completed",
+    "P|• Service interruption caused by passenger’s personal reason, invalid travel documents, immigration rejection",
+    "P|• Force majeure events such as border closure, natural disaster, government restriction",
+    "P|4. Refund processing",
+    "P|Approved refunds will be returned to original payment method within published processing period. Bank processing delays are outside Platform’s control.",
+    "P|5. Dispute",
+    "P|If you disagree with refund decision, you may submit evidence to Platform customer service for review.",
+    "P|6. Policy update",
+    "P|Platform reserves the right to revise this policy. Updated version will be published on APP.",
+)
+
+/** English version (bundle). */
+private val disclaimerPolicyEn = listOf(
+    "P|1. Xingyu Zhenlü is purely an information intermediary platform. The Platform does NOT provide passenger transportation service and is NOT the carrier of any charter trip. All carriage service is provided by independent registered drivers.",
+    "P|2. The Platform does not control driver behaviour, vehicle condition or road safety. The Platform is not liable for accidents, injuries, loss or damage to person or property arising during road transportation. All such liabilities rest with driver and vehicle insurance.",
+    "P|3. The Platform cannot guarantee uninterrupted APP service. Service may be interrupted due to internet outage, server maintenance or third-party vendor failure. Platform shall not compensate loss caused by such interruption.",
+    "P|4. The Platform is not responsible for cross-border immigration clearance success. Passengers must hold valid travel documents and comply with MY/SG immigration rules.",
+    "P|5. Force majeure events (war, pandemic, border control, natural disaster, government policy change) release Platform from liability for unfulfilled orders.",
+    "P|6. All user-generated content, driver information on platform is only for reference. Platform does not warrant absolute accuracy of driver self-submitted data.",
+    "P|This disclaimer is governed by Malaysian law.",
+)
+
+/** English version (bundle). */
+private val eulaPolicyEn = listOf(
+    "P|Between Xingyu Zhenlü (Licensor) and you (End User, licensee). This applies to Xingyu Zhenlü mobile application software.",
+    "P|1. License Grant",
+    "P|The Platform grants you a limited, non-exclusive, non-transferable license to install and use this APP solely to access platform service on mobile device. You may not copy, modify, reverse-engineer, decompile, crack, redistribute or resell the APP software.",
+    "P|2. Intellectual Property",
+    "P|All copyright, trademark, trade secret and intellectual property rights of APP software, logo, source code belong to Xingyu Zhenlü. No right of ownership is transferred to you.",
+    "P|3. Prohibited Use",
+    "P|You shall not use this APP for illegal activity, fraud, harassment, violation of cross-border or traffic law.",
+    "P|4. No Warranty",
+    "P|THE SOFTWARE IS PROVIDED “AS IS”. THE LICENSOR MAKES NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION WARRANTIES OF MERCHANTABILITY OR FITNESS FOR PARTICULAR PURPOSE. The Platform does not guarantee bug-free or uninterrupted operation.",
+    "P|5. Limitation of Liability",
+    "P|To maximum extent permitted by Malaysian law, Licensor shall not be liable for indirect, consequential, special damages arising from APP usage.",
+    "P|6. Termination",
+    "P|This license terminates automatically if you breach this EULA. Upon termination, you must cease using and delete the APP.",
+    "P|7. Governing Law: Malaysia",
+    "P|Electronic consent checkbox:",
+    "P|☐ I read and accept this End User License Agreement",
+)
+
+/** English version (bundle). */
+private val dataRetentionPolicyEn = listOf(
+    "P|This statement supplements the Privacy Policy of Xingyu Zhenlü.",
+    "P|1. Purpose",
+    "P|This statement describes how we retain, store, protect and dispose user data collected through our APP.",
+    "P|2. Retention Period",
+    "P|• Order, trip, transaction records: retained for the period required under Malaysian tax and commercial regulatory requirements.",
+    "P|• KYC identity documents: kept for compliance and risk investigation purpose; deleted or anonymised once retention requirement ends.",
+    "P|• Log data: stored for limited security audit period and purged after expiry.",
+    "P|3. Data Protection Measures",
+    "P|We implement access control, encryption, cloud security configuration to protect stored personal data. Access to sensitive documents is restricted to authorised staff only.",
+    "P|4. Data Destruction",
+    "P|When retention period expires, data will be securely erased or anonymised such that individuals can no longer be identified.",
+    "P|5. Data Breach Response",
+    "P|If personal data breach occurs, Platform will follow applicable Malaysian regulations to assess risk and notify affected users and authority as required.",
+    "P|6. Your responsibility",
+    "P|Users must keep their account password secure and avoid account leakage.",
+    "P|7. Governing law: Malaysia",
+)
+
+/** English version (bundle). */
+private val rateSchedulePolicyEn = listOf(
+    "P|This document is an annex to Driver Service Agreement.",
+    "P|1. Commission",
+    "P|Platform service commission rate is calculated against gross order value for each successfully completed trip. The rate will be clearly shown inside driver APP. Platform reserves right to adjust commission rate with prior notice published on driver APP.",
+    "P|2. Deduction items",
+    "P|From settlement amount, Platform may deduct:",
+    "P|• Platform service commission",
+    "P|• Payment gateway transaction fees",
+    "P|• Penalties, passenger compensation, refund losses incurred from the driver’s breach of agreement",
+    "P|3. Settlement Cycle",
+    "P|Settlement cycle will be displayed inside Driver APP wallet page. Funds will be released after deduction of applicable charges.",
+    "P|4. Tax",
+    "P|All income received by driver is driver’s own taxable income. Driver is responsible to file tax return to LHDN Malaysia independently. Platform does not withhold tax.",
+    "P|5. Adjustment",
+    "P|Platform may revise commission and settlement rules with notice on APP. Continued use of driver APP after notice means acceptance of revised schedule.",
+    "P|6. This Schedule is an integral annex of Driver Service Agreement, governed by Malaysian law.",
+)
+
+/** 司机费率与佣金（中文） */
+private val rateSchedulePolicy = listOf(
+    "P|本附件为《司机服务协议》的组成部分。",
+    "H|1. 佣金",
+    "P|平台按每笔成功完成订单的订单总额计算服务佣金，费率在司机端 APP 内公示。平台有权调整佣金费率，并提前在司机端公示。",
+    "H|2. 扣款项目",
+    "P|平台可从结算金额中扣除：",
+    "P|• 平台服务佣金；",
+    "P|• 支付通道交易手续费；",
+    "P|• 因司机违约产生的罚款、乘客赔偿、退款损失。",
+    "H|3. 结算周期",
+    "P|结算周期在司机端钱包页面展示，扣除相关费用后放款。",
+    "H|4. 税务",
+    "P|司机取得的全部收入为司机个人应税收入，司机应自行向马来西亚 LHDN 申报纳税，平台不代扣代缴。",
+    "H|5. 调整",
+    "P|平台可提前在 APP 公示修改佣金与结算规则；公示后继续使用司机端 APP 视为同意修改后的费率表。",
+    "H|6. 效力",
+    "P|本费率表为《司机服务协议》不可分割的附件，受马来西亚法律管辖。",
+)
+
+@Composable
+fun RateScheduleScreen(onBack: () -> Unit = {}) {
+    val en = AppLanguageStore.language == AppLanguage.EN
+    PolicyScreen(
+        title = if (en) "Driver Rate & Commission Schedule" else "司机费率与佣金",
+        blocks = if (en) rateSchedulePolicyEn else rateSchedulePolicy,
+        onBack = onBack
+    )
+}
