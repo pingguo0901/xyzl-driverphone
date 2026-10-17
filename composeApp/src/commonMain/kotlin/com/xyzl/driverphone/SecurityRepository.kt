@@ -5,6 +5,7 @@ import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -48,6 +49,61 @@ class SecurityRepository(
 ) {
 
     // ---------------------------------------------------------- 登录设备
+
+    /**
+     * 登录 / 注册成功后把当前设备写进 se_user_devices。
+     * 唯一索引是 partial index（WHERE deleted_at IS NULL），ON CONFLICT 带不了条件 → 先查后写。
+     * 返回 null = 成功；失败只回文案，绝不阻断登录。
+     */
+    suspend fun recordCurrentDevice(userId: String): String? = try {
+        val deviceId = DeviceInfo.deviceId()
+        val existing = supabase.postgrest.from("se_user_devices")
+            .select(Columns.list("id")) {
+                filter {
+                    eq("user_id", userId)
+                    eq("device_id", deviceId)
+                }
+                limit(1)
+            }
+            .decodeList<JsonObject>()
+            .firstOrNull()?.s("id")
+
+        if (existing != null) {
+            supabase.postgrest.from("se_user_devices").update(
+                buildJsonObject {
+                    put("device_name", DeviceInfo.deviceName())
+                    put("device_model", DeviceInfo.deviceModel())
+                    put("device_type", DeviceInfo.deviceType())
+                    put("os_name", DeviceInfo.osName())
+                    put("os_version", DeviceInfo.osVersion())
+                    put("app_version", DeviceInfo.appVersion())
+                    put("last_login_at", "now")
+                    put("is_active", true)
+                    put("deleted_at", JsonNull)
+                },
+            ) { filter { eq("id", existing) } }
+        } else {
+            supabase.postgrest.from("se_user_devices").insert(
+                buildJsonObject {
+                    put("user_id", userId)
+                    put("device_id", deviceId)
+                    put("device_name", DeviceInfo.deviceName())
+                    put("device_model", DeviceInfo.deviceModel())
+                    put("device_type", DeviceInfo.deviceType())
+                    put("os_name", DeviceInfo.osName())
+                    put("os_version", DeviceInfo.osVersion())
+                    put("app_version", DeviceInfo.appVersion())
+                    put("last_login_at", "now")
+                    put("is_active", true)
+                },
+            )
+        }
+        null
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        "设备信息写入失败：" + (e.message ?: "未知错误").take(120)
+    }
 
     suspend fun devices(userId: String): List<DeviceRow> {
         val rows = safe {

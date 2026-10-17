@@ -146,6 +146,8 @@ class AuthRepository(
             this.email = email.trim()
             this.password = password
         }
+        // 登录成功 → 记录当前设备（登录设备管理页才有数据）
+        supabase.auth.currentUserOrNull()?.id?.let { recordDevice(it) }
         Result.success(Unit)
     } catch (e: CancellationException) {
         throw e
@@ -321,6 +323,9 @@ class AuthRepository(
             passportUri = payload.passportUri,
         )
 
+        // 注册成功 → 同样记录当前设备
+        recordDevice(userId)
+
         // 会话先于档案到位：刷新一次，让登录态重新取 primary_role（不刷新会带着 null）
         try {
             supabase.auth.refreshCurrentSession()
@@ -445,6 +450,16 @@ class AuthRepository(
             throw e
         } catch (e: Exception) {
             false
+        }
+    }
+
+    /** 记录登录设备；失败不影响登录/注册主流程 */
+    private suspend fun recordDevice(userId: String) {
+        try {
+            SecurityRepository(supabase).recordCurrentDevice(userId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
         }
     }
 
