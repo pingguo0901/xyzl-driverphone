@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -121,7 +124,7 @@ fun WalletScanTab(userId: String? = null) {
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             ScanRoundAction(
-                label = "相册",
+                label = LocalStrings.current.s0070,
                 icon = Icons.Filled.PhotoLibrary,
                 active = false,
             ) {
@@ -131,7 +134,7 @@ fun WalletScanTab(userId: String? = null) {
                 }
             }
             ScanRoundAction(
-                label = if (torchOn) "关闭闪光灯" else "闪光灯",
+                label = if (torchOn) LocalStrings.current.s0114 else LocalStrings.current.s0194,
                 icon = if (torchOn) Icons.Filled.FlashlightOn else Icons.Filled.FlashlightOff,
                 active = torchOn,
             ) {
@@ -154,7 +157,7 @@ fun WalletScanTab(userId: String? = null) {
         AlertDialog(
             onDismissRequest = { scanned = null },
             containerColor = ScanCard,
-            title = { Text("扫描结果", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ScanInk) },
+            title = { Text(LocalStrings.current.s0136, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ScanInk) },
             text = { Text(result, fontSize = 14.sp, color = ScanInk) },
             confirmButton = {
                 TextButton(onClick = {
@@ -162,11 +165,11 @@ fun WalletScanTab(userId: String? = null) {
                     scanned = null
                     if (url.startsWith("http")) openUrl(url)
                 }) {
-                    Text("打开", color = ScanGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.s0446, color = ScanGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { scanned = null }) { Text("关闭", color = ScanMuted) }
+                TextButton(onClick = { scanned = null }) { Text(LocalStrings.current.s0304, color = ScanMuted) }
             },
         )
     }
@@ -175,10 +178,10 @@ fun WalletScanTab(userId: String? = null) {
         AlertDialog(
             onDismissRequest = { notFound = false },
             containerColor = ScanCard,
-            title = { Text("未识别到二维码", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ScanInk) },
-            text = { Text("这张图片里没有找到二维码，换一张再试试。", fontSize = 14.sp, color = ScanMuted) },
+            title = { Text(LocalStrings.current.s0538, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ScanInk) },
+            text = { Text(LocalStrings.current.s0720, fontSize = 14.sp, color = ScanMuted) },
             confirmButton = {
-                TextButton(onClick = { notFound = false }) { Text("确定", color = ScanGreen) }
+                TextButton(onClick = { notFound = false }) { Text(LocalStrings.current.confirm, color = ScanGreen) }
             },
         )
     }
@@ -209,7 +212,7 @@ private fun ScanFrameView() {
             }
         }
         Text(
-            "将二维码放入框内",
+            LocalStrings.current.s0126,
             fontSize = 12.sp,
             color = ScanMuted,
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 18.dp),
@@ -275,7 +278,7 @@ private fun ReceiveQrView(qr: WalletQrInfo?) {
                 Spacer(Modifier.height(14.dp))
                 Text("$currency $amount", fontSize = 26.sp, fontWeight = FontWeight.SemiBold, color = ScanGreen)
                 Spacer(Modifier.height(6.dp))
-                Text("该二维码有效时间 $remaining 秒", fontSize = 12.sp, color = ScanMuted)
+                Text(LocalStrings.current.s0661.fill(remaining), fontSize = 12.sp, color = ScanMuted)
             }
 
             Spacer(Modifier.height(18.dp))
@@ -291,18 +294,18 @@ private fun ReceiveQrView(qr: WalletQrInfo?) {
                 Box(
                     Modifier.weight(1f).fillMaxSize().clickable {
                         val ok = saveQrToGallery(payload)
-                        hint = if (ok) "二维码已保存到手机相册" else "保存失败，请检查相册权限后重试"
+                        hint = if (ok) LocalStrings.current.s0251 else LocalStrings.current.s0290
                     },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("下载二维码", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = ScanGreen)
+                    Text(LocalStrings.current.s0236, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = ScanGreen)
                 }
                 Box(Modifier.size(1.dp, 22.dp).background(ScanMuted.copy(alpha = 0.3f)))
                 Box(
                     Modifier.weight(1f).fillMaxSize().clickable { showAmountDialog = true },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("输入特定金额", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = ScanGreen)
+                    Text(LocalStrings.current.s0185, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = ScanGreen)
                 }
             }
         }
@@ -312,10 +315,10 @@ private fun ReceiveQrView(qr: WalletQrInfo?) {
         AlertDialog(
             onDismissRequest = { showAmountDialog = false },
             containerColor = ScanCard,
-            title = { Text("输入特定金额", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ScanInk) },
+            title = { Text(LocalStrings.current.s0185, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ScanInk) },
             text = {
                 Column {
-                    Text("货币", fontSize = 13.sp, color = ScanMuted)
+                    Text(LocalStrings.current.s0076, fontSize = 13.sp, color = ScanMuted)
                     Spacer(Modifier.height(10.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         listOf("SGD", "MYR").forEach { cur ->
@@ -332,9 +335,9 @@ private fun ReceiveQrView(qr: WalletQrInfo?) {
                     }
                     Spacer(Modifier.height(16.dp))
                     FormTextField(
-                        label = "金额",
+                        label = LocalStrings.current.s0042,
                         value = dialogAmount,
-                        placeholder = "请输入金额",
+                        placeholder = LocalStrings.current.s0179,
                         onValueChange = { dialogAmount = it },
                         keyboardNumber = true,
                     )
@@ -351,7 +354,7 @@ private fun ReceiveQrView(qr: WalletQrInfo?) {
                         dialogAmount = ""
                     },
                 ) {
-                    Text("确定", color = ScanGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.confirm, color = ScanGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
@@ -365,9 +368,9 @@ private fun ReceiveQrView(qr: WalletQrInfo?) {
         AlertDialog(
             onDismissRequest = { hint = null },
             containerColor = ScanCard,
-            title = { Text("提示", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ScanInk) },
+            title = { Text(LocalStrings.current.s0002, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ScanInk) },
             text = { Text(message, fontSize = 14.sp, color = ScanMuted) },
-            confirmButton = { TextButton(onClick = { hint = null }) { Text("确定", color = ScanGreen) } },
+            confirmButton = { TextButton(onClick = { hint = null }) { Text(LocalStrings.current.confirm, color = ScanGreen) } },
         )
     }
 }

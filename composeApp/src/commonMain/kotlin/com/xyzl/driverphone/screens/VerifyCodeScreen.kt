@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -57,10 +60,10 @@ fun VerifyCodeScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "验证码", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0762, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
-        Text("验证码已发送至", color = FormMuted, fontSize = 13.sp, modifier = Modifier.padding(start = 2.dp))
+        Text(LocalStrings.current.s0763, color = FormMuted, fontSize = 13.sp, modifier = Modifier.padding(start = 2.dp))
         Text(
             email.ifBlank { "—" },
             color = FormInk,
@@ -78,7 +81,7 @@ fun VerifyCodeScreen(
                 value = code,
                 onValueChange = { code = sanitizeCode(it) },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("6 位验证码", color = FormMuted) },
+                placeholder = { Text(LocalStrings.current.s0208, color = FormMuted) },
                 shape = RoundedCornerShape(14.dp),
                 singleLine = true,
                 colors = formFieldColors(),
@@ -96,7 +99,7 @@ fun VerifyCodeScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = if (seconds > 0) "重发 " + seconds + "s" else "重发",
+                    text = if (seconds > 0) LocalStrings.current.s0740 + seconds + "s" else LocalStrings.current.s0739,
                     color = if (seconds == 0) androidx.compose.ui.graphics.Color.White else FormMuted,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -106,7 +109,7 @@ fun VerifyCodeScreen(
 
         Spacer(Modifier.height(20.dp))
         FormPrimaryButton(
-            text = "确认",
+            text = LocalStrings.current.s0071,
             onClick = { onConfirm(code) },
             enabled = code.length == 6,
         )

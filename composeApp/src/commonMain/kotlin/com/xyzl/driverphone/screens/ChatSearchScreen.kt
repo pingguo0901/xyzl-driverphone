@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -97,9 +100,9 @@ fun ChatSearchScreen(
                     textStyle = androidx.compose.ui.text.TextStyle(color = FormInk, fontSize = 14.sp),
                     modifier = Modifier.fillMaxWidth(),
                 )
-                if (keyword.isEmpty()) Text("搜索", color = FormMuted, fontSize = 14.sp)
+                if (keyword.isEmpty()) Text(LocalStrings.current.s0064, color = FormMuted, fontSize = 14.sp)
             }
-            TextButton(onClick = { type = -1 }) { Text("搜索", color = FormGreen, fontWeight = FontWeight.SemiBold) }
+            TextButton(onClick = { type = -1 }) { Text(LocalStrings.current.s0064, color = FormGreen, fontWeight = FontWeight.SemiBold) }
         }
 
         Row(
@@ -132,7 +135,7 @@ fun ChatSearchScreen(
         if (type == 0) {
             Spacer(Modifier.height(8.dp))
             Text(
-                if (pickedDate == null) "点击「日期」选择一天，或再点一次重新选" else "日期：" + pickedDate,
+                if (pickedDate == null) LocalStrings.current.s0583 else LocalStrings.current.s0143 + pickedDate,
                 color = FormMuted, fontSize = 12.sp,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
@@ -141,7 +144,7 @@ fun ChatSearchScreen(
         Spacer(Modifier.height(10.dp))
         if (results.isEmpty()) {
             Box(Modifier.fillMaxWidth().padding(top = 40.dp), contentAlignment = Alignment.Center) {
-                Text("没有找到相关聊天记录", color = FormMuted, fontSize = 13.sp)
+                Text(LocalStrings.current.s0558, color = FormMuted, fontSize = 13.sp)
             }
         } else {
             LazyColumn(
@@ -190,7 +193,7 @@ fun ChatRecordCard(msg: ChatMessage, onClick: () -> Unit) {
 /** 消息内容的可读文本（用于搜索与记录列表） */
 fun bodyText(body: ChatBody): String = when (body) {
     is ChatBody.Text -> body.text
-    is ChatBody.Album -> "[图片与视频] " + body.uris.size + " 个"
+    is ChatBody.Album -> LocalStrings.current.s0218 + body.uris.size + " 个"
     is ChatBody.File -> "[文件] " + body.name
     is ChatBody.Location -> "[位置] " + body.name
     is ChatBody.Card -> "[名片] " + body.title

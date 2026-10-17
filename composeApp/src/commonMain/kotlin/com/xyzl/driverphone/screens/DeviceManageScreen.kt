@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -97,8 +100,8 @@ fun DeviceManageScreen(userId: String? = null, onBack: () -> Unit = {}) {
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
         FormPageHeaderAction(
-            title = "登录设备管理",
-            actionLabel = if (editing) "完成" else "编辑",
+            title = LocalStrings.current.s0069,
+            actionLabel = if (editing) "完成" else LocalStrings.current.s0630,
             onBack = onBack,
             onAction = {
                 editing = !editing
@@ -107,10 +110,10 @@ fun DeviceManageScreen(userId: String? = null, onBack: () -> Unit = {}) {
         )
         Spacer(Modifier.height(16.dp))
 
-        FormSectionTitle("已登录的设备")
+        FormSectionTitle(LocalStrings.current.s0382)
         when {
-            !loaded -> Text("加载中…", fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
-            active.isEmpty() -> Text("暂无已登录设备", fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
+            !loaded -> Text(LocalStrings.current.s0007, fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
+            active.isEmpty() -> Text(LocalStrings.current.s0506, fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
             else -> active.forEach { device ->
                 DeviceRowView(
                     device = device,
@@ -126,10 +129,10 @@ fun DeviceManageScreen(userId: String? = null, onBack: () -> Unit = {}) {
         }
 
         Spacer(Modifier.height(8.dp))
-        FormSectionTitle("已退出的设备")
+        FormSectionTitle(LocalStrings.current.s0388)
         when {
-            !loaded -> Text("加载中…", fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
-            inactive.isEmpty() -> Text("暂无已退出设备", fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
+            !loaded -> Text(LocalStrings.current.s0007, fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
+            inactive.isEmpty() -> Text(LocalStrings.current.s0507, fontSize = 13.sp, color = FormMuted, modifier = Modifier.padding(start = 2.dp, bottom = 12.dp))
             else -> inactive.forEach { device ->
                 DeviceRowView(
                     device = device,
@@ -155,7 +158,7 @@ fun DeviceManageScreen(userId: String? = null, onBack: () -> Unit = {}) {
             containerColor = FormCard,
             title = {
                 Text(
-                    if (isActive) "退出该设备" else "删除设备记录",
+                    if (isActive) LocalStrings.current.s0187 else LocalStrings.current.s0313,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = FormInk,
@@ -163,7 +166,7 @@ fun DeviceManageScreen(userId: String? = null, onBack: () -> Unit = {}) {
             },
             text = {
                 Text(
-                    if (isActive) "退出后，下次在该设备登录时需要进行安全验证。" else "删除后这条记录不再显示。",
+                    if (isActive) LocalStrings.current.s0723 else LocalStrings.current.s0311,
                     fontSize = 14.sp,
                     color = FormMuted,
                     lineHeight = 20.sp,
@@ -180,7 +183,7 @@ fun DeviceManageScreen(userId: String? = null, onBack: () -> Unit = {}) {
                         if (err == null) reload() else hint = err
                     }
                 }) {
-                    Text(if (isActive) "退出" else "删除", color = FormRed, fontWeight = FontWeight.SemiBold)
+                    Text(if (isActive) LocalStrings.current.s0078 else LocalStrings.current.s0024, color = FormRed, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
@@ -196,11 +199,11 @@ fun DeviceManageScreen(userId: String? = null, onBack: () -> Unit = {}) {
         AlertDialog(
             onDismissRequest = { hint = null },
             containerColor = FormCard,
-            title = { Text("提示", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            title = { Text(LocalStrings.current.s0002, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
             text = { Text(message, fontSize = 14.sp, color = FormMuted) },
             confirmButton = {
                 TextButton(onClick = { hint = null }) {
-                    Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.confirm, color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )
@@ -291,7 +294,7 @@ private fun DeviceDetailScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "设备详情", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0655, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
         Card(
@@ -315,7 +318,7 @@ private fun DeviceDetailScreen(
 
         Spacer(Modifier.height(24.dp))
         if (device.isActive) {
-            FormPrimaryButton(text = "退出该设备", onClick = onLogout, danger = true)
+            FormPrimaryButton(text = LocalStrings.current.s0187, onClick = onLogout, danger = true)
         }
         Spacer(Modifier.height(110.dp))
     }

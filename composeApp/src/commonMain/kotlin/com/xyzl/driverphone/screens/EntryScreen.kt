@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -65,7 +68,7 @@ fun EntryScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    "登 录",
+                    LocalStrings.current.s0602,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFFFFFFF),
@@ -86,7 +89,7 @@ fun EntryScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    "注 册",
+                    LocalStrings.current.s0154,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF3B82F6),

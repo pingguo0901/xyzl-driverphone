@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -155,7 +158,7 @@ fun WalletTransferTab(userId: String? = null, wallets: List<WalletInfo> = emptyL
                         } else {
                             StepRow(1, "从", fromSummary(fromIndex, accounts), step == 1, { step = if (step == 1) 0 else 1 }) {
                                 if (accounts.isEmpty()) {
-                                    Text("暂无钱包账户", fontSize = 13.sp, color = TrMuted, modifier = Modifier.padding(vertical = 12.dp))
+                                    Text(LocalStrings.current.s0518, fontSize = 13.sp, color = TrMuted, modifier = Modifier.padding(vertical = 12.dp))
                                 }
                                 accounts.forEachIndexed { index, acc ->
                                     PayeeRow(
@@ -175,10 +178,10 @@ fun WalletTransferTab(userId: String? = null, wallets: List<WalletInfo> = emptyL
                                 ) {
                                     Icon(Icons.Filled.Add, contentDescription = null, tint = TrGreen, modifier = Modifier.size(18.dp))
                                     Spacer(Modifier.width(8.dp))
-                                    Text("新转账", fontSize = 14.sp, color = TrGreen, fontWeight = FontWeight.Medium)
+                                    Text(LocalStrings.current.s0485, fontSize = 14.sp, color = TrGreen, fontWeight = FontWeight.Medium)
                                 }
                                 if (payees.isEmpty()) {
-                                    Text("暂无联系人，点「新转账」按账号搜索", fontSize = 13.sp, color = TrMuted, modifier = Modifier.padding(vertical = 12.dp))
+                                    Text(LocalStrings.current.s0511, fontSize = 13.sp, color = TrMuted, modifier = Modifier.padding(vertical = 12.dp))
                                 }
                                 payees.forEach { payee ->
                                     PayeeRow(title = payee.name, subtitle = payee.accountNumber) {
@@ -200,18 +203,18 @@ fun WalletTransferTab(userId: String? = null, wallets: List<WalletInfo> = emptyL
                             }
                             StepRow(4, "其他详情", payDate, step == 4, { step = if (step == 4) 0 else 4 }) {
                                 FormTextField(
-                                    label = "备注",
+                                    label = LocalStrings.current.s0123,
                                     value = remark,
-                                    placeholder = "请输入备注（选填）",
+                                    placeholder = LocalStrings.current.s0673,
                                     onValueChange = { remark = it },
                                 )
                                 Row(
                                     Modifier.fillMaxWidth().clickable { pickBirthday { payDate = it } }.padding(vertical = 14.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Text("付款日期", fontSize = 15.sp, color = TrInk, modifier = Modifier.weight(1f))
+                                    Text(LocalStrings.current.s0268, fontSize = 15.sp, color = TrInk, modifier = Modifier.weight(1f))
                                     Text(
-                                        payDate.ifBlank { "选择日期" },
+                                        payDate.ifBlank { LocalStrings.current.s0041 },
                                         fontSize = 14.sp,
                                         color = if (payDate.isBlank()) TrMuted else TrInk,
                                     )
@@ -234,7 +237,7 @@ fun WalletTransferTab(userId: String? = null, wallets: List<WalletInfo> = emptyL
             }
             if (doneSteps) {
                 Spacer(Modifier.height(12.dp))
-                FormPrimaryButton(text = "继续", onClick = { phase = 1 })
+                FormPrimaryButton(text = LocalStrings.current.s0628, onClick = { phase = 1 })
             }
             Spacer(Modifier.height(12.dp))
         }
@@ -293,9 +296,9 @@ fun WalletTransferTab(userId: String? = null, wallets: List<WalletInfo> = emptyL
         AlertDialog(
             onDismissRequest = { error = null },
             containerColor = TrCard,
-            title = { Text("转账失败", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = TrInk) },
+            title = { Text(LocalStrings.current.s0709, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = TrInk) },
             text = { Text(message, fontSize = 14.sp, color = TrMuted) },
-            confirmButton = { TextButton(onClick = { error = null }) { Text("确定", color = TrGreen) } },
+            confirmButton = { TextButton(onClick = { error = null }) { Text(LocalStrings.current.confirm, color = TrGreen) } },
         )
     }
 }
@@ -381,11 +384,11 @@ private fun TransferAmountPad(
     onDone: () -> Unit,
 ) {
     Column(Modifier.fillMaxWidth()) {
-        Text("货币", fontSize = 12.sp, color = TrMuted)
+        Text(LocalStrings.current.s0076, fontSize = 12.sp, color = TrMuted)
         Spacer(Modifier.height(4.dp))
         Text(currency, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = TrInk)
         Spacer(Modifier.height(12.dp))
-        Text("金额", fontSize = 12.sp, color = TrMuted)
+        Text(LocalStrings.current.s0042, fontSize = 12.sp, color = TrMuted)
         Spacer(Modifier.height(4.dp))
         Text(formatCents(amountCents), fontSize = 26.sp, fontWeight = FontWeight.SemiBold, color = TrInk)
         Spacer(Modifier.height(10.dp))
@@ -416,7 +419,7 @@ private fun TransferAmountPad(
                         contentAlignment = Alignment.Center,
                     ) {
                         if (key == "<") {
-                            Icon(Icons.Filled.Close, contentDescription = "删除", tint = TrInk, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Filled.Close, contentDescription = LocalStrings.current.s0024, tint = TrInk, modifier = Modifier.size(20.dp))
                         } else {
                             Text(
                                 key,
@@ -446,14 +449,14 @@ private fun NewTransferView(
 
     Column(Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
         FormTextField(
-            label = "帐户号码",
+            label = LocalStrings.current.s0397,
             value = query,
-            placeholder = "请输入对方帐户号码",
+            placeholder = LocalStrings.current.s0675,
             onValueChange = { query = it },
             keyboardNumber = true,
         )
         FormPrimaryButton(
-            text = "搜索",
+            text = LocalStrings.current.s0064,
             enabled = query.isNotBlank(),
             onClick = {
                 searched = true
@@ -467,7 +470,7 @@ private fun NewTransferView(
             if (found != null) {
                 PayeeRow(title = found.name, subtitle = found.accountNumber) { onPicked(found) }
             } else {
-                Text("未找到该帐户", fontSize = 13.sp, color = TrMuted)
+                Text(LocalStrings.current.s0533, fontSize = 13.sp, color = TrMuted)
             }
         }
         Spacer(Modifier.height(12.dp))
@@ -491,7 +494,7 @@ private fun TransferSummary(
         SummaryRow("3  转账金额", listOf(centsLabel(currency, amountCents)))
         SummaryRow("4  其他详情", listOfNotNull(remark.takeIf { it.isNotBlank() }, payDate.takeIf { it.isNotBlank() }))
         Spacer(Modifier.height(6.dp))
-        TextButton(onClick = onEdit) { Text("修改", color = TrGreen) }
+        TextButton(onClick = onEdit) { Text(LocalStrings.current.s0294, color = TrGreen) }
     }
 }
 
@@ -530,15 +533,15 @@ private fun TransferConfirm(
             HorizontalDivider(color = TrDivide, thickness = 1.dp)
             Spacer(Modifier.height(8.dp))
             Row(Modifier.fillMaxWidth().padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("转账日期", fontSize = 14.sp, color = TrMuted, modifier = Modifier.weight(1f))
+                Text(LocalStrings.current.s0711, fontSize = 14.sp, color = TrMuted, modifier = Modifier.weight(1f))
                 Text(payDate, fontSize = 14.sp, color = TrInk)
             }
             Row(Modifier.fillMaxWidth().padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("转账金额", fontSize = 14.sp, color = TrMuted, modifier = Modifier.weight(1f))
+                Text(LocalStrings.current.s0184, fontSize = 14.sp, color = TrMuted, modifier = Modifier.weight(1f))
                 Text(centsLabel(currency, amountCents), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TrInk)
             }
         }
-        FormPrimaryButton(text = if (submitting) "提交中…" else "确认转账", enabled = !submitting, onClick = onConfirm)
+        FormPrimaryButton(text = if (submitting) LocalStrings.current.s0062 else LocalStrings.current.s0617, enabled = !submitting, onClick = onConfirm)
         Spacer(Modifier.height(12.dp))
     }
 }
@@ -578,7 +581,7 @@ private fun TransferTimeline(onFinish: () -> Unit) {
                     if (done) {
                         Icon(Icons.Filled.Check, contentDescription = "完成", tint = TrGreen, modifier = Modifier.size(20.dp))
                     } else {
-                        Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "进行中", tint = TrMuted, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Filled.KeyboardArrowDown, contentDescription = LocalStrings.current.s0077, tint = TrMuted, modifier = Modifier.size(20.dp))
                     }
                 }
                 HorizontalDivider(color = TrDivide, thickness = 1.dp)

@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,11 +39,11 @@ fun ForgotPasswordScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "忘记密码", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0429, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
         Text(
-            "请输入注册时使用的邮箱地址，我们会把重置密码的链接发到该邮箱。",
+            LocalStrings.current.s0677,
             color = FormMuted,
             fontSize = 13.sp,
             lineHeight = 19.sp,
@@ -48,28 +51,28 @@ fun ForgotPasswordScreen(
         )
 
         FormTextField(
-            label = "邮箱地址",
+            label = LocalStrings.current.s0079,
             value = email,
-            placeholder = "英文 / 数字 / 标点",
+            placeholder = LocalStrings.current.s0004,
             onValueChange = { email = sanitizeEmail(it) },
         )
 
         if (sent) {
             Text(
-                "重置邮件已发送到 $email。请到邮箱点开里面的链接，回到 App 就能设置新密码。",
+                LocalStrings.current.s0742.fill(email),
                 color = FormMuted,
                 fontSize = 13.sp,
                 lineHeight = 19.sp,
                 modifier = Modifier.padding(start = 2.dp, top = 6.dp, bottom = 12.dp),
             )
             FormPrimaryButton(
-                text = "返回登录",
+                text = LocalStrings.current.s0712,
                 onClick = onBack,
                 enabled = true,
             )
         } else {
             FormPrimaryButton(
-                text = "发送重置邮件",
+                text = LocalStrings.current.s0331,
                 onClick = { onSendCode(email); sent = true },
                 enabled = isEmailValid(email),
             )

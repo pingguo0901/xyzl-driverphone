@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -68,7 +71,7 @@ private fun walletAccount(index: Int, wallets: List<WalletInfo>): WalletAccount 
     val currency = if (index == 1) "SGD" else "MYR"
     val w = walletForIndex(index, wallets)
     return WalletAccount(
-        title = when (index) { 0 -> "钱包余额"; 1 -> "代收 SGD"; else -> "代收 MYR" },
+        title = when (index) { 0 -> LocalStrings.current.s0192; 1 -> LocalStrings.current.s0272; else -> LocalStrings.current.s0271 },
         accountNo = w?.accountNumber ?: "-",
         currency = currency,
         available = walletBalanceText(currency, w?.availableBalance ?: 0.0),
@@ -110,7 +113,7 @@ fun WalletScreen(
             .statusBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "我的钱包", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0059, onBack = onBack)
 
         Box(Modifier.fillMaxWidth().weight(1f)) {
             when (tab) {
@@ -201,7 +204,7 @@ private fun WalletBottomBar(selected: Int, onSelect: (Int) -> Unit, showApply: B
                 .clickable { onSelect(2) },
             contentAlignment = Alignment.Center,
         ) {
-            Icon(Icons.Filled.QrCode, contentDescription = "扫码", tint = Color.White, modifier = Modifier.size(28.dp))
+            Icon(Icons.Filled.QrCode, contentDescription = LocalStrings.current.s0137, tint = Color.White, modifier = Modifier.size(28.dp))
         }
     }
 }
@@ -243,12 +246,12 @@ private fun WalletApplyTab() {
     Column(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
             Spacer(Modifier.height(8.dp))
-            FormSectionTitle("申请信息")
+            FormSectionTitle(LocalStrings.current.s0596)
             FormGroup {
-                ApplyInfoRow("申请时间", "${timeParts.first} ${timeParts.second}")
+                ApplyInfoRow(LocalStrings.current.s0599, "${timeParts.first} ${timeParts.second}")
                 ApplyInfoRow(
-                    label = "申请类型",
-                    value = type ?: "请选择",
+                    label = LocalStrings.current.s0168,
+                    value = type ?: LocalStrings.current.s0180,
                     arrow = true,
                     onClick = { showTypeDialog = true },
                 )
@@ -258,7 +261,7 @@ private fun WalletApplyTab() {
                 FormSectionTitle(type ?: "")
                 FormGroup {
                     Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
-                        Text(if (isHandIn) "代收账户" else "货币", fontSize = 13.sp, color = WalletMuted)
+                        Text(if (isHandIn) LocalStrings.current.s0274 else LocalStrings.current.s0076, fontSize = 13.sp, color = WalletMuted)
                         Spacer(Modifier.height(10.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             when {
@@ -277,9 +280,9 @@ private fun WalletApplyTab() {
                 }
                 Spacer(Modifier.height(12.dp))
                 FormTextField(
-                    label = "金额",
+                    label = LocalStrings.current.s0042,
                     value = amount,
-                    placeholder = "请输入金额",
+                    placeholder = LocalStrings.current.s0179,
                     onValueChange = { amount = it },
                     keyboardNumber = true,
                 )
@@ -287,7 +290,7 @@ private fun WalletApplyTab() {
             Spacer(Modifier.height(20.dp))
         }
 
-        FormPrimaryButton(text = "确认申请", enabled = canSubmit, onClick = { submitted = true })
+        FormPrimaryButton(text = LocalStrings.current.s0616, enabled = canSubmit, onClick = { submitted = true })
         Spacer(Modifier.height(12.dp))
     }
 
@@ -295,10 +298,10 @@ private fun WalletApplyTab() {
         AlertDialog(
             onDismissRequest = { showTypeDialog = false },
             containerColor = WalletCard,
-            title = { Text("申请类型", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = WalletInk) },
+            title = { Text(LocalStrings.current.s0168, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = WalletInk) },
             text = {
                 Column {
-                    listOf("预支薪水", "申请发薪", "申请上交", "开销资金").forEach { option ->
+                    listOf(LocalStrings.current.s0755, LocalStrings.current.s0597, LocalStrings.current.s0165, LocalStrings.current.s0054).forEach { option ->
                         Text(
                             option,
                             fontSize = 15.sp,
@@ -327,11 +330,11 @@ private fun WalletApplyTab() {
         AlertDialog(
             onDismissRequest = { submitted = false },
             containerColor = WalletCard,
-            title = { Text("已提交", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = WalletInk) },
+            title = { Text(LocalStrings.current.s0379, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = WalletInk) },
             text = {
                 Text(
                     when {
-                        isExpense -> "申请「开销资金」${currency} ${amount} 已提交。"
+                        isExpense -> LocalStrings.current.s0595.fill(currency, amount)
                         isHandIn -> "申请「上交${handInAccount}」${amount} 已提交。"
                         else -> "申请「${type}」已提交。"
                     },
@@ -345,7 +348,7 @@ private fun WalletApplyTab() {
                     type = null
                     amount = ""
                 }) {
-                    Text("确定", color = WalletGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.confirm, color = WalletGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )
@@ -367,7 +370,7 @@ private fun ApplyInfoRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(label, fontSize = 15.sp, color = WalletInk, modifier = Modifier.weight(1f))
-        Text(value, fontSize = 14.sp, color = if (value == "请选择") WalletMuted else WalletInk)
+        Text(value, fontSize = 14.sp, color = if (value == LocalStrings.current.s0180) WalletMuted else WalletInk)
         if (arrow) {
             Spacer(Modifier.width(4.dp))
             Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null, tint = WalletMuted, modifier = Modifier.size(18.dp))

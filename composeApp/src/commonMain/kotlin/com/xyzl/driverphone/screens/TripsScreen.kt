@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -81,7 +84,7 @@ fun TripsScreen(userId: String?, onOpenNotifications: () -> Unit = {}) {
     }
 
     Column(Modifier.fillMaxSize().statusBarsPadding().padding(horizontal = 20.dp, vertical = 12.dp)) {
-        ScreenHeader(title = "行程", onOpenNotifications = onOpenNotifications)
+        ScreenHeader(title = LocalStrings.current.tabTrips, onOpenNotifications = onOpenNotifications)
 
         Spacer(Modifier.height(12.dp))
         HorizontalDivider(color = OnlineGreen.copy(alpha = 0.55f), thickness = 1.5.dp)
@@ -99,7 +102,7 @@ fun TripsScreen(userId: String?, onOpenNotifications: () -> Unit = {}) {
 
         Spacer(Modifier.height(14.dp))
         if (filtered.isEmpty()) {
-            Text("暂无行程", fontSize = 14.sp, color = MutedGray, modifier = Modifier.padding(top = 32.dp))
+            Text(LocalStrings.current.s0512, fontSize = 14.sp, color = MutedGray, modifier = Modifier.padding(top = 32.dp))
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(filtered, key = { it.orderId }) { t ->
@@ -169,7 +172,7 @@ private fun TripRow(item: TripItem, onClick: () -> Unit = {}) {
 
 @Composable
 private fun StatusTag(item: TripItem) {
-    val label = if (item.cancelled) "已取消" else (item.executionStatus ?: "待完成")
+    val label = if (item.cancelled) LocalStrings.current.s0008 else (item.executionStatus ?: LocalStrings.current.s0055)
     val color = when {
         item.cancelled -> CancelledRed
         item.completed -> DoneGreen

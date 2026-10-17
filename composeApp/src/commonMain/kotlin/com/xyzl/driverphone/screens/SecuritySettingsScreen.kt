@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,7 +60,7 @@ fun SecuritySettingsScreen(userId: String? = null, onBack: () -> Unit = {}) {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "更多安全设置", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0067, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
         FormGroup {
@@ -66,13 +69,13 @@ fun SecuritySettingsScreen(userId: String? = null, onBack: () -> Unit = {}) {
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .clickable { hint = "第三方绑定即将开放" }
+                        .clickable { hint = LocalStrings.current.s0621 }
                         .padding(vertical = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(item.label, fontSize = 15.sp, color = FormInk, modifier = Modifier.weight(1f))
                     Text(
-                        text = if (isBound) "已绑定" else "未绑定",
+                        text = if (isBound) LocalStrings.current.s0383 else LocalStrings.current.s0536,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = if (isBound) FormGreen else FormMuted,
@@ -86,8 +89,8 @@ fun SecuritySettingsScreen(userId: String? = null, onBack: () -> Unit = {}) {
 
         Spacer(Modifier.height(12.dp))
         FormNote(
-            if (!loaded) "正在读取绑定状态…"
-            else "绑定状态读 se_user_oauth_bindings；第三方登录要接 Apple / Facebook / WeChat 的 SDK，接入后再走授权流程。",
+            if (!loaded) LocalStrings.current.s0555
+            else LocalStrings.current.s0627,
         )
         Spacer(Modifier.height(110.dp))
     }
@@ -97,11 +100,11 @@ fun SecuritySettingsScreen(userId: String? = null, onBack: () -> Unit = {}) {
         AlertDialog(
             onDismissRequest = { hint = null },
             containerColor = FormCard,
-            title = { Text("提示", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            title = { Text(LocalStrings.current.s0002, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
             text = { Text(message, fontSize = 14.sp, color = FormMuted) },
             confirmButton = {
                 TextButton(onClick = { hint = null }) {
-                    Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.confirm, color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )

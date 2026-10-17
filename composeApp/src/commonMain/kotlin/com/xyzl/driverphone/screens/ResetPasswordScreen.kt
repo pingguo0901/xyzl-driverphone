@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,25 +40,25 @@ fun ResetPasswordScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "重建密码", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0741, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
         FormPasswordField(
-            label = "新密码",
+            label = LocalStrings.current.s0140,
             value = newPwd,
-            placeholder = "英文 / 数字 / 符号，至少 8 位",
+            placeholder = LocalStrings.current.s0175,
             onValueChange = { newPwd = sanitizePassword(it) },
         )
         FormPasswordField(
-            label = "确认密码",
+            label = LocalStrings.current.s0072,
             value = confirmPwd,
-            placeholder = "再次输入新密码",
+            placeholder = LocalStrings.current.s0115,
             onValueChange = { confirmPwd = sanitizePassword(it) },
         )
 
         if (confirmPwd.isNotEmpty() && confirmPwd != newPwd) {
             Text(
-                "两次输入的密码不一致",
+                LocalStrings.current.s0096,
                 color = FormRed,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 2.dp, bottom = 8.dp),
@@ -64,7 +67,7 @@ fun ResetPasswordScreen(
 
         Spacer(Modifier.height(8.dp))
         FormPrimaryButton(
-            text = "确认",
+            text = LocalStrings.current.s0071,
             onClick = { onDone(newPwd) },
             enabled = canSubmit,
         )

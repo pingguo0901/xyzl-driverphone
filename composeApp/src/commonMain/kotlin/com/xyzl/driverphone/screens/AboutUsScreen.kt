@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,37 +34,37 @@ fun AboutUsScreen(onBack: () -> Unit = {}) {
             .statusBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "关于我们", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0023, onBack = onBack)
 
         Column(
             Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()),
         ) {
             Spacer(Modifier.height(16.dp))
 
-            FormSectionTitle("关于我们")
+            FormSectionTitle(LocalStrings.current.s0023)
             AboutCard {
                 Text(
-                    "星域臻旅（Stellar Elite Travel）隶属于 STELLAR ELITE ENTERPRISE，企业注册于马来西亚柔佛，是面向新马两地的跨境出行服务平台。",
+                    LocalStrings.current.s0503,
                     fontSize = 14.sp,
                     color = FormInk,
                     lineHeight = 22.sp,
                 )
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    "依托新山独特的地理位置，我们聚焦马来西亚 ↔ 新加坡跨境接送、定点包车、预约接送业务。平台打通乘客下单、智能派单、司机调度、线上核验、行程跟踪与线上支付完整链路。",
+                    LocalStrings.current.s0288,
                     fontSize = 14.sp,
                     color = FormMuted,
                     lineHeight = 22.sp,
                 )
                 Spacer(Modifier.height(16.dp))
-                Text("我们坚持本地合规运营：", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
+                Text(LocalStrings.current.s0430, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
                 Spacer(Modifier.height(8.dp))
                 AboutBullet("1", "所有平台入驻司机必须完成身份资料提交以及 KYC 实名认证")
                 AboutBullet("2", "平台仅作为出行信息调度与订单撮合工具")
                 AboutBullet("3", "严格按照马来西亚相关法规处理用户、司机个人资料")
                 Spacer(Modifier.height(14.dp))
                 Text(
-                    "平台本身不直接拥有、运营任何车辆，车辆以及司机均为经过平台审核的注册合作司机。",
+                    LocalStrings.current.s0403,
                     fontSize = 13.sp,
                     color = FormMuted,
                     lineHeight = 20.sp,
@@ -69,10 +72,10 @@ fun AboutUsScreen(onBack: () -> Unit = {}) {
             }
 
             Spacer(Modifier.height(22.dp))
-            FormSectionTitle("集团背景")
+            FormSectionTitle(LocalStrings.current.s0753)
             AboutCard {
                 Text(
-                    "星域臻旅为星域集团旗下业务板块；集团同时覆盖餐饮、科技开发、数字化系统研发等多个业务，旗下科技团队自研整套平台、司机端、乘客端与后台管理系统。",
+                    LocalStrings.current.s0500,
                     fontSize = 14.sp,
                     color = FormMuted,
                     lineHeight = 22.sp,
@@ -80,9 +83,9 @@ fun AboutUsScreen(onBack: () -> Unit = {}) {
             }
 
             Spacer(Modifier.height(22.dp))
-            FormSectionTitle("联系我们")
+            FormSectionTitle(LocalStrings.current.s0637)
             AboutCard {
-                AboutInfoRow("公司主体", "STELLAR ELITE ENTERPRISE")
+                AboutInfoRow(LocalStrings.current.s0301, "STELLAR ELITE ENTERPRISE")
                 AboutInfoRow("注册编号", "202603215560 (003879535-K)")
                 AboutInfoRow("注册地址", "2313, Jalan Dato Sulaiman, Taman Abad, 80250 Johor Bahru, Johor")
                 AboutInfoRow("业务地点", "Johor Bahru，柔佛")

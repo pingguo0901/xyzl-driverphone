@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -109,7 +112,7 @@ fun LedgerScreen(userId: String? = null, onBack: () -> Unit = {}, embedded: Bool
                 )
             }
             Text(
-                "流水记录",
+                LocalStrings.current.s0159,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = InkDark,
@@ -126,14 +129,14 @@ fun LedgerScreen(userId: String? = null, onBack: () -> Unit = {}, embedded: Bool
                         .background(FieldGray)
                         .clickable {
                             val ok = saveStatementPdf(statementFileName(), statementText(entries))
-                            savedInfo = if (ok) "e-statement PDF 已生成并保存到手机（下载/XYZL）" else "保存失败，请检查存储权限后重试"
+                            savedInfo = if (ok) LocalStrings.current.s0220 else LocalStrings.current.s0109
                         }
                         .padding(horizontal = 14.dp, vertical = 9.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(Icons.Filled.Print, contentDescription = "打印", tint = OnlineGreen, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Filled.Print, contentDescription = LocalStrings.current.s0443, tint = OnlineGreen, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("打印 e-statement", fontSize = 12.sp, color = OnlineGreen, fontWeight = FontWeight.Medium)
+                    Text(LocalStrings.current.s0445, fontSize = 12.sp, color = OnlineGreen, fontWeight = FontWeight.Medium)
                 }
             }
             Spacer(Modifier.height(10.dp))
@@ -161,7 +164,7 @@ fun LedgerScreen(userId: String? = null, onBack: () -> Unit = {}, embedded: Bool
             containerColor = LocalAppColors.current.card,
             title = { Text("e-statement", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = InkDark) },
             text = { Text(info, fontSize = 14.sp, color = MutedGray) },
-            confirmButton = { TextButton(onClick = { savedInfo = null }) { Text("确定", color = OnlineGreen) } },
+            confirmButton = { TextButton(onClick = { savedInfo = null }) { Text(LocalStrings.current.confirm, color = OnlineGreen) } },
         )
     }
 }
@@ -173,7 +176,7 @@ private fun statementFileName(): String {
 
 private fun statementText(entries: List<LedgerEntry>): String {
     val sb = StringBuilder()
-    sb.appendLine("星域臻旅 司机端 · e-Statement（电子对账单）")
+    sb.appendLine(LocalStrings.current.s0497)
     val now = currentTimeParts()
     sb.appendLine("生成时间：" + now.first + " " + now.second)
     sb.appendLine("交易笔数：" + entries.size)

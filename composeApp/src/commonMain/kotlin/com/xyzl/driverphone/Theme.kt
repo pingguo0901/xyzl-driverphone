@@ -160,7 +160,6 @@ fun DriverPhoneTheme(content: @Composable () -> Unit) {
     CompositionLocalProvider(
         LocalAppColors provides if (dark) DarkAppColors else LightAppColors,
         LocalDensity provides Density(baseDensity.density, AppFontStore.scale),
-        LocalStrings provides appStrings(language),
         LocalAppLanguage provides language,
     ) {
         MaterialTheme(

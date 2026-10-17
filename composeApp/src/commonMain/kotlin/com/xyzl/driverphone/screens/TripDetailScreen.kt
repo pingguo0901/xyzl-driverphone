@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -100,7 +103,7 @@ fun TripDetailScreen(orderId: String?, onBack: () -> Unit) {
                 )
             }
             Spacer(Modifier.width(12.dp))
-            Text("行程详情", fontSize = 22.sp, fontWeight = FontWeight.SemiBold, color = InkDark)
+            Text(LocalStrings.current.s0645, fontSize = 22.sp, fontWeight = FontWeight.SemiBold, color = InkDark)
         }
 
         Spacer(Modifier.height(16.dp))
@@ -114,7 +117,7 @@ fun TripDetailScreen(orderId: String?, onBack: () -> Unit) {
                 val data = detail
                 if (data == null) {
                     Text(
-                        if (loaded) "找不到这单" else "加载中…",
+                        if (loaded) LocalStrings.current.s0455 else LocalStrings.current.s0007,
                         fontSize = 14.sp,
                         color = MutedGray,
                     )
@@ -123,7 +126,7 @@ fun TripDetailScreen(orderId: String?, onBack: () -> Unit) {
 
                     DetailDivider()
 
-                    Text("联系方式", fontSize = 12.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.5.sp, color = MutedGray)
+                    Text(LocalStrings.current.s0638, fontSize = 12.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.5.sp, color = MutedGray)
                     Spacer(Modifier.height(10.dp))
                     ContactLine("WhatsApp", data.whatsapp ?: "—", isWhatsApp = true)
                     Spacer(Modifier.height(12.dp))
@@ -131,7 +134,7 @@ fun TripDetailScreen(orderId: String?, onBack: () -> Unit) {
 
                     DetailDivider()
 
-                    Text("人数", fontSize = 12.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.5.sp, color = MutedGray)
+                    Text(LocalStrings.current.s0258, fontSize = 12.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.5.sp, color = MutedGray)
                     Spacer(Modifier.height(10.dp))
                     Row(Modifier.fillMaxWidth()) {
                         CountCell("大人", data.adults ?: 0, Modifier.weight(1f))
@@ -153,7 +156,7 @@ fun TripDetailScreen(orderId: String?, onBack: () -> Unit) {
                     }
                     Spacer(Modifier.height(12.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("状态", fontSize = 12.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.5.sp, color = MutedGray)
+                        Text(LocalStrings.current.s0010, fontSize = 12.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.5.sp, color = MutedGray)
                         Spacer(Modifier.width(12.dp))
                         StatusBadge(label = data.statusLabel, cancelled = data.cancelled, completed = data.completed)
                     }

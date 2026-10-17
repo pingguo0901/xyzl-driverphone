@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -129,17 +132,17 @@ fun ProfileScreen(
             onDismissRequest = { showLogoutDialog = false },
             containerColor = ProfileCard,
             title = {
-                Text("退出登录", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ProfileInk)
+                Text(LocalStrings.current.s0186, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ProfileInk)
             },
             text = {
-                Text("确定要退出当前账号吗？", fontSize = 14.sp, color = ProfileMuted)
+                Text(LocalStrings.current.s0611, fontSize = 14.sp, color = ProfileMuted)
             },
             confirmButton = {
                 TextButton(onClick = {
                     showLogoutDialog = false
                     onLogout()
                 }) {
-                    Text("退出", color = ProfileRed, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.s0078, color = ProfileRed, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
@@ -157,7 +160,7 @@ fun ProfileScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        ScreenHeader(title = "我的", onOpenNotifications = onOpenNotifications)
+        ScreenHeader(title = LocalStrings.current.s0434, onOpenNotifications = onOpenNotifications)
         Spacer(Modifier.height(14.dp))
 
         // 头像卡：右侧二维码按钮
@@ -187,7 +190,7 @@ fun ProfileScreen(
                     Text(DriverProfile.nickname, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ProfileInk)
                     Spacer(Modifier.height(4.dp))
                     Text("ID：" + DriverProfile.driverId, fontSize = 13.sp, color = ProfileMuted)
-                    Text("所属公司：" + DriverProfile.company, fontSize = 13.sp, color = ProfileMuted)
+                    Text(LocalStrings.current.s0440 + DriverProfile.company, fontSize = 13.sp, color = ProfileMuted)
                 }
                 Spacer(Modifier.width(12.dp))
                 Box(
@@ -200,7 +203,7 @@ fun ProfileScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.QrCode2,
-                        contentDescription = "我的二维码",
+                        contentDescription = LocalStrings.current.s0435,
                         tint = ProfileInk,
                         modifier = Modifier.size(24.dp),
                     )
@@ -261,7 +264,7 @@ fun ProfileScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Box(Modifier.fillMaxWidth().padding(vertical = 16.dp), contentAlignment = Alignment.Center) {
-                Text("退出登录", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = ProfileRed)
+                Text(LocalStrings.current.s0186, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = ProfileRed)
             }
         }
 

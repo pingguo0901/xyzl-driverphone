@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -74,11 +77,11 @@ fun CallScreen(
             Box(Modifier.fillMaxSize().background(Color(0xFF111827)), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        if (swapped) "我" else peerName,
+                        if (swapped) LocalStrings.current.tabProfile else peerName,
                         color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold,
                     )
                     Spacer(Modifier.height(6.dp))
-                    Text("视频画面", color = LocalAppColors.current.textMuted, fontSize = 13.sp)
+                    Text(LocalStrings.current.s0646, color = LocalAppColors.current.textMuted, fontSize = 13.sp)
                 }
             }
 
@@ -100,7 +103,7 @@ fun CallScreen(
                     .clickable { swapped = !swapped },
                 contentAlignment = Alignment.Center,
             ) {
-                Text(if (swapped) peerName else "我", color = Color.White, fontSize = 13.sp)
+                Text(if (swapped) peerName else LocalStrings.current.tabProfile, color = Color.White, fontSize = 13.sp)
             }
 
             Column(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 12.dp)) {
@@ -133,14 +136,14 @@ fun CallScreen(
         ) {
             CallButton(
                 icon = if (muted) Icons.Filled.MicOff else Icons.Filled.Mic,
-                label = if (muted) "已静音" else "静音",
+                label = if (muted) LocalStrings.current.s0391 else LocalStrings.current.s0754,
                 tint = if (muted) Color.White else Color.White,
                 bg = if (muted) Color(0xFFD1D5DB) else LocalAppColors.current.surfaceVariant,
             ) { muted = !muted }
 
             CallButton(
                 icon = Icons.Filled.CallEnd,
-                label = "挂断",
+                label = LocalStrings.current.s0465,
                 tint = Color.White,
                 bg = Color(0xFFF43F5E),
                 size = 64.dp,
@@ -148,7 +151,7 @@ fun CallScreen(
 
             CallButton(
                 icon = if (speaker) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff,
-                label = if (speaker) "扬声器" else "听筒",
+                label = if (speaker) LocalStrings.current.s0449 else LocalStrings.current.s0343,
                 tint = Color.White,
                 bg = if (speaker) Color(0xFF1D4ED8) else LocalAppColors.current.surfaceVariant,
             ) { speaker = !speaker }

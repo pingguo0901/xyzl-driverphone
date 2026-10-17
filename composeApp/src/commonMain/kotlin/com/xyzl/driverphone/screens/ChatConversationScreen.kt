@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -144,7 +147,7 @@ fun ChatConversationScreen(
     }
 
     fun startCall(video: Boolean) {
-        hint = if (video) "视频通话即将开放" else "语音通话即将开放"
+        hint = if (video) LocalStrings.current.s0648 else LocalStrings.current.s0665
         val info = thread
         if (userId != null) {
             scope.launch { repo.logMissedCall(userId, info?.peerUserId, video) }
@@ -233,7 +236,7 @@ fun ChatConversationScreen(
             }) {
                 Icon(
                     if (panelOpen || voiceMode) Icons.Filled.Close else Icons.Filled.Add,
-                    contentDescription = if (panelOpen || voiceMode) "取消" else "更多",
+                    contentDescription = if (panelOpen || voiceMode) "取消" else LocalStrings.current.s0147,
                     tint = LocalAppColors.current.ink,
                 )
             }
@@ -268,7 +271,7 @@ fun ChatConversationScreen(
                                         }
                                     } else {
                                         recording = false
-                                        hint = "没有麦克风权限，无法录音"
+                                        hint = LocalStrings.current.s0563
                                     }
                                 },
                             )
@@ -276,7 +279,7 @@ fun ChatConversationScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        if (recording) "松开 发送 · " + seconds + "\"" else "按住 说话",
+                        if (recording) LocalStrings.current.s0545 + seconds + "\"" else LocalStrings.current.s0466,
                         color = if (recording) Color.White else FormInk,
                         fontSize = 14.sp,
                     )
@@ -292,7 +295,7 @@ fun ChatConversationScreen(
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     if (input.isEmpty()) {
-                        Text("发消息…", color = FormMuted, fontSize = 14.sp)
+                        Text(LocalStrings.current.s0325, color = FormMuted, fontSize = 14.sp)
                     }
                     BasicTextField(
                         value = input,
@@ -362,7 +365,7 @@ fun ChatConversationScreen(
                     PanelItem("位置", Icons.Filled.LocationOn) {
                         requestScenePermission(PermissionScene.Location)
                         currentLocation { coords ->
-                            val label = if (coords == null) "当前位置（定位不可用）" else "我的当前位置"
+                            val label = if (coords == null) LocalStrings.current.s0413 else LocalStrings.current.s0437
                             add(
                                 true, myName,
                                 ChatBody.Location(label, coords),
@@ -402,7 +405,7 @@ fun ChatConversationScreen(
         Dialog(onDismissRequest = { cardSheet = false }) {
             Surface(shape = RoundedCornerShape(20.dp), color = FormCard) {
                 Column(Modifier.fillMaxWidth().padding(18.dp)) {
-                    Text("发送名片", color = FormInk, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.s0329, color = FormInk, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(10.dp))
                     CardOption("星域臻旅 · 公司名片", "XY-0001 · 星域臻旅") {
                         sendCard("星域臻旅 · 公司名片", "XY-0001 · 星域臻旅")
@@ -423,9 +426,9 @@ fun ChatConversationScreen(
         AlertDialog(
             onDismissRequest = { hint = null },
             containerColor = FormCard,
-            title = { Text("提示", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            title = { Text(LocalStrings.current.s0002, fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
             text = { Text(message, fontSize = 14.sp, color = FormMuted) },
-            confirmButton = { TextButton(onClick = { hint = null }) { Text("确定", color = FormGreen) } },
+            confirmButton = { TextButton(onClick = { hint = null }) { Text(LocalStrings.current.confirm, color = FormGreen) } },
         )
     }
 }
@@ -527,7 +530,7 @@ private fun MessageBody(msg: ChatMessage) {
             Spacer(Modifier.height(6.dp))
             Text(body.name, color = fg, fontSize = 13.sp)
             Text(
-                if (body.coords == null) "点击查看（未开启定位）" else body.coords,
+                if (body.coords == null) LocalStrings.current.s0586 else body.coords,
                 color = fgDim, fontSize = 11.sp,
             )
         }
@@ -548,7 +551,7 @@ private fun MessageBody(msg: ChatMessage) {
                 if (bmp != null) {
                     androidx.compose.foundation.Image(
                         bitmap = bmp,
-                        contentDescription = "图片",
+                        contentDescription = LocalStrings.current.s0120,
                         modifier = Modifier.size(64.dp).clip(RoundedCornerShape(10.dp)),
                     )
                 } else {

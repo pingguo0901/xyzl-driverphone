@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -135,7 +138,7 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
                     selected.clear()
                 }
                 Text(
-                    text = "已选择 " + selected.size + " 项",
+                    text = LocalStrings.current.s0390 + selected.size + LocalStrings.current.s0201,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = NotifInk,
@@ -199,7 +202,7 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
 
         if (filtered.isEmpty()) {
             Text(
-                "暂无通知",
+                LocalStrings.current.s0516,
                 fontSize = 14.sp,
                 color = NotifMuted,
                 modifier = Modifier.padding(top = 32.dp),
@@ -246,7 +249,7 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             BottomAction(
-                label = if (allSelected) "取消全选" else "全选",
+                label = if (allSelected) LocalStrings.current.s0332 else LocalStrings.current.s0300,
                 icon = Icons.Filled.Check,
             ) {
                 if (allSelected) {
@@ -255,8 +258,8 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
                     filtered.forEach { if (!selected.contains(it.id)) selected.add(it.id) }
                 }
             }
-            BottomAction(label = "标记已读", icon = Icons.Filled.DoneAll) { markSelectedRead() }
-            BottomAction(label = "删除", icon = Icons.Filled.Delete, tint = NotifDanger) {
+            BottomAction(label = LocalStrings.current.s0547, icon = Icons.Filled.DoneAll) { markSelectedRead() }
+            BottomAction(label = LocalStrings.current.s0024, icon = Icons.Filled.Delete, tint = NotifDanger) {
                 confirmDelete = true
             }
         }
@@ -266,7 +269,7 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
         Dialog(onDismissRequest = { menuOpen = false }) {
             Surface(shape = RoundedCornerShape(20.dp), color = NotifCard) {
                 Column(Modifier.fillMaxWidth().padding(18.dp)) {
-                    Text("通知操作", color = NotifInk, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.s0730, color = NotifInk, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(14.dp))
                     Row(
                         Modifier.fillMaxWidth().clickable {
@@ -281,8 +284,8 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
                         Icon(Icons.Filled.DoneAll, "全部标记已读", tint = NotifGreen, modifier = Modifier.size(20.dp))
                         Spacer(Modifier.width(10.dp))
                         Column {
-                            Text("全部标记已读", color = NotifInk, fontSize = 15.sp)
-                            Text("把所有通知标成已读", color = NotifMuted, fontSize = 12.sp)
+                            Text(LocalStrings.current.s0112, color = NotifInk, fontSize = 15.sp)
+                            Text(LocalStrings.current.s0456, color = NotifMuted, fontSize = 12.sp)
                         }
                     }
                     Spacer(Modifier.height(16.dp))
@@ -297,7 +300,7 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
                         Spacer(Modifier.width(10.dp))
                         Column {
                             Text("清空", color = NotifInk, fontSize = 15.sp)
-                            Text("清掉全部通知（软删除，可恢复）", color = NotifMuted, fontSize = 12.sp)
+                            Text(LocalStrings.current.s0575, color = NotifMuted, fontSize = 12.sp)
                         }
                     }
                 }
@@ -309,8 +312,8 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
         AlertDialog(
             onDismissRequest = { confirmClear = false },
             containerColor = NotifCard,
-            title = { Text("清空通知", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = NotifInk) },
-            text = { Text("确定清空全部通知吗？", fontSize = 14.sp, color = NotifMuted) },
+            title = { Text(LocalStrings.current.s0580, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = NotifInk) },
+            text = { Text(LocalStrings.current.s0610, fontSize = 14.sp, color = NotifMuted) },
             confirmButton = {
                 TextButton(onClick = {
                     confirmClear = false
@@ -319,7 +322,7 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
                         selected.clear()
                         scope.launch { repo.clear(userId); NotificationBadgeStore.refresh() }
                     }
-                }) { Text("确定", color = NotifDanger, fontWeight = FontWeight.SemiBold) }
+                }) { Text(LocalStrings.current.confirm, color = NotifDanger, fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = {
                 TextButton(onClick = { confirmClear = false }) { Text("取消", color = NotifMuted) }
@@ -331,8 +334,8 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
         AlertDialog(
             onDismissRequest = { confirmDelete = false },
             containerColor = NotifCard,
-            title = { Text("删除通知", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = NotifInk) },
-            text = { Text("确定删除选中的 " + selected.size + " 条通知吗？", fontSize = 14.sp, color = NotifMuted) },
+            title = { Text(LocalStrings.current.s0314, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = NotifInk) },
+            text = { Text(LocalStrings.current.s0608 + selected.size + LocalStrings.current.s0199, fontSize = 14.sp, color = NotifMuted) },
             confirmButton = {
                 TextButton(onClick = {
                     confirmDelete = false
@@ -341,7 +344,7 @@ fun NotificationsScreen(userId: String?, onBack: () -> Unit = {}) {
                     selected.clear()
                     selecting = false
                     scope.launch { repo.delete(keys); NotificationBadgeStore.refresh() }
-                }) { Text("确定", color = NotifDanger, fontWeight = FontWeight.SemiBold) }
+                }) { Text(LocalStrings.current.confirm, color = NotifDanger, fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = {
                 TextButton(onClick = { confirmDelete = false }) { Text("取消", color = NotifMuted) }
@@ -424,7 +427,7 @@ private fun NoticeRow(item: NotificationItem, onClick: () -> Unit) {
                             .background(NotifGreen.copy(alpha = 0.22f))
                             .padding(horizontal = 8.dp, vertical = 2.dp),
                     ) {
-                        Text("官方", fontSize = 10.sp, color = NotifGreen, fontWeight = FontWeight.SemiBold)
+                        Text(LocalStrings.current.s0359, fontSize = 10.sp, color = NotifGreen, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }

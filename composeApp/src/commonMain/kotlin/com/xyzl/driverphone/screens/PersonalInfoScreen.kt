@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -131,7 +134,7 @@ fun PersonalInfoScreen(
             .statusBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "个人信息", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0045, onBack = onBack)
         Spacer(Modifier.height(16.dp))
         Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
 
@@ -148,37 +151,37 @@ fun PersonalInfoScreen(
                         if (shownAvatar != null) {
                             Image(
                                 bitmap = shownAvatar,
-                                contentDescription = "头像",
+                                contentDescription = LocalStrings.current.s0026,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize(),
                             )
                         } else {
                             Icon(
                                 Icons.Filled.Person,
-                                contentDescription = "头像",
+                                contentDescription = LocalStrings.current.s0026,
                                 tint = FormMuted,
                                 modifier = Modifier.size(46.dp),
                             )
                         }
                     }
                     Spacer(Modifier.height(8.dp))
-                    Text("点击设置头像", fontSize = 12.sp, color = FormMuted)
+                    Text(LocalStrings.current.s0587, fontSize = 12.sp, color = FormMuted)
                 }
             }
 
             Spacer(Modifier.height(20.dp))
 
             FormTextField(
-                label = "昵称",
+                label = LocalStrings.current.s0066,
                 value = nickname,
-                placeholder = "中文 / 英文 / 数字 / 标点",
+                placeholder = LocalStrings.current.s0098,
                 onValueChange = { nickname = sanitizeNickname(it) },
             )
 
             FormTextField(
                 label = "ID",
                 value = displayId,
-                placeholder = "自动生成，可自定义，唯一",
+                placeholder = LocalStrings.current.s0640,
                 onValueChange = { displayId = it.filter { c -> c.isLetterOrDigit() || c == '-' }.take(20) },
             )
 
@@ -198,7 +201,7 @@ fun PersonalInfoScreen(
                     value = phone,
                     onValueChange = { phone = sanitizeDigits(it) },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("仅数字", color = FormMuted) },
+                    placeholder = { Text(LocalStrings.current.s0016, color = FormMuted) },
                     shape = RoundedCornerShape(14.dp),
                     singleLine = true,
                     colors = formFieldColors(),
@@ -206,15 +209,15 @@ fun PersonalInfoScreen(
             }
 
             FormTextField(
-                label = "邮箱地址",
+                label = LocalStrings.current.s0079,
                 value = email,
-                placeholder = "英文 / 数字 / 标点",
+                placeholder = LocalStrings.current.s0004,
                 onValueChange = { email = sanitizeEmail(it) },
             )
             FormTextField(
-                label = "微信号",
+                label = LocalStrings.current.s0133,
                 value = wechat,
-                placeholder = "选填 · 英文 / 数字 / 标点",
+                placeholder = LocalStrings.current.s0188,
                 onValueChange = { wechat = sanitizeWechat(it) },
             )
 
@@ -222,7 +225,7 @@ fun PersonalInfoScreen(
         }
 
         FormPrimaryButton(
-            text = if (saving) "保存中…" else "保存更改",
+            text = if (saving) LocalStrings.current.s0107 else LocalStrings.current.s0110,
             enabled = changed && !saving,
             onClick = {
                 val id = userId
@@ -280,7 +283,7 @@ fun PersonalInfoScreen(
                 shadowElevation = 12.dp,
             ) {
                 Column(Modifier.fillMaxWidth().padding(20.dp)) {
-                    Text("设置头像", color = FormInk, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.s0657, color = FormInk, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(12.dp))
                     Row(
                         Modifier.fillMaxWidth().clickable {
@@ -291,7 +294,7 @@ fun PersonalInfoScreen(
                     ) {
                         Icon(Icons.Filled.PhotoCamera, null, tint = FormGreen)
                         Spacer(Modifier.width(12.dp))
-                        Text("拍照", color = FormInk, fontSize = 15.sp)
+                        Text(LocalStrings.current.s0011, color = FormInk, fontSize = 15.sp)
                     }
                     Row(
                         Modifier.fillMaxWidth().clickable {
@@ -302,7 +305,7 @@ fun PersonalInfoScreen(
                     ) {
                         Icon(Icons.Filled.PhotoLibrary, null, tint = FormGreen)
                         Spacer(Modifier.width(12.dp))
-                        Text("从相册选择", color = FormInk, fontSize = 15.sp)
+                        Text(LocalStrings.current.s0018, color = FormInk, fontSize = 15.sp)
                     }
                     Spacer(Modifier.height(4.dp))
                     TextButton(
@@ -327,7 +330,7 @@ fun PersonalInfoScreen(
                     showDialog = false
                     if (dialogTitle == "保存成功") onBack()
                 }) {
-                    Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.confirm, color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )

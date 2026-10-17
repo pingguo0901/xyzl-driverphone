@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,12 +48,12 @@ fun ChatSettingsScreen(onBack: () -> Unit = {}, userId: String? = null) {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "聊天", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.tabChat, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
         FormGroup {
             FormSwitchRow(
-                label = "使用听筒播放消息",
+                label = LocalStrings.current.s0285,
                 checked = prefs.chatUseEarpiece,
                 onCheckedChange = { save(prefs.copy(chatUseEarpiece = it)) },
             )
@@ -59,35 +62,35 @@ fun ChatSettingsScreen(onBack: () -> Unit = {}, userId: String? = null) {
         Spacer(Modifier.height(16.dp))
         FormGroup {
             FormSwitchRow(
-                label = "使用独立的发送按钮",
+                label = LocalStrings.current.s0286,
                 checked = prefs.chatUseStandaloneSend,
                 onCheckedChange = { save(prefs.copy(chatUseStandaloneSend = it)) },
             )
         }
         Spacer(Modifier.height(8.dp))
-        FormNote("开启后，键盘上的发送按钮会被替换成换行。")
+        FormNote(LocalStrings.current.s0407)
 
         Spacer(Modifier.height(16.dp))
         FormGroup {
             FormSwitchRow(
-                label = "自动下载在其他设备查看过的内容",
+                label = LocalStrings.current.s0639,
                 checked = prefs.chatAutoDownloadViewed,
                 onCheckedChange = { save(prefs.copy(chatAutoDownloadViewed = it)) },
             )
         }
         Spacer(Modifier.height(8.dp))
-        FormNote("包括「图片、视频和文件」。")
+        FormNote(LocalStrings.current.s0322)
 
         Spacer(Modifier.height(16.dp))
         FormGroup {
             FormSwitchRow(
-                label = "保留查看过的原图、原视频",
+                label = LocalStrings.current.s0292,
                 checked = prefs.chatKeepOriginalMedia,
                 onCheckedChange = { save(prefs.copy(chatKeepOriginalMedia = it)) },
             )
         }
         Spacer(Modifier.height(8.dp))
-        FormNote("开启后，保留「已发送」和「已接收并查看」的原图原视频。开启前的原图原视频不受影响。")
+        FormNote(LocalStrings.current.s0404)
 
         Spacer(Modifier.height(110.dp))
     }

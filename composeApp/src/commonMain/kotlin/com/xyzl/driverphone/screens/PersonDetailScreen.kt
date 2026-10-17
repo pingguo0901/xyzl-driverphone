@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -74,7 +77,7 @@ fun PersonDetailScreen(
             .statusBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "个人详情", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0243, onBack = onBack)
         Spacer(Modifier.height(10.dp))
 
         Column(
@@ -111,30 +114,30 @@ fun PersonDetailScreen(
             ) {
                 Column(Modifier.fillMaxWidth().padding(16.dp)) {
                     if (company != null) {
-                        FormValueRow(label = "所属公司", value = company, onClick = {})
+                        FormValueRow(label = LocalStrings.current.s0439, value = company, onClick = {})
                         Spacer(Modifier.height(10.dp))
                     }
                     if (data?.rating != null || data?.totalTrips != null) {
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
                                 Text(formatRating(data?.rating), color = FormGreen, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-                                Text("平均评分", color = FormMuted, fontSize = 12.sp)
+                                Text(LocalStrings.current.s0130, color = FormMuted, fontSize = 12.sp)
                             }
                             Column(horizontalAlignment = Alignment.End) {
                                 Text((data?.totalTrips ?: 0).toString(), color = FormInk, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                                Text("完成单数", color = FormMuted, fontSize = 12.sp)
+                                Text(LocalStrings.current.s0357, color = FormMuted, fontSize = 12.sp)
                             }
                         }
                         Spacer(Modifier.height(10.dp))
                     }
 
                     Text(
-                        if (isSelf) "最近评价我的记录" else "最近评价该司机的记录",
+                        if (isSelf) LocalStrings.current.s0527 else LocalStrings.current.s0528,
                         color = FormInk, fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
                     )
                     Spacer(Modifier.height(8.dp))
                     if (reviews.isEmpty()) {
-                        Text("暂无评价", color = FormMuted, fontSize = 13.sp)
+                        Text(LocalStrings.current.s0514, color = FormMuted, fontSize = 13.sp)
                     } else {
                         reviews.forEach { line ->
                             Text("· " + formatReview(line), color = FormMuted, fontSize = 13.sp, lineHeight = 19.sp)
@@ -146,7 +149,7 @@ fun PersonDetailScreen(
             Spacer(Modifier.height(16.dp))
         }
 
-        FormPrimaryButton(text = "发送消息", onClick = onSendMessage)
+        FormPrimaryButton(text = LocalStrings.current.s0330, onClick = onSendMessage)
         Spacer(Modifier.height(14.dp))
     }
 }

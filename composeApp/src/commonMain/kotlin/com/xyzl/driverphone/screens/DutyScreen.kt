@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -120,7 +123,7 @@ fun DutyScreen(
                 )
             }
             Text(
-                "我的值班",
+                LocalStrings.current.s0057,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = DutyInk,
@@ -136,7 +139,7 @@ fun DutyScreen(
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("查看申请", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = DutyBlue)
+                    Text(LocalStrings.current.s0153, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = DutyBlue)
                 }
             }
         }
@@ -177,8 +180,8 @@ fun DutyScreen(
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     DutyStatCard(
-                        title = "休息",
-                        leftLabel = "已休息天数",
+                        title = LocalStrings.current.s0280,
+                        leftLabel = LocalStrings.current.s0373,
                         leftValue = summary.restUsed.toString() + " 天",
                         rightLabel = "剩余休息天数",
                         rightValue = summary.restRemaining.toString() + " 天",
@@ -186,8 +189,8 @@ fun DutyScreen(
                         modifier = Modifier.weight(1f),
                     )
                     DutyStatCard(
-                        title = "跨境",
-                        leftLabel = "已跨境天数",
+                        title = LocalStrings.current.s0688,
+                        leftLabel = LocalStrings.current.s0385,
                         leftValue = summary.crossUsed.toString() + " 天",
                         rightLabel = "剩余天数",
                         rightValue = summary.crossRemaining.toString() + " 天",
@@ -199,7 +202,7 @@ fun DutyScreen(
 
             item {
                 Text(
-                    "值班记录",
+                    LocalStrings.current.s0295,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = DutyMuted,
@@ -223,7 +226,7 @@ fun DutyScreen(
                     .clickable { showApply = true },
                 contentAlignment = Alignment.Center,
             ) {
-                Text("申请休息", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(LocalStrings.current.s0166, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -238,7 +241,7 @@ fun DutyScreen(
                     pickerState.selectedStartDateMillis?.let { rangeStart = millisToDate(it) }
                     pickerState.selectedEndDateMillis?.let { rangeEnd = millisToDate(it) }
                     showPicker = false
-                }) { Text("确定", color = DutyBlue, fontWeight = FontWeight.SemiBold) }
+                }) { Text(LocalStrings.current.confirm, color = DutyBlue, fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = {
                 TextButton(onClick = { showPicker = false }) { Text("取消", color = DutyMuted) }
@@ -300,7 +303,7 @@ private fun DutyRecordRow(record: DutyRecord, onClick: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text(record.date, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = DutyInk)
                 Spacer(Modifier.height(4.dp))
-                Text(record.orders.toString() + " 单 · 薪资 " + formatRinggit(record.salary), fontSize = 12.sp, color = DutyMuted)
+                Text(record.orders.toString() + LocalStrings.current.s0197 + formatRinggit(record.salary), fontSize = 12.sp, color = DutyMuted)
             }
             Icon(
                 imageVector = Icons.Filled.ChevronRight,

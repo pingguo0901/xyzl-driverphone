@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -183,27 +186,27 @@ fun RegisterScreen(
                 IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回", tint = LocalAppColors.current.ink)
                 }
-                Text("注册", fontSize = 22.sp, color = LocalAppColors.current.ink, fontWeight = FontWeight.Bold)
+                Text(LocalStrings.current.s0155, fontSize = 22.sp, color = LocalAppColors.current.ink, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(8.dp))
 
             LabeledField(
-                label = "邀请码",
+                label = LocalStrings.current.s0005,
                 required = false,
                 value = inviteCode,
-                placeholder = "选填 · 填写后归属该公司，不填为个人",
+                placeholder = LocalStrings.current.s0725,
                 onValueChange = { input -> inviteCode = input.filter { c -> c.isLetterOrDigit() || c == '-' } },
             )
             Spacer(Modifier.height(4.dp))
 
             LabeledField(
-                label = "昵称", required = true,
-                value = nickname, placeholder = "中文 / 英文 / 数字 / 标点",
+                label = LocalStrings.current.s0066, required = true,
+                value = nickname, placeholder = LocalStrings.current.s0098,
                 onValueChange = { nickname = sanitizeNickname(it) },
             )
             LabeledField(
-                label = "姓名", required = true,
-                value = fullName, placeholder = "仅英文和空格",
+                label = LocalStrings.current.s0051, required = true,
+                value = fullName, placeholder = LocalStrings.current.s0101,
                 onValueChange = { fullName = sanitizeEnglishName(it) },
             )
 
@@ -217,36 +220,36 @@ fun RegisterScreen(
 
             SectionTitle("生日日期", required = true)
             PickerField(
-                text = birthday.ifBlank { "选择日期" },
+                text = birthday.ifBlank { LocalStrings.current.s0041 },
                 onClick = { onPickBirthday { birthday = it } },
             )
             Spacer(Modifier.height(18.dp))
 
             SectionTitle("居住地")
             LabeledField(
-                label = "门牌及街道", required = true,
-                value = street, placeholder = "英文 / 数字 / 标点",
+                label = LocalStrings.current.s0081, required = true,
+                value = street, placeholder = LocalStrings.current.s0004,
                 onValueChange = { street = sanitizeEnglishPunct(it) },
             )
             LabeledField(
-                label = "花园", required = true,
-                value = garden, placeholder = "英文 / 数字 / 标点",
+                label = LocalStrings.current.s0073, required = true,
+                value = garden, placeholder = LocalStrings.current.s0004,
                 onValueChange = { garden = sanitizeEnglishPunct(it) },
             )
             LabeledField(
-                label = "邮编", required = true,
-                value = postcode, placeholder = "仅数字",
+                label = LocalStrings.current.s0080, required = true,
+                value = postcode, placeholder = LocalStrings.current.s0016,
                 onValueChange = { postcode = sanitizeDigits(it) },
                 keyboardNumber = true,
             )
             LabeledField(
-                label = "城市", required = true,
-                value = city, placeholder = "仅英文",
+                label = LocalStrings.current.s0050, required = true,
+                value = city, placeholder = LocalStrings.current.s0017,
                 onValueChange = { city = sanitizeEnglish(it) },
             )
             LabeledField(
-                label = "州属", required = true,
-                value = state, placeholder = "仅英文",
+                label = LocalStrings.current.s0053, required = true,
+                value = state, placeholder = LocalStrings.current.s0017,
                 onValueChange = { state = sanitizeEnglish(it) },
             )
 
@@ -285,7 +288,7 @@ fun RegisterScreen(
                     value = phone,
                     onValueChange = { phone = sanitizeDigits(it) },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("仅数字", color = LocalAppColors.current.muted) },
+                    placeholder = { Text(LocalStrings.current.s0016, color = LocalAppColors.current.muted) },
                     shape = RoundedCornerShape(14.dp),
                     singleLine = true,
                     colors = fieldColors(),
@@ -294,13 +297,13 @@ fun RegisterScreen(
             Spacer(Modifier.height(18.dp))
 
             LabeledField(
-                label = "邮箱地址", required = true,
-                value = email, placeholder = "英文 / 数字 / 标点",
+                label = LocalStrings.current.s0079, required = true,
+                value = email, placeholder = LocalStrings.current.s0004,
                 onValueChange = { email = sanitizeEmail(it) },
             )
             LabeledField(
-                label = "微信号", required = false,
-                value = wechat, placeholder = "选填 · 英文 / 数字 / 标点",
+                label = LocalStrings.current.s0133, required = false,
+                value = wechat, placeholder = LocalStrings.current.s0188,
                 onValueChange = { wechat = sanitizeWechat(it) },
             )
 
@@ -309,13 +312,13 @@ fun RegisterScreen(
                 value = password,
                 onValueChange = { password = it },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("请输入 8-14 位密码", color = LocalAppColors.current.muted) },
+                placeholder = { Text(LocalStrings.current.s0670, color = LocalAppColors.current.muted) },
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
                             imageVector = if (passwordVisible) Icons.Filled.Visibility
                             else Icons.Filled.VisibilityOff,
-                            contentDescription = "切换密码可见",
+                            contentDescription = LocalStrings.current.s0048,
                             tint = LocalAppColors.current.muted,
                         )
                     }
@@ -354,13 +357,13 @@ fun RegisterScreen(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("请再次输入密码", color = LocalAppColors.current.muted) },
+                placeholder = { Text(LocalStrings.current.s0667, color = LocalAppColors.current.muted) },
                 trailingIcon = {
                     IconButton(onClick = { confirmVisible = !confirmVisible }) {
                         Icon(
                             imageVector = if (confirmVisible) Icons.Filled.Visibility
                             else Icons.Filled.VisibilityOff,
-                            contentDescription = "切换密码可见",
+                            contentDescription = LocalStrings.current.s0048,
                             tint = LocalAppColors.current.muted,
                         )
                     }
@@ -374,7 +377,7 @@ fun RegisterScreen(
             )
             if (confirmMismatch) {
                 Text(
-                    text = "确认密码与创建密码不符合",
+                    text = LocalStrings.current.s0612,
                     color = ErrRed,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 6.dp),
@@ -382,26 +385,26 @@ fun RegisterScreen(
             }
 
             Spacer(Modifier.height(10.dp))
-            Text("KYC认证", fontSize = 20.sp, color = GoldLight, fontWeight = FontWeight.Bold)
+            Text(LocalStrings.current.s0084, fontSize = 20.sp, color = GoldLight, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(12.dp))
 
             UploadBox(
-                title = "上传马来西亚身份证",
-                hint = "仅支持拍照",
+                title = LocalStrings.current.s0094,
+                hint = LocalStrings.current.s0100,
                 uri = icUri,
                 allowGallery = false,
                 onPick = { source -> onPickImage(source) { icUri = it } },
             )
             UploadBox(
-                title = "上传马来西亚驾照",
-                hint = "支持拍照 / 相册",
+                title = LocalStrings.current.s0234,
+                hint = LocalStrings.current.s0476,
                 uri = licenseUri,
                 allowGallery = true,
                 onPick = { source -> onPickImage(source) { licenseUri = it } },
             )
             UploadBox(
-                title = "上传马来西亚护照",
-                hint = "仅支持拍照",
+                title = LocalStrings.current.s0233,
+                hint = LocalStrings.current.s0100,
                 uri = passportUri,
                 allowGallery = false,
                 onPick = { source -> onPickImage(source) { passportUri = it } },
@@ -423,20 +426,20 @@ fun RegisterScreen(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    Text("我已阅读并同意", color = LocalAppColors.current.ink, fontSize = 12.sp)
-                    PolicyLink("《KYC实名认证合规条款》") { onOpenPolicy(2) }
+                    Text(LocalStrings.current.s0135, color = LocalAppColors.current.ink, fontSize = 12.sp)
+                    PolicyLink(LocalStrings.current.s0223) { onOpenPolicy(2) }
                     Text("、", color = LocalAppColors.current.ink, fontSize = 12.sp)
-                    PolicyLink("《用户服务协议》") { onOpenPolicy(0) }
+                    PolicyLink(LocalStrings.current.s0092) { onOpenPolicy(0) }
                     Text("、", color = LocalAppColors.current.ink, fontSize = 12.sp)
-                    PolicyLink("《隐私政策》") { onOpenPolicy(1) }
-                    Text("与", color = LocalAppColors.current.ink, fontSize = 12.sp)
-                    PolicyLink("《终端用户软件许可》") { onOpenPolicy(7) }
+                    PolicyLink(LocalStrings.current.s0093) { onOpenPolicy(1) }
+                    Text(LocalStrings.current.s0095, color = LocalAppColors.current.ink, fontSize = 12.sp)
+                    PolicyLink(LocalStrings.current.s0224) { onOpenPolicy(7) }
                 }
             }
 
             if (showRequiredHint && missingRequired.isNotEmpty()) {
                 Text(
-                    text = "⚠️ 还有必填项没填：" + missingRequired.joinToString("、"),
+                    text = LocalStrings.current.s0222 + missingRequired.joinToString("、"),
                     color = ErrRed,
                     fontSize = 14.sp,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
@@ -503,7 +506,7 @@ fun RegisterScreen(
                 ),
             ) {
                 Text(
-                    "注 册",
+                    LocalStrings.current.s0154,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = if (canSubmit) Color(0xFFFFFFFF) else LocalAppColors.current.textDisabled,
@@ -520,7 +523,7 @@ fun RegisterScreen(
 private fun SectionTitle(text: String, required: Boolean = false) {
     Row(Modifier.padding(bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(text, color = LocalAppColors.current.ink, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-        if (required) Text(" *必填", color = GoldLight, fontSize = 12.sp)
+        if (required) Text(LocalStrings.current.s0195, color = GoldLight, fontSize = 12.sp)
     }
 }
 
@@ -610,7 +613,7 @@ private fun UploadBox(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Check, null, tint = Color(0xFF25D366))
                     Spacer(Modifier.width(8.dp))
-                    Text("已上传", color = LocalAppColors.current.ink, fontSize = 14.sp)
+                    Text(LocalStrings.current.s0371, color = LocalAppColors.current.ink, fontSize = 14.sp)
                 }
             }
         }
@@ -632,7 +635,7 @@ private fun UploadBox(
                     ) {
                         Icon(Icons.Filled.CameraAlt, null, tint = LocalAppColors.current.muted)
                         Spacer(Modifier.width(12.dp))
-                        Text("拍照", color = LocalAppColors.current.ink)
+                        Text(LocalStrings.current.s0011, color = LocalAppColors.current.ink)
                     }
                     if (allowGallery) {
                         Row(
@@ -642,7 +645,7 @@ private fun UploadBox(
                         ) {
                             Icon(Icons.Filled.PhotoLibrary, null, tint = GoldLight)
                             Spacer(Modifier.width(12.dp))
-                            Text("从相册选择", color = LocalAppColors.current.ink)
+                            Text(LocalStrings.current.s0018, color = LocalAppColors.current.ink)
                         }
                     }
                     Spacer(Modifier.height(4.dp))

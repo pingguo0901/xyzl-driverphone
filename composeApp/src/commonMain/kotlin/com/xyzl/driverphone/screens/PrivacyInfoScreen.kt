@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -124,11 +127,11 @@ fun PrivacyInfoScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "隐私信息", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0082, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
         if (inviteCode.isNotBlank()) {
-            FormSectionTitle("邀请码")
+            FormSectionTitle(LocalStrings.current.s0005)
             Card(
                 Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 shape = RoundedCornerShape(16.dp),
@@ -144,13 +147,13 @@ fun PrivacyInfoScreen(
         }
 
         FormTextField(
-            label = "姓名",
+            label = LocalStrings.current.s0051,
             value = fullName,
-            placeholder = "仅英文和空格",
+            placeholder = LocalStrings.current.s0101,
             onValueChange = { fullName = sanitizeEnglishName(it) },
         )
 
-        FormSectionTitle("性别")
+        FormSectionTitle(LocalStrings.current.s0056)
         SegmentedTabs(
             options = GenderOptions,
             selectedIndex = GenderOptions.indexOf(gender).coerceAtLeast(0),
@@ -159,46 +162,46 @@ fun PrivacyInfoScreen(
         Spacer(Modifier.height(18.dp))
 
         FormPickerField(
-            label = "生日日期",
+            label = LocalStrings.current.s0068,
             text = birthday,
             onClick = { onPickBirthday { birthday = it } },
         )
 
-        FormSectionTitle("居住地")
+        FormSectionTitle(LocalStrings.current.s0128)
         FormTextField(
-            label = "门牌及街道",
+            label = LocalStrings.current.s0081,
             value = street,
-            placeholder = "英文 / 数字 / 标点",
+            placeholder = LocalStrings.current.s0004,
             onValueChange = { street = sanitizeEnglishPunct(it) },
         )
         FormTextField(
-            label = "花园",
+            label = LocalStrings.current.s0073,
             value = garden,
-            placeholder = "英文 / 数字 / 标点",
+            placeholder = LocalStrings.current.s0004,
             onValueChange = { garden = sanitizeEnglishPunct(it) },
         )
         FormTextField(
-            label = "邮编",
+            label = LocalStrings.current.s0080,
             value = postcode,
-            placeholder = "仅数字",
+            placeholder = LocalStrings.current.s0016,
             onValueChange = { postcode = sanitizeDigits(it) },
             keyboardNumber = true,
         )
         FormTextField(
-            label = "城市",
+            label = LocalStrings.current.s0050,
             value = city,
-            placeholder = "仅英文",
+            placeholder = LocalStrings.current.s0017,
             onValueChange = { city = sanitizeEnglish(it) },
         )
         FormTextField(
-            label = "州属",
+            label = LocalStrings.current.s0053,
             value = state,
-            placeholder = "仅英文",
+            placeholder = LocalStrings.current.s0017,
             onValueChange = { state = sanitizeEnglish(it) },
         )
 
         if (isDriver) {
-        FormSectionTitle("KYC认证")
+        FormSectionTitle(LocalStrings.current.s0084)
         Card(
             Modifier.fillMaxWidth().padding(bottom = 8.dp),
             shape = RoundedCornerShape(16.dp),
@@ -226,7 +229,7 @@ fun PrivacyInfoScreen(
 
         Spacer(Modifier.height(10.dp))
         FormPrimaryButton(
-            text = if (saving) "保存中…" else "保存更改",
+            text = if (saving) LocalStrings.current.s0107 else LocalStrings.current.s0110,
             enabled = changed && !saving,
             onClick = {
                 val pid = profileId
@@ -288,7 +291,7 @@ fun PrivacyInfoScreen(
                     showDialog = false
                     if (success) onBack()
                 }) {
-                    Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.confirm, color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )
@@ -316,10 +319,10 @@ private fun KycStatusRow(name: String, valid: Boolean, detail: String, onUpdate:
             Text(detail, fontSize = 12.sp, color = FormMuted)
         }
         if (valid) {
-            Text("有效", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = FormGreen)
+            Text(LocalStrings.current.s0151, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = FormGreen)
         } else {
             Text(
-                "更新",
+                LocalStrings.current.s0149,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFFF43F5E),

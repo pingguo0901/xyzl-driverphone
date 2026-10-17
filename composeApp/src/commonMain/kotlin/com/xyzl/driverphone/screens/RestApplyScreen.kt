@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -96,7 +99,7 @@ fun RestApplyScreen(
                 )
             }
             Text(
-                "申请休息",
+                LocalStrings.current.s0166,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = ApplyInk,
@@ -124,7 +127,7 @@ fun RestApplyScreen(
                 value = reason,
                 onValueChange = { reason = it },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("请输入原因") },
+                placeholder = { Text(LocalStrings.current.s0671) },
                 minLines = 3,
                 shape = RoundedCornerShape(14.dp),
             )
@@ -141,8 +144,8 @@ fun RestApplyScreen(
                     Modifier.fillMaxWidth().padding(18.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("申请休息天数", fontSize = 14.sp, color = ApplyMuted, modifier = Modifier.weight(1f))
-                    Text(days.toString() + " 天", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ApplyBlue)
+                    Text(LocalStrings.current.s0167, fontSize = 14.sp, color = ApplyMuted, modifier = Modifier.weight(1f))
+                    Text(days.toString() + LocalStrings.current.s0006, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ApplyBlue)
                 }
             }
 
@@ -184,7 +187,7 @@ fun RestApplyScreen(
                     },
                 contentAlignment = Alignment.Center,
             ) {
-                Text("确认", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(LocalStrings.current.s0071, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -197,7 +200,7 @@ fun RestApplyScreen(
                 TextButton(onClick = {
                     st.selectedDateMillis?.let { startDate = millisToDateDisplay(it) }
                     pickStart = false
-                }) { Text("确定", color = ApplyBlue, fontWeight = FontWeight.SemiBold) }
+                }) { Text(LocalStrings.current.confirm, color = ApplyBlue, fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = { TextButton(onClick = { pickStart = false }) { Text("取消", color = ApplyMuted) } },
         ) {
@@ -213,7 +216,7 @@ fun RestApplyScreen(
                 TextButton(onClick = {
                     st.selectedDateMillis?.let { endDate = millisToDateDisplay(it) }
                     pickEnd = false
-                }) { Text("确定", color = ApplyBlue, fontWeight = FontWeight.SemiBold) }
+                }) { Text(LocalStrings.current.confirm, color = ApplyBlue, fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = { TextButton(onClick = { pickEnd = false }) { Text("取消", color = ApplyMuted) } },
         ) {

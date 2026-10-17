@@ -59,7 +59,7 @@ fun ChatRecordsScreen(onBack: () -> Unit = {}, userId: String? = null) {
         FormPageHeader(title = strings.chatRecords, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
-        FormNote("清空或导出会作用于本机保存的全部聊天记录。")
+        FormNote(LocalStrings.current.s0579)
         Spacer(Modifier.height(12.dp))
 
         FormPrimaryButton(
@@ -67,7 +67,7 @@ fun ChatRecordsScreen(onBack: () -> Unit = {}, userId: String? = null) {
             onClick = {
                 val path = exportChatRecordsPdf(allLines())
                 messageTitle = if (path == null) strings.failed else strings.exportedTitle
-                message = if (path == null) "导出失败，请稍后重试。" else strings.exportedText + "\n" + path
+                message = if (path == null) LocalStrings.current.s0367 else strings.exportedText + "\n" + path
             },
         )
         Spacer(Modifier.height(14.dp))
@@ -98,8 +98,8 @@ fun ChatRecordsScreen(onBack: () -> Unit = {}, userId: String? = null) {
         AlertDialog(
             onDismissRequest = { confirmClear = false },
             containerColor = FormCard,
-            title = { Text("清空聊天记录", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
-            text = { Text("清空后本机全部聊天记录将被删除且无法恢复。", fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
+            title = { Text(LocalStrings.current.s0162, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            text = { Text(LocalStrings.current.s0577, fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     ChatStore.clearAll()

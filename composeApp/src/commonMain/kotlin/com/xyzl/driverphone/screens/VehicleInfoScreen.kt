@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -96,7 +99,7 @@ private fun CompanyVehicleView(onBack: () -> Unit) {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "车辆信息", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0014, onBack = onBack)
         Spacer(Modifier.height(16.dp))
         Card(
             Modifier.fillMaxWidth(),
@@ -105,9 +108,9 @@ private fun CompanyVehicleView(onBack: () -> Unit) {
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(Modifier.fillMaxWidth().padding(18.dp)) {
-                Text("已授权车辆", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
+                Text(LocalStrings.current.s0378, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
                 Spacer(Modifier.height(12.dp))
-                Text("请向所属公司索取授权车辆", fontSize = 14.sp, color = FormMuted)
+                Text(LocalStrings.current.s0668, fontSize = 14.sp, color = FormMuted)
             }
         }
         Spacer(Modifier.height(110.dp))
@@ -146,9 +149,9 @@ private fun MyVehiclesView(
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
         if (isPersonal) {
-            FormPageHeaderAction(title = "车辆信息", actionLabel = "增加车辆", onBack = onBack, onAction = onAdd)
+            FormPageHeaderAction(title = LocalStrings.current.s0014, actionLabel = LocalStrings.current.s0122, onBack = onBack, onAction = onAdd)
         } else {
-            FormPageHeader(title = "车辆信息", onBack = onBack)
+            FormPageHeader(title = LocalStrings.current.s0014, onBack = onBack)
         }
         Spacer(Modifier.height(16.dp))
 
@@ -159,11 +162,11 @@ private fun MyVehiclesView(
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(Modifier.fillMaxWidth().padding(18.dp)) {
-                Text("我的车辆", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
+                Text(LocalStrings.current.s0438, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
                 Spacer(Modifier.height(12.dp))
                 when {
-                    !loaded -> Text("加载中…", fontSize = 14.sp, color = FormMuted)
-                    approved.isEmpty() -> Text("暂无已验证车辆", fontSize = 14.sp, color = FormMuted)
+                    !loaded -> Text(LocalStrings.current.s0007, fontSize = 14.sp, color = FormMuted)
+                    approved.isEmpty() -> Text(LocalStrings.current.s0508, fontSize = 14.sp, color = FormMuted)
                     else -> approved.forEachIndexed { index, vehicle ->
                         VehicleInfoLines(vehicle)
                         if (index != approved.lastIndex) Spacer(Modifier.height(12.dp))
@@ -183,11 +186,11 @@ private fun MyVehiclesView(
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(Modifier.fillMaxWidth().padding(18.dp)) {
-                Text("待通过验证车辆", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
+                Text(LocalStrings.current.s0423, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
                 Spacer(Modifier.height(12.dp))
                 when {
-                    !loaded -> Text("加载中…", fontSize = 14.sp, color = FormMuted)
-                    pending.isEmpty() -> Text("暂无待验证车辆", fontSize = 14.sp, color = FormMuted)
+                    !loaded -> Text(LocalStrings.current.s0007, fontSize = 14.sp, color = FormMuted)
+                    pending.isEmpty() -> Text(LocalStrings.current.s0509, fontSize = 14.sp, color = FormMuted)
                     else -> pending.forEachIndexed { index, vehicle ->
                         VehicleInfoLines(vehicle)
                         Spacer(Modifier.height(8.dp))
@@ -275,20 +278,20 @@ fun AddVehicleScreen(
             .statusBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "增加车辆", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0122, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
         Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
 
             if (brands.isEmpty()) {
-                FormNote("品牌列表是空的（se_vehicle_brands 没有 is_active = true 的数据），先让管理端加品牌。")
+                FormNote(LocalStrings.current.s0344)
                 Spacer(Modifier.height(10.dp))
             }
 
             FormSelect(
-                label = "品牌",
+                label = LocalStrings.current.s0119,
                 value = brand,
-                placeholder = "选择品牌",
+                placeholder = LocalStrings.current.s0726,
                 options = brands.map { it.label },
                 onSelect = { picked ->
                     brand = picked
@@ -299,9 +302,9 @@ fun AddVehicleScreen(
                 },
             )
             FormSelect(
-                label = "型号",
+                label = LocalStrings.current.s0121,
                 value = model,
-                placeholder = "选择型号",
+                placeholder = LocalStrings.current.s0727,
                 options = models.map { it.label },
                 onSelect = { picked ->
                     model = picked
@@ -311,80 +314,80 @@ fun AddVehicleScreen(
                 },
             )
             FormSelect(
-                label = "车款",
+                label = LocalStrings.current.s0183,
                 value = trim,
-                placeholder = "选择车款",
+                placeholder = LocalStrings.current.s0728,
                 options = trims.map { it.label },
                 onSelect = { trim = it },
             )
             FormTextField(
-                label = "车牌号",
+                label = LocalStrings.current.s0701,
                 value = plate,
-                placeholder = "例如 WXY 1234",
+                placeholder = LocalStrings.current.s0287,
                 onValueChange = { plate = sanitizePlate(it) },
             )
 
-            FormSectionTitle("车辆照片")
+            FormSectionTitle(LocalStrings.current.s0704)
             FormUpload(
-                label = "车前照片",
-                hint = "拍照或从相册选择",
+                label = LocalStrings.current.s0696,
+                hint = LocalStrings.current.s0034,
                 uri = frontPhoto,
                 onPicked = { frontPhoto = it },
                 onPickImage = onPickImage,
                 onPickDocument = onPickDocument,
             )
             FormUpload(
-                label = "车后照片",
-                hint = "拍照或从相册选择",
+                label = LocalStrings.current.s0699,
+                hint = LocalStrings.current.s0034,
                 uri = backPhoto,
                 onPicked = { backPhoto = it },
                 onPickImage = onPickImage,
                 onPickDocument = onPickDocument,
             )
             FormUpload(
-                label = "车前排照片",
-                hint = "拍照或从相册选择",
+                label = LocalStrings.current.s0695,
+                hint = LocalStrings.current.s0034,
                 uri = frontSeatPhoto,
                 onPicked = { frontSeatPhoto = it },
                 onPickImage = onPickImage,
                 onPickDocument = onPickDocument,
             )
             FormUpload(
-                label = "车后排照片",
-                hint = "拍照或从相册选择",
+                label = LocalStrings.current.s0698,
+                hint = LocalStrings.current.s0034,
                 uri = backSeatPhoto,
                 onPicked = { backSeatPhoto = it },
                 onPickImage = onPickImage,
                 onPickDocument = onPickDocument,
             )
 
-            FormSectionTitle("车辆证明")
+            FormSectionTitle(LocalStrings.current.s0706)
             FormUpload(
-                label = "路税证明",
-                hint = "拍照或上传文件",
+                label = LocalStrings.current.s0690,
+                hint = LocalStrings.current.s0061,
                 uri = roadTaxFile,
                 onPicked = { roadTaxFile = it },
                 onPickImage = onPickImage,
                 onPickDocument = onPickDocument,
             )
             FormUpload(
-                label = "车卡证明",
-                hint = "拍照或上传文件",
+                label = LocalStrings.current.s0697,
+                hint = LocalStrings.current.s0061,
                 uri = regCardFile,
                 onPicked = { regCardFile = it },
                 onPickImage = onPickImage,
                 onPickDocument = onPickDocument,
             )
             FormUpload(
-                label = "保险证明",
-                hint = "拍照或上传文件",
+                label = LocalStrings.current.s0293,
+                hint = LocalStrings.current.s0061,
                 uri = insuranceFile,
                 onPicked = { insuranceFile = it },
                 onPickImage = onPickImage,
                 onPickDocument = onPickDocument,
             )
 
-            FormSectionTitle("是否车主")
+            FormSectionTitle(LocalStrings.current.s0505)
             SegmentedTabs(
                 options = OwnerOptions,
                 selectedIndex = OwnerOptions.indexOf(isOwnerAnswer).coerceAtLeast(0),
@@ -394,8 +397,8 @@ fun AddVehicleScreen(
 
             if (!isOwner) {
                 FormUpload(
-                    label = "车主马来西亚身份证",
-                    hint = "仅拍照上传",
+                    label = LocalStrings.current.s0694,
+                    hint = LocalStrings.current.s0259,
                     uri = ownerIcFile,
                     onPicked = { ownerIcFile = it },
                     onPickImage = onPickImage,
@@ -403,7 +406,7 @@ fun AddVehicleScreen(
                     allowDocument = false,
                 )
                 FormCheckRow(
-                    label = "我无法获取该车主身份证",
+                    label = LocalStrings.current.s0433,
                     selected = ownerIcUnavailable,
                     onClick = { ownerIcUnavailable = !ownerIcUnavailable },
                 )
@@ -413,7 +416,7 @@ fun AddVehicleScreen(
         }
 
         FormPrimaryButton(
-            text = if (saving) "提交中…" else "完成提交",
+            text = if (saving) LocalStrings.current.s0062 else LocalStrings.current.s0358,
             enabled = ready && !saving,
             onClick = {
                 val id = userId
@@ -486,7 +489,7 @@ fun AddVehicleScreen(
                     showDialog = false
                     if (success) onBack()
                 }) {
-                    Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.confirm, color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )

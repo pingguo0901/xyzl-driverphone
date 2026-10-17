@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -102,7 +105,7 @@ fun WalletAccountScreen(
 
             // 帐号 + 复制
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text("帐号", fontSize = 13.sp, color = AcctMuted)
+                Text(LocalStrings.current.s0395, fontSize = 13.sp, color = AcctMuted)
                 Spacer(Modifier.width(10.dp))
                 Text(
                     account.accountNo,
@@ -122,9 +125,9 @@ fun WalletAccountScreen(
                         .padding(horizontal = 12.dp, vertical = 7.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(Icons.Filled.ContentCopy, contentDescription = "复制", tint = AcctGreen, modifier = Modifier.size(15.dp))
+                    Icon(Icons.Filled.ContentCopy, contentDescription = LocalStrings.current.s0025, tint = AcctGreen, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(5.dp))
-                    Text("复制", fontSize = 12.sp, color = AcctGreen, fontWeight = FontWeight.Medium)
+                    Text(LocalStrings.current.s0025, fontSize = 12.sp, color = AcctGreen, fontWeight = FontWeight.Medium)
                 }
             }
 
@@ -139,12 +142,12 @@ fun WalletAccountScreen(
             ) {
                 Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp)) {
                     Column(Modifier.weight(1f)) {
-                        Text("可用余额（${account.currency}）", fontSize = 12.sp, color = AcctMuted)
+                        Text(LocalStrings.current.s0333.fill(account.currency), fontSize = 12.sp, color = AcctMuted)
                         Spacer(Modifier.height(8.dp))
                         Text(account.available, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = AcctInk)
                     }
                     Column(Modifier.weight(1f)) {
-                        Text("当前余额（${account.currency}）", fontSize = 12.sp, color = AcctMuted)
+                        Text(LocalStrings.current.s0414.fill(account.currency), fontSize = 12.sp, color = AcctMuted)
                         Spacer(Modifier.height(8.dp))
                         Text(account.current, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = AcctInk)
                     }
@@ -162,14 +165,14 @@ fun WalletAccountScreen(
             ) {
                 Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp)) {
                     Text(
-                        "交易流水记录",
+                        LocalStrings.current.s0252,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = AcctInk,
                         modifier = Modifier.padding(top = 14.dp, bottom = 6.dp),
                     )
                     if (entries.isEmpty()) {
-                        Text("暂无记录", fontSize = 13.sp, color = AcctMuted, modifier = Modifier.padding(vertical = 16.dp))
+                        Text(LocalStrings.current.s0513, fontSize = 13.sp, color = AcctMuted, modifier = Modifier.padding(vertical = 16.dp))
                     } else {
                         entries.forEachIndexed { index, entry ->
                             Row(
@@ -211,9 +214,9 @@ fun WalletAccountScreen(
         AlertDialog(
             onDismissRequest = { copied = false },
             containerColor = AcctCard,
-            title = { Text("已复制", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = AcctInk) },
-            text = { Text("帐号已复制到剪贴板", fontSize = 14.sp, color = AcctMuted) },
-            confirmButton = { TextButton(onClick = { copied = false }) { Text("确定", color = AcctGreen) } },
+            title = { Text(LocalStrings.current.s0375, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = AcctInk) },
+            text = { Text(LocalStrings.current.s0396, fontSize = 14.sp, color = AcctMuted) },
+            confirmButton = { TextButton(onClick = { copied = false }) { Text(LocalStrings.current.confirm, color = AcctGreen) } },
         )
     }
 }

@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -98,7 +101,7 @@ fun ChatScreen(
             .statusBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        ScreenHeader(title = "聊天", onOpenNotifications = onOpenNotifications)
+        ScreenHeader(title = LocalStrings.current.tabChat, onOpenNotifications = onOpenNotifications)
         Spacer(Modifier.height(12.dp))
         SegmentedTabs(
             options = listOf("聊天", "官方通知"),
@@ -184,12 +187,12 @@ private fun ChatRow(item: ChatListItem, onClick: () -> Unit) {
                 )
                 if (item.isPinned) {
                     Spacer(Modifier.width(6.dp))
-                    Text("置顶", fontSize = 10.sp, color = ChatGreen)
+                    Text(LocalStrings.current.s0633, fontSize = 10.sp, color = ChatGreen)
                 }
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                item.lastMessage?.takeIf { it.isNotBlank() } ?: "暂无消息",
+                item.lastMessage?.takeIf { it.isNotBlank() } ?: LocalStrings.current.s0510,
                 fontSize = 13.sp,
                 color = ChatMuted,
                 maxLines = 1,

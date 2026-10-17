@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -109,7 +112,7 @@ fun HomeScreen(userId: String?, onOpenNotifications: () -> Unit = {}) {
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         ScreenHeader(
-            title = "首页",
+            title = LocalStrings.current.tabHome,
             onOpenNotifications = onOpenNotifications,
             unreadCount = snapshot.unreadCount,
         )
@@ -155,7 +158,7 @@ fun HomeScreen(userId: String?, onOpenNotifications: () -> Unit = {}) {
         GreenDivider()
 
         Text(
-            "当前任务",
+            LocalStrings.current.s0412,
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
             color = InkDark,
@@ -226,14 +229,14 @@ private fun OnlineStatusCard(
             ) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        if (online) "接单中" else "休息中",
+                        if (online) LocalStrings.current.s0468 else LocalStrings.current.s0282,
                         fontSize = 19.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = titleColor,
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        if (online) "正在接收新订单" else "点击右侧按钮开始接单",
+                        if (online) LocalStrings.current.s0552 else LocalStrings.current.s0585,
                         fontSize = 13.sp,
                         color = subColor,
                     )
@@ -248,7 +251,7 @@ private fun OnlineStatusCard(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.PowerSettingsNew,
-                        contentDescription = if (online) "停止接单" else "开始接单",
+                        contentDescription = if (online) LocalStrings.current.s0299 else LocalStrings.current.s0408,
                         tint = iconTint,
                         modifier = Modifier.size(22.dp),
                     )
@@ -297,7 +300,7 @@ private fun DutyVehicleCard(
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(
-                    "值班车辆",
+                    LocalStrings.current.s0298,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     letterSpacing = 0.5.sp,
@@ -305,14 +308,14 @@ private fun DutyVehicleCard(
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    vehicle?.title ?: "未设置值班车辆",
+                    vehicle?.title ?: LocalStrings.current.s0537,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = InkDark,
                 )
             }
             Text(
-                "更换",
+                LocalStrings.current.s0519,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = OnlineGreen,
@@ -332,7 +335,7 @@ private fun DutyVehicleCard(
             containerColor = LocalAppColors.current.card,
             title = {
                 Text(
-                    "更换值班车辆",
+                    LocalStrings.current.s0520,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = InkDark,
@@ -341,7 +344,7 @@ private fun DutyVehicleCard(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     if (vehicles.isEmpty()) {
-                        Text("没有可用车辆", fontSize = 14.sp, color = MutedGray)
+                        Text(LocalStrings.current.s0556, fontSize = 14.sp, color = MutedGray)
                     } else {
                         vehicles.forEach { item ->
                             // 当前值班车辆 → 蓝点（NavOptionRow 左侧圆点）
@@ -391,7 +394,7 @@ private fun CurrentTaskCard(
         Column(Modifier.padding(20.dp)) {
             if (task == null) {
                 Text(
-                    "暂无进行中的任务",
+                    LocalStrings.current.s0515,
                     fontSize = 15.sp,
                     color = MutedGray,
                 )
@@ -407,7 +410,7 @@ private fun CurrentTaskCard(
 
                 Spacer(Modifier.height(16.dp))
                 FieldWithAction(
-                    label = "起点",
+                    label = LocalStrings.current.s0181,
                     value = task.pickup ?: "—",
                     onAction = { task.pickup?.let { navAddress = it } },
                 )
@@ -415,7 +418,7 @@ private fun CurrentTaskCard(
                 Spacer(Modifier.height(14.dp))
 
                 FieldWithAction(
-                    label = "目的地",
+                    label = LocalStrings.current.s0170,
                     value = task.dropoff ?: "—",
                     onAction = { task.dropoff?.let { navAddress = it } },
                 )
@@ -426,7 +429,7 @@ private fun CurrentTaskCard(
                 // 客户：名称 · 电话 / 名称 · 微信号（品牌按钮同行）
                 Spacer(Modifier.height(16.dp))
                 ContactRow(
-                    text = name + " · " + (task.customerPhone ?: "未填电话"),
+                    text = name + " · " + (task.customerPhone ?: LocalStrings.current.s0532),
                     isWhatsApp = true,
                     onClick = {
                         if (waNumber != null) openUrl("https://wa.me/" + waNumber)
@@ -434,7 +437,7 @@ private fun CurrentTaskCard(
                 )
                 Spacer(Modifier.height(10.dp))
                 ContactRow(
-                    text = name + " · " + (task.customerWechat ?: "未填微信"),
+                    text = name + " · " + (task.customerWechat ?: LocalStrings.current.s0531),
                     isWhatsApp = false,
                     onClick = { openUrl("weixin://") },
                 )
@@ -445,12 +448,12 @@ private fun CurrentTaskCard(
                     status == ExecutionStatus.DONE -> CompletedBar()
                     status == ExecutionStatus.OVERDUE || status == ExecutionStatus.ONGOING ->
                         SlideToConfirmBar(
-                            label = "滑动确认放人",
+                            label = LocalStrings.current.s0582,
                             onConfirm = { onAdvance(ExecutionStatus.DONE) },
                         )
                     else ->
                         SlideToConfirmBar(
-                            label = "滑动确认接人",
+                            label = LocalStrings.current.s0581,
                             onConfirm = { onAdvance(ExecutionStatus.ONGOING) },
                         )
                 }
@@ -484,7 +487,7 @@ private fun ContactRow(text: String, isWhatsApp: Boolean, onClick: () -> Unit) {
         )
         RoundContactButton(
             painter = brandLogoPainter(isWhatsApp = isWhatsApp),
-            contentDescription = if (isWhatsApp) "WhatsApp" else "微信",
+            contentDescription = if (isWhatsApp) "WhatsApp" else LocalStrings.current.s0132,
             onClick = onClick,
         )
     }
@@ -556,7 +559,7 @@ private fun NavigationDialog(
         containerColor = LocalAppColors.current.card,
         title = {
             Text(
-                "导航到",
+                LocalStrings.current.s0368,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = InkDark,
@@ -789,7 +792,7 @@ private fun CompletedBar(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            "行程已完成",
+            LocalStrings.current.s0643,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color.White,

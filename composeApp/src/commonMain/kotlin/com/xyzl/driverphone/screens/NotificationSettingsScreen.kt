@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -53,44 +56,44 @@ fun NotificationSettingsScreen(onBack: () -> Unit = {}, userId: String? = null) 
         FormPageHeader(title = "通知", onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
-        FormSectionTitle("司机端未打开时")
+        FormSectionTitle(LocalStrings.current.s0337)
         FormGroup {
             FormSwitchRow(
-                label = "系统消息通知",
+                label = LocalStrings.current.s0624,
                 checked = prefs.systemMessage,
                 onCheckedChange = { save(prefs.copy(systemMessage = it)) },
             )
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
             FormSwitchRow(
-                label = "语音通话通知",
+                label = LocalStrings.current.s0177,
                 checked = prefs.voiceCall,
                 onCheckedChange = { save(prefs.copy(voiceCall = it)) },
             )
         }
 
         Spacer(Modifier.height(18.dp))
-        FormSectionTitle("司机端打开时")
+        FormSectionTitle(LocalStrings.current.s0336)
         FormGroup {
             FormSwitchRow(
-                label = "司机端内消息横幅",
+                label = LocalStrings.current.s0335,
                 checked = prefs.inAppBanner,
                 onCheckedChange = { save(prefs.copy(inAppBanner = it)) },
             )
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
             FormSwitchRow(
-                label = "消息提示音",
+                label = LocalStrings.current.s0572,
                 checked = prefs.messageSound,
                 onCheckedChange = { save(prefs.copy(messageSound = it)) },
             )
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
             FormSwitchRow(
-                label = "语音通话通知",
+                label = LocalStrings.current.s0177,
                 checked = prefs.voiceCall,
                 onCheckedChange = { save(prefs.copy(voiceCall = it)) },
             )
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
             FormSwitchRow(
-                label = "振动",
+                label = LocalStrings.current.s0467,
                 checked = prefs.vibrate,
                 onCheckedChange = { save(prefs.copy(vibrate = it)) },
             )

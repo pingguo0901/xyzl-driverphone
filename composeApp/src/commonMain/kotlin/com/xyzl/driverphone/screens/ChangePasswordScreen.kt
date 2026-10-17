@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,34 +57,34 @@ fun ChangePasswordScreen(
             .statusBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "密码管理", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0052, onBack = onBack)
         Spacer(Modifier.height(16.dp))
         Column(
             Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()),
         ) {
 
             FormPasswordField(
-                label = "原密码",
+                label = LocalStrings.current.s0323,
                 value = oldPwd,
-                placeholder = "请输入原密码",
+                placeholder = LocalStrings.current.s0672,
                 onValueChange = { oldPwd = sanitizePassword(it) },
             )
             FormPasswordField(
-                label = "新密码",
+                label = LocalStrings.current.s0140,
                 value = newPwd,
-                placeholder = "英文 / 数字 / 符号，至少 8 位",
+                placeholder = LocalStrings.current.s0175,
                 onValueChange = { newPwd = sanitizePassword(it) },
             )
             FormPasswordField(
-                label = "确认密码",
+                label = LocalStrings.current.s0072,
                 value = confirmPwd,
-                placeholder = "再次输入新密码",
+                placeholder = LocalStrings.current.s0115,
                 onValueChange = { confirmPwd = sanitizePassword(it) },
             )
 
             if (confirmPwd.isNotEmpty() && confirmPwd != newPwd) {
                 Text(
-                    "两次输入的密码不一致",
+                    LocalStrings.current.s0096,
                     color = FormRed,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(start = 2.dp, bottom = 6.dp),
@@ -89,7 +92,7 @@ fun ChangePasswordScreen(
             }
             if (newPwd.isNotEmpty() && newPwd == oldPwd) {
                 Text(
-                    "新密码不能和原密码一样",
+                    LocalStrings.current.s0483,
                     color = FormRed,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(start = 2.dp, bottom = 6.dp),
@@ -100,14 +103,14 @@ fun ChangePasswordScreen(
                 onClick = onForgotPassword,
                 modifier = Modifier.align(Alignment.End),
             ) {
-                Text("忘记密码？", color = FormGreen, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                Text(LocalStrings.current.s0134, color = FormGreen, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(Modifier.height(8.dp))
         }
 
         FormPrimaryButton(
-            text = if (saving) "更改中…" else "确认更改",
+            text = if (saving) LocalStrings.current.s0521 else LocalStrings.current.s0614,
             onClick = {
                 saving = true
                 scope.launch {
@@ -148,7 +151,7 @@ fun ChangePasswordScreen(
                     showDialog = false
                     if (success) onBack()
                 }) {
-                    Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.confirm, color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )

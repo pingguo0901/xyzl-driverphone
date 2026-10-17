@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,14 +53,14 @@ fun DisplayScreen(
 
         FormGroup {
             FormValueRow(
-                label = "深色 / 浅色模式",
+                label = LocalStrings.current.s0573,
                 value = DisplayPrefs.modeLabel,
                 onClick = onOpenDarkMode,
             )
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
             FormValueRow(
                 label = "字体大小",
-                value = com.xyzl.driverphone.AppFontStore.level.toString() + " / 7 档",
+                value = com.xyzl.driverphone.AppFontStore.level.toString() + LocalStrings.current.s0083,
                 onClick = onOpenFontSize,
             )
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
@@ -69,7 +72,7 @@ fun DisplayScreen(
             HorizontalDivider(color = FormDivide, thickness = 1.dp)
             FormValueRow(
                 label = "翻译",
-                value = "翻译为 " + DisplayPrefs.translateTo,
+                value = LocalStrings.current.s0635 + DisplayPrefs.translateTo,
                 onClick = onOpenTranslation,
             )
         }
@@ -88,24 +91,24 @@ fun DarkModeScreen(onBack: () -> Unit = {}) {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "深色模式", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0574, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
         FormGroup {
             FormSwitchRow(
-                label = "跟随系统",
+                label = LocalStrings.current.s0182,
                 checked = DisplayPrefs.followSystem,
                 onCheckedChange = { DisplayPrefs.followSystem = it },
             )
         }
         Spacer(Modifier.height(10.dp))
-        FormNote("开启后，将跟随系统打开或关闭深色模式。")
+        FormNote(LocalStrings.current.s0405)
 
         if (!DisplayPrefs.followSystem) {
             Spacer(Modifier.height(18.dp))
-            FormSectionTitle("手动选择")
+            FormSectionTitle(LocalStrings.current.s0442)
             SegmentedTabs(
-                options = listOf("深色", "浅色"),
+                options = listOf(LocalStrings.current.s0161, LocalStrings.current.s0160),
                 selectedIndex = if (DisplayPrefs.darkMode) 0 else 1,
                 onSelect = { DisplayPrefs.darkMode = it == 0 },
             )

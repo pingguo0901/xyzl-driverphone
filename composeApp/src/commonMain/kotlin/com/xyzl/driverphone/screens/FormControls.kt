@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -321,7 +324,7 @@ fun FormPickerField(
             contentAlignment = Alignment.CenterStart,
         ) {
             Text(
-                text = text.ifBlank { "选择日期" },
+                text = text.ifBlank { LocalStrings.current.s0041 },
                 color = if (text.isBlank()) FormMuted else FormInk,
                 fontSize = 15.sp,
             )
@@ -424,7 +427,7 @@ fun FormUploadTile(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(Icons.Filled.Check, contentDescription = null, tint = FormGreen)
                 Spacer(Modifier.height(4.dp))
-                Text("$hint 已上传", color = FormInk, fontSize = 12.sp)
+                Text(LocalStrings.current.s0202.fill(hint), color = FormInk, fontSize = 12.sp)
             }
         }
     }
@@ -621,7 +624,7 @@ fun FormCheckRow(
         if (selected) {
             Icon(
                 imageVector = Icons.Filled.Check,
-                contentDescription = "已选择",
+                contentDescription = LocalStrings.current.s0389,
                 tint = FormGreen,
                 modifier = Modifier.size(20.dp),
             )

@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -142,7 +145,7 @@ fun ExpenseSubmitScreen(
                 )
             }
             Text(
-                "提交报销",
+                LocalStrings.current.s0138,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = InkDark,
@@ -165,7 +168,7 @@ fun ExpenseSubmitScreen(
             contentAlignment = Alignment.CenterStart,
         ) {
             Text(
-                expenseDate.ifBlank { "选择日期" },
+                expenseDate.ifBlank { LocalStrings.current.s0041 },
                 fontSize = 15.sp,
                 color = if (expenseDate.isBlank()) MutedGray else InkDark,
             )
@@ -176,7 +179,7 @@ fun ExpenseSubmitScreen(
         // 归属车辆
         FieldLabel("归属车辆")
         DropdownField(
-            text = vehicle.ifBlank { "请选择车辆" },
+            text = vehicle.ifBlank { LocalStrings.current.s0680 },
             placeholder = vehicle.isBlank(),
             options = vehicleOptions.map { it.label },
             onSelect = { vehicle = it },
@@ -187,7 +190,7 @@ fun ExpenseSubmitScreen(
         // 类型
         FieldLabel("类型")
         DropdownField(
-            text = type.ifBlank { "请选择类型" },
+            text = type.ifBlank { LocalStrings.current.s0678 },
             placeholder = type.isBlank(),
             options = ExpenseTypes,
             onSelect = {
@@ -252,7 +255,7 @@ fun ExpenseSubmitScreen(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                "确认提交",
+                LocalStrings.current.s0613,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = if (canSubmit) Color.White else LocalAppColors.current.textMuted,
@@ -371,13 +374,13 @@ private fun ReceiptUploadBox(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(Icons.Filled.UploadFile, null, tint = OnlineGreen, modifier = Modifier.size(30.dp))
                 Spacer(Modifier.height(8.dp))
-                Text("拍照 / 相册 / 文档", color = MutedGray, fontSize = 13.sp)
+                Text(LocalStrings.current.s0461, color = MutedGray, fontSize = 13.sp)
             }
         } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.Check, null, tint = OnlineGreen)
                 Spacer(Modifier.width(8.dp))
-                Text("已上传收据", color = InkDark, fontSize = 14.sp)
+                Text(LocalStrings.current.s0372, color = InkDark, fontSize = 14.sp)
             }
         }
     }
@@ -390,7 +393,7 @@ private fun ReceiptUploadBox(
                 shadowElevation = 12.dp,
             ) {
                 Column(Modifier.fillMaxWidth().padding(20.dp)) {
-                    Text("上传收据证明", color = InkDark, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.s0231, color = InkDark, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(12.dp))
                     SheetRow(Icons.Filled.PhotoCamera, "拍照") {
                         showSheet = false

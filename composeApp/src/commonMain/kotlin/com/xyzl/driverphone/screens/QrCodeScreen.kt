@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -87,7 +90,7 @@ fun QrCodeScreen(userId: String? = null, onBack: () -> Unit = {}) {
             .statusBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "二维码", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0250, onBack = onBack)
         Spacer(Modifier.height(14.dp))
         SegmentedTabs(
             options = listOf("分享个人二维码", "扫描二维码"),
@@ -171,7 +174,7 @@ private fun ShareQrTab(userId: String?, modifier: Modifier = Modifier) {
         Spacer(Modifier.height(14.dp))
         Text(
             text = buildAnnotatedString {
-                append("分享你的二维码后，他人可以将你添加为联系人。分享你的链接后，他人可以开始与你聊天。")
+                append(LocalStrings.current.s0309)
                 withStyle(SpanStyle(color = FormGreen)) { append("了解更多") }
             },
             fontSize = 12.sp,
@@ -181,7 +184,7 @@ private fun ShareQrTab(userId: String?, modifier: Modifier = Modifier) {
         )
 
         Spacer(Modifier.height(22.dp))
-        Box(Modifier.fillMaxWidth()) { FormSectionTitle("链接分享方式") }
+        Box(Modifier.fillMaxWidth()) { FormSectionTitle(LocalStrings.current.s0747) }
         Spacer(Modifier.height(10.dp))
 
         Card(
@@ -195,22 +198,22 @@ private fun ShareQrTab(userId: String?, modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                ShareActionItem(label = "分享", icon = Icons.Filled.Share) {
-                    if (content.isNotBlank()) shareText(content) else hint = "二维码还没准备好"
+                ShareActionItem(label = LocalStrings.current.s0116, icon = Icons.Filled.Share) {
+                    if (content.isNotBlank()) shareText(content) else hint = LocalStrings.current.s0099
                 }
-                ShareActionItem(label = "复制", icon = Icons.Filled.ContentCopy) {
+                ShareActionItem(label = LocalStrings.current.s0025, icon = Icons.Filled.ContentCopy) {
                     if (content.isNotBlank()) {
                         clipboard.setText(AnnotatedString(content))
-                        hint = "链接已复制"
+                        hint = LocalStrings.current.s0193
                     } else {
-                        hint = "二维码还没准备好"
+                        hint = LocalStrings.current.s0099
                     }
                 }
                 ShareBrandItem(label = "Instagram") {
                     InstagramButton(
                         onClick = {
                             clipboard.setText(AnnotatedString(content))
-                            hint = "链接已复制，正在打开 Instagram"
+                            hint = LocalStrings.current.s0748
                             openUrl("https://www.instagram.com/")
                         },
                         size = 44.dp,
@@ -236,22 +239,22 @@ private fun ShareQrTab(userId: String?, modifier: Modifier = Modifier) {
                         logoSize = 24.dp,
                     )
                 }
-                ShareBrandItem(label = "微信") {
+                ShareBrandItem(label = LocalStrings.current.s0132) {
                     WeChatButton(
                         onClick = {
                             clipboard.setText(AnnotatedString(content))
-                            hint = "链接已复制，正在打开微信"
+                            hint = LocalStrings.current.s0749
                             openUrl("weixin://")
                         },
                         size = 44.dp,
                         logoSize = 24.dp,
                     )
                 }
-                ShareBrandItem(label = "邮件") {
+                ShareBrandItem(label = LocalStrings.current.s0737) {
                     EmailButton(
                         onClick = {
                             clipboard.setText(AnnotatedString(content))
-                            openUrl("mailto:?subject=" + "星域臻旅 我的二维码" + "&body=" + content)
+                            openUrl("mailto:?subject=" + LocalStrings.current.s0499 + "&body=" + content)
                         },
                         size = 44.dp,
                         logoSize = 24.dp,
@@ -268,11 +271,11 @@ private fun ShareQrTab(userId: String?, modifier: Modifier = Modifier) {
         AlertDialog(
             onDismissRequest = { hint = null },
             containerColor = FormCard,
-            title = { Text("提示", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            title = { Text(LocalStrings.current.s0002, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
             text = { Text(message, fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
             confirmButton = {
                 TextButton(onClick = { hint = null }) {
-                    Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.confirm, color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )
@@ -299,13 +302,13 @@ private fun AvatarCircle(
         if (avatar != null) {
             Image(
                 bitmap = avatar,
-                contentDescription = "头像",
+                contentDescription = LocalStrings.current.s0026,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
             )
         } else {
             Text(
-                name.trim().take(1).ifBlank { "我" },
+                name.trim().take(1).ifBlank { LocalStrings.current.tabProfile },
                 color = Color.White,
                 fontSize = fontSize,
                 fontWeight = FontWeight.SemiBold,
@@ -361,7 +364,7 @@ private fun ScanQrTab(userId: String?, modifier: Modifier = Modifier) {
                 }
             }
             Text(
-                if (loading) "正在识别…" else "将二维码放入框内",
+                if (loading) LocalStrings.current.s0554 else LocalStrings.current.s0126,
                 fontSize = 12.sp,
                 color = LocalAppColors.current.muted,
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 18.dp),
@@ -371,24 +374,24 @@ private fun ScanQrTab(userId: String?, modifier: Modifier = Modifier) {
         Spacer(Modifier.height(20.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             ScanActionItem(
-                label = if (torchOn) "关闭闪光灯" else "闪光灯",
+                label = if (torchOn) LocalStrings.current.s0114 else LocalStrings.current.s0194,
                 icon = if (torchOn) Icons.Filled.FlashlightOn else Icons.Filled.FlashlightOff,
                 active = torchOn,
             ) {
                 torchOn = !torchOn
                 setTorchEnabled(torchOn)
             }
-            ScanActionItem(label = "相册", icon = Icons.Filled.PhotoLibrary, active = false) {
+            ScanActionItem(label = LocalStrings.current.s0070, icon = Icons.Filled.PhotoLibrary, active = false) {
                 pickImage(ImageSource.Gallery) { uri ->
                     val raw = decodeQrFromImage(uri)
                     if (raw == null) {
-                        hint = "没有识别到二维码，换一张试试"
+                        hint = LocalStrings.current.s0562
                     } else {
                         loading = true
                         scope.launch {
                             val hit = repo.resolveScan(raw)
                             loading = false
-                            if (hit == null) hint = "这不是星域臻旅的二维码" else scanned = hit
+                            if (hit == null) hint = LocalStrings.current.s0717 else scanned = hit
                         }
                     }
                 }
@@ -401,14 +404,14 @@ private fun ScanQrTab(userId: String?, modifier: Modifier = Modifier) {
         AlertDialog(
             onDismissRequest = { scanned = null },
             containerColor = FormCard,
-            title = { Text("扫描结果", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            title = { Text(LocalStrings.current.s0136, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
             text = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ScannedAvatar(hit.avatarUrl, hit.name)
                     Spacer(Modifier.width(12.dp))
                     Column {
                         Text(hit.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = FormInk)
-                        Text("扫码添加为好友", fontSize = 12.sp, color = FormMuted)
+                        Text(LocalStrings.current.s0448, fontSize = 12.sp, color = FormMuted)
                     }
                 }
             },
@@ -417,17 +420,17 @@ private fun ScanQrTab(userId: String?, modifier: Modifier = Modifier) {
                     val me = userId
                     if (me == null) {
                         scanned = null
-                        hint = "请先登录"
+                        hint = LocalStrings.current.s0039
                     } else {
                         scope.launch {
                             val accountId = repo.accountId(me)
                             val err = repo.addFriend(me, accountId, hit.userId)
                             scanned = null
-                            hint = err ?: "好友申请已发送"
+                            hint = err ?: LocalStrings.current.s0355
                         }
                     }
                 }) {
-                    Text("加好友", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.s0319, color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
@@ -443,11 +446,11 @@ private fun ScanQrTab(userId: String?, modifier: Modifier = Modifier) {
         AlertDialog(
             onDismissRequest = { hint = null },
             containerColor = FormCard,
-            title = { Text("提示", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            title = { Text(LocalStrings.current.s0002, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
             text = { Text(message, fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
             confirmButton = {
                 TextButton(onClick = { hint = null }) {
-                    Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.confirm, color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )
@@ -465,9 +468,9 @@ private fun ScannedAvatar(url: String?, name: String) {
         contentAlignment = Alignment.Center,
     ) {
         if (bitmap != null) {
-            Image(bitmap!!, contentDescription = "头像", contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            Image(bitmap!!, contentDescription = LocalStrings.current.s0026, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
         } else {
-            Text(name.trim().take(1).ifBlank { "用" }, color = FormInk, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text(name.trim().take(1).ifBlank { LocalStrings.current.s0590 }, color = FormInk, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }

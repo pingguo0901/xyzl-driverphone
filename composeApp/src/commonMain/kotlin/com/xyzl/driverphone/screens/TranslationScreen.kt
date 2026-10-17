@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -60,24 +63,24 @@ fun TranslationScreen(
 
         FormGroup {
             FormValueRow(
-                label = "将文字翻译为",
+                label = LocalStrings.current.s0127,
                 value = prefs.translateTarget.label,
                 onClick = onOpenTranslateTo,
             )
         }
         Spacer(Modifier.height(10.dp))
-        FormNote("在聊天、网页及图片中使用翻译功能时，文字会被翻译为所选语言。")
+        FormNote(LocalStrings.current.s0348)
 
         Spacer(Modifier.height(18.dp))
         FormGroup {
             FormSwitchRow(
-                label = "自动翻译聊天中收到的消息",
+                label = LocalStrings.current.s0641,
                 checked = prefs.autoTranslateChat,
                 onCheckedChange = { save(prefs.copy(autoTranslateChat = it)) },
             )
         }
         Spacer(Modifier.height(10.dp))
-        FormNote("开启后，所有聊天收到的消息会被自动翻译。")
+        FormNote(LocalStrings.current.s0406)
 
         Spacer(Modifier.height(110.dp))
     }
@@ -102,7 +105,7 @@ fun TranslateToScreen(onBack: () -> Unit = {}, userId: String? = null) {
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
         FormPageHeaderCancelDone(
-            title = "将文字翻译为",
+            title = LocalStrings.current.s0127,
             onCancel = onBack,
             onDone = {
                 DisplayPrefs.translateTo = selected.label

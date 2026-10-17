@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,7 +59,7 @@ fun KycUpdateScreen(
     var dialogBody by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
 
-    val title = KycUploadTitles[docType] ?: "上传证件"
+    val title = KycUploadTitles[docType] ?: LocalStrings.current.s0232
 
     Column(
         Modifier
@@ -64,29 +67,29 @@ fun KycUpdateScreen(
             .statusBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "更新 KYC 认证", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0523, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
         Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
             FormUpload(
                 label = title,
-                hint = "拍照或从相册选择证件照片",
+                hint = LocalStrings.current.s0462,
                 uri = uri,
                 onPicked = { uri = it },
                 onPickImage = onPickImage,
                 onPickDocument = onPickDocument,
             )
             FormPickerField(
-                label = "到期日期",
+                label = LocalStrings.current.s0315,
                 text = expiry,
                 onClick = { onPickDate { expiry = it } },
             )
-            FormNote("到期日期必填（格式 YYYY-MM-DD，点上方选择）。请上传清晰的证件正面照，四角完整、文字可读；提交后状态变为「待审核」。")
+            FormNote(LocalStrings.current.s0316)
             Spacer(Modifier.height(6.dp))
         }
 
         FormPrimaryButton(
-            text = if (saving) "提交中…" else "确认更新",
+            text = if (saving) LocalStrings.current.s0062 else LocalStrings.current.s0615,
             enabled = uri != null && expiry.isNotBlank() && !saving,
             onClick = {
                 val id = userId
@@ -144,7 +147,7 @@ fun KycUpdateScreen(
                     showDialog = false
                     if (success) onBack()
                 }) {
-                    Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.confirm, color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )

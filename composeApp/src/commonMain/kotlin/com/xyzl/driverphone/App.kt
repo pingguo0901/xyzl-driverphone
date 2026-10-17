@@ -183,15 +183,15 @@ fun App(
         if (showRegisterSuccess) {
             AlertDialog(
                 onDismissRequest = { },
-                title = { Text("注册成功") },
-                text = { Text("账号已创建，请用刚才的邮箱和密码登录。") },
+                title = { Text(LocalStrings.current.s0567) },
+                text = { Text(LocalStrings.current.s0684) },
                 confirmButton = {
                     TextButton(onClick = {
                         showRegisterSuccess = false
                         showRegister = false
                         showEntry = false
                         showLogin = true
-                    }) { Text("确定") }
+                    }) { Text(LocalStrings.current.confirm) }
                 },
             )
         }
@@ -200,10 +200,10 @@ fun App(
         if (authError != null) {
             AlertDialog(
                 onDismissRequest = { authError = null },
-                title = { Text("提示") },
+                title = { Text(LocalStrings.current.s0002) },
                 text = { Text(authError ?: "") },
                 confirmButton = {
-                    TextButton(onClick = { authError = null }) { Text("知道了") }
+                    TextButton(onClick = { authError = null }) { Text(LocalStrings.current.s0607) }
                 },
             )
         }
@@ -298,7 +298,7 @@ fun App(
                     containerColor = MaterialTheme.colorScheme.surface,
                     title = {
                         Text(
-                            "正在更新 v${updateInfo!!.versionName}",
+                            LocalStrings.current.s0553.fill(updateInfo!!.versionName),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold,
                         )
@@ -309,7 +309,7 @@ fun App(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            Text("正在下载新版本，请稍候…", fontSize = 14.sp)
+                            Text(LocalStrings.current.s0551, fontSize = 14.sp)
                             LinearProgressIndicator(
                                 progress = { updateProgress },
                                 modifier = Modifier.fillMaxWidth(),
@@ -330,7 +330,7 @@ fun App(
                     containerColor = MaterialTheme.colorScheme.surface,
                     title = {
                         Text(
-                            "发现新版本 v${updateInfo!!.versionName}",
+                            LocalStrings.current.s0327.fill(updateInfo!!.versionName),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold,
                         )
@@ -378,7 +378,7 @@ fun App(
                             },
                         ) {
                             Text(
-                                "立即更新",
+                                LocalStrings.current.s0620,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.SemiBold,
                             )
@@ -386,7 +386,7 @@ fun App(
                     },
                     dismissButton = {
                         TextButton(onClick = { showUpdateDialog = false }) {
-                            Text("稍后", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(LocalStrings.current.s0618, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     },
                 )

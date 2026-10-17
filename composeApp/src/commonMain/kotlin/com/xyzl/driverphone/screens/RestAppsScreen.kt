@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -128,7 +131,7 @@ fun RestAppsScreen(onBack: () -> Unit = {}) {
                 )
             }
             Text(
-                "查看申请",
+                LocalStrings.current.s0153,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = AppsInk,
@@ -184,7 +187,7 @@ fun RestAppsScreen(onBack: () -> Unit = {}) {
                     st.selectedStartDateMillis?.let { rangeStart = millisToDateDisplay(it) }
                     st.selectedEndDateMillis?.let { rangeEnd = millisToDateDisplay(it) }
                     showPicker = false
-                }) { Text("确定", color = AppsBlue, fontWeight = FontWeight.SemiBold) }
+                }) { Text(LocalStrings.current.confirm, color = AppsBlue, fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = { TextButton(onClick = { showPicker = false }) { Text("取消", color = AppsMuted) } },
         ) {
@@ -209,17 +212,17 @@ private fun RestAppRow(app: RestApplication, onClick: () -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RestTypeBadge(app.type)
                     Spacer(Modifier.width(8.dp))
-                    Text("申请 " + app.appliedDate, fontSize = 12.sp, color = AppsMuted)
+                    Text(LocalStrings.current.s0592 + app.appliedDate, fontSize = 12.sp, color = AppsMuted)
                 }
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    "休息 " + app.startDate + " - " + app.endDate,
+                    LocalStrings.current.s0281 + app.startDate + " - " + app.endDate,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = AppsInk,
                 )
                 Spacer(Modifier.height(4.dp))
-                Text(app.days.toString() + " 天 · " + app.reason, fontSize = 12.sp, color = AppsMuted, maxLines = 1)
+                Text(app.days.toString() + LocalStrings.current.s0198 + app.reason, fontSize = 12.sp, color = AppsMuted, maxLines = 1)
             }
             Spacer(Modifier.width(8.dp))
             RestStatusBadge(app.status)
@@ -264,7 +267,7 @@ fun RestAppDetailScreen(
                 )
             }
             Text(
-                "申请详情",
+                LocalStrings.current.s0600,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = AppsInk,
@@ -293,7 +296,7 @@ fun RestAppDetailScreen(
                     RestDetailRow("申请休息天数", app.days.toString() + " 天")
                     RestDetailDivider()
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Text("状态", fontSize = 14.sp, color = AppsMuted, modifier = Modifier.weight(1f))
+                        Text(LocalStrings.current.s0010, fontSize = 14.sp, color = AppsMuted, modifier = Modifier.weight(1f))
                         RestStatusBadge(app.status)
                     }
                 }
@@ -315,7 +318,7 @@ fun RestAppDetailScreen(
                         },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("撤销申请", color = AppsRed, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.s0473, color = AppsRed, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Spacer(Modifier.width(12.dp))
                 Box(

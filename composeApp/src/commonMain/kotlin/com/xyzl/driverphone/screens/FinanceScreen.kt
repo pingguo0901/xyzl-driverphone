@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -70,7 +73,7 @@ fun FinanceScreen(
     ) {
         // 标题居中 + 右上角流水按钮 + 通知铃铛
         ScreenHeader(
-            title = "财务",
+            title = LocalStrings.current.tabFinance,
             onOpenNotifications = onOpenNotifications,
             extraEnd = {
                 Box(
@@ -83,7 +86,7 @@ fun FinanceScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
-                        contentDescription = "流水记录",
+                        contentDescription = LocalStrings.current.s0159,
                         tint = OnlineGreen,
                         modifier = Modifier.size(22.dp),
                     )
@@ -101,7 +104,7 @@ fun FinanceScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(Modifier.padding(24.dp)) {
-                Text("今日薪资", fontSize = 13.sp, color = Color.White.copy(alpha = 0.85f))
+                Text(LocalStrings.current.s0104, fontSize = 13.sp, color = Color.White.copy(alpha = 0.85f))
                 Spacer(Modifier.height(8.dp))
                 Text(formatMoney("MYR", summary.todaySalary), fontSize = 34.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
             }
@@ -144,7 +147,7 @@ fun FinanceScreen(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                "提交报销",
+                LocalStrings.current.s0138,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White,

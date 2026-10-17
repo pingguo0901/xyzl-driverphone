@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -83,7 +86,7 @@ fun DutyDetailScreen(
                     )
                 }
                 Text(
-                    "值班详情",
+                    LocalStrings.current.s0111,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = DutyInk,
@@ -97,13 +100,13 @@ fun DutyDetailScreen(
                         .background(DutyChip)
                         .clickable {
                             val ok = saveStatementPdf(dutyPdfFileName(record), dutyPdfText(record))
-                            savedInfo = if (ok) "值班详情 PDF 已生成并保存到手机（下载/XYZL）" else "保存失败，请检查存储权限后重试"
+                            savedInfo = if (ok) LocalStrings.current.s0296 else LocalStrings.current.s0109
                         },
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Print,
-                        contentDescription = "打印 PDF",
+                        contentDescription = LocalStrings.current.s0444,
                         tint = DutyAccent,
                         modifier = Modifier.size(20.dp),
                     )
@@ -155,9 +158,9 @@ fun DutyDetailScreen(
         AlertDialog(
             onDismissRequest = { savedInfo = null },
             containerColor = DutyCard,
-            title = { Text("值班详情", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = DutyInk) },
+            title = { Text(LocalStrings.current.s0111, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = DutyInk) },
             text = { Text(info, fontSize = 14.sp, color = DutyMuted) },
-            confirmButton = { TextButton(onClick = { savedInfo = null }) { Text("确定", color = DutyAccent) } },
+            confirmButton = { TextButton(onClick = { savedInfo = null }) { Text(LocalStrings.current.confirm, color = DutyAccent) } },
         )
     }
 }
@@ -186,8 +189,8 @@ private fun dutyPdfFileName(record: DutyRecord): String {
 
 private fun dutyPdfText(record: DutyRecord): String {
     val sb = StringBuilder()
-    sb.appendLine("星域臻旅 司机端 · 值班详情")
-    sb.appendLine("日期：" + record.date)
+    sb.appendLine(LocalStrings.current.s0498)
+    sb.appendLine(LocalStrings.current.s0143 + record.date)
     sb.appendLine("--------------------------------------------------")
     sb.appendLine("今日薪资：" + formatRinggit(record.salary))
     sb.appendLine("今日报销：" + formatRinggit(record.reimbursement))

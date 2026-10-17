@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -83,12 +86,12 @@ fun InviteScreen(userId: String? = null, onBack: () -> Unit = {}) {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "邀请码", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0005, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
         when {
-            !loaded -> Text("加载中…", fontSize = 14.sp, color = FormMuted)
-            invites.isEmpty() -> Text("暂无邀请码", fontSize = 14.sp, color = FormMuted)
+            !loaded -> Text(LocalStrings.current.s0007, fontSize = 14.sp, color = FormMuted)
+            invites.isEmpty() -> Text(LocalStrings.current.s0517, fontSize = 14.sp, color = FormMuted)
             else -> invites.forEachIndexed { index, invite ->
                 val link = invite.shareLink.orEmpty().ifBlank { defaultShareLink(invite.code) }
                 Card(
@@ -108,20 +111,20 @@ fun InviteScreen(userId: String? = null, onBack: () -> Unit = {}) {
                                 color = FormInk,
                                 modifier = Modifier.weight(1f),
                             )
-                            PillAction(label = "复制", icon = true, enabled = invite.code.isNotBlank()) {
+                            PillAction(label = LocalStrings.current.s0025, icon = true, enabled = invite.code.isNotBlank()) {
                                 clipboard.setText(AnnotatedString(invite.code))
-                                hint = "邀请码已复制"
+                                hint = LocalStrings.current.s0736
                             }
                         }
                         Spacer(Modifier.height(12.dp))
                         Text(link, fontSize = 12.sp, color = FormMuted)
                         Spacer(Modifier.height(12.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            PillAction(label = "复制链接", icon = true, enabled = link.isNotBlank()) {
+                            PillAction(label = LocalStrings.current.s0352, icon = true, enabled = link.isNotBlank()) {
                                 clipboard.setText(AnnotatedString(link))
-                                hint = "链接已复制"
+                                hint = LocalStrings.current.s0193
                             }
-                            PillAction(label = "分享", icon = false, enabled = link.isNotBlank()) {
+                            PillAction(label = LocalStrings.current.s0116, icon = false, enabled = link.isNotBlank()) {
                                 shareText(shareBody(link, invite.code))
                             }
                         }
@@ -133,7 +136,7 @@ fun InviteScreen(userId: String? = null, onBack: () -> Unit = {}) {
             }
         }
 
-        FormNote("邀请码只有一种：归属某个账号。个人/独资/企业显示自己的；司机/客服/客户显示归属公司的。客户分享给好友，好友填同一码即归入同一公司。")
+        FormNote(LocalStrings.current.s0735)
         Spacer(Modifier.height(110.dp))
     }
 
@@ -142,11 +145,11 @@ fun InviteScreen(userId: String? = null, onBack: () -> Unit = {}) {
         AlertDialog(
             onDismissRequest = { hint = null },
             containerColor = FormCard,
-            title = { Text("提示", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            title = { Text(LocalStrings.current.s0002, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
             text = { Text(message, fontSize = 14.sp, color = FormMuted) },
             confirmButton = {
                 TextButton(onClick = { hint = null }) {
-                    Text("确定", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.confirm, color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
         )

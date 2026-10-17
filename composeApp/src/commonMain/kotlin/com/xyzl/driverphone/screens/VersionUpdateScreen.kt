@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -68,7 +71,7 @@ fun VersionUpdateScreen(
             .statusBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "版本更新", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0163, onBack = onBack)
         Spacer(Modifier.height(20.dp))
 
         Card(
@@ -78,15 +81,15 @@ fun VersionUpdateScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                FormValueRow(label = "当前版本", value = currentVersion, onClick = {})
+                FormValueRow(label = LocalStrings.current.s0415, value = currentVersion, onClick = {})
                 HorizontalDivider(color = FormDivide)
-                FormValueRow(label = "最新版本", value = latestVersion, onClick = {})
+                FormValueRow(label = LocalStrings.current.s0526, value = latestVersion, onClick = {})
             }
         }
 
         Spacer(Modifier.height(28.dp))
         FormPrimaryButton(
-            text = if (checking) "检测中…" else "检测版本",
+            text = if (checking) LocalStrings.current.s0548 else LocalStrings.current.s0550,
             onClick = { if (!checking) runCheck() },
             enabled = !checking,
         )
@@ -96,8 +99,8 @@ fun VersionUpdateScreen(
         AlertDialog(
             onDismissRequest = { showUpToDate = false },
             containerColor = FormCard,
-            title = { Text("已是最新版本", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
-            text = { Text("当前版本 $currentVersion 已是最新版本。", fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
+            title = { Text(LocalStrings.current.s0380, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            text = { Text(LocalStrings.current.s0416.fill(currentVersion), fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
             confirmButton = {
                 TextButton(onClick = { showUpToDate = false }) {
                     Text("完成", color = FormGreen, fontWeight = FontWeight.SemiBold)
@@ -111,15 +114,15 @@ fun VersionUpdateScreen(
         AlertDialog(
             onDismissRequest = { pendingUpdate = null },
             containerColor = FormCard,
-            title = { Text("请更新至最新版本", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
-            text = { Text("发现新版本 ${update.versionName}，请更新后继续使用。", fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
+            title = { Text(LocalStrings.current.s0669, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            text = { Text(LocalStrings.current.s0326.fill(update.versionName), fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     val target = update
                     pendingUpdate = null
                     scope.launch { onApplyUpdate?.invoke(target) { _, _ -> } }
                 }) {
-                    Text("更新", color = FormGreen, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.s0149, color = FormGreen, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
@@ -132,8 +135,8 @@ fun VersionUpdateScreen(
         AlertDialog(
             onDismissRequest = { showFailed = false },
             containerColor = FormCard,
-            title = { Text("检测失败", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
-            text = { Text("网络异常或暂不支持检测，请稍后重试。", fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
+            title = { Text(LocalStrings.current.s0549, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            text = { Text(LocalStrings.current.s0631, fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
             confirmButton = {
                 TextButton(onClick = { showFailed = false }) {
                     Text("完成", color = FormGreen, fontWeight = FontWeight.SemiBold)

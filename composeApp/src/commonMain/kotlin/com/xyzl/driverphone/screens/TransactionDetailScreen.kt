@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -42,8 +45,8 @@ fun TransactionDetailScreen(entry: LedgerEntry, onBack: () -> Unit = {}) {
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
         FormPageHeaderAction(
-            title = "交易详情",
-            actionLabel = "收据",
+            title = LocalStrings.current.s0257,
+            actionLabel = LocalStrings.current.s0477,
             onBack = onBack,
             onAction = {
                 val url = entry.receiptUrl
@@ -61,7 +64,7 @@ fun TransactionDetailScreen(entry: LedgerEntry, onBack: () -> Unit = {}) {
             Spacer(Modifier.height(28.dp))
 
             // 金额（货币）
-            Text("金额（${entry.currency}）", fontSize = 13.sp, color = MutedGray, modifier = Modifier.fillMaxWidth())
+            Text(LocalStrings.current.s0743.fill(entry.currency), fontSize = 13.sp, color = MutedGray, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(8.dp))
             // -/+ 金额
             Text(
@@ -114,7 +117,7 @@ private fun DetailItem(label: String, value: String) {
 /** 生成收据文本，供系统分享 / 打印 */
 private fun receiptText(entry: LedgerEntry): String {
     val sb = StringBuilder()
-    sb.append("星域臻旅 · 交易收据\n")
+    sb.append(LocalStrings.current.s0495)
     sb.append("————————————\n")
     sb.append("金额（${entry.currency}）：${signedMoney(entry.currency, entry.amount, entry.income)}\n")
     sb.append("日期时间：${entry.date}\n")

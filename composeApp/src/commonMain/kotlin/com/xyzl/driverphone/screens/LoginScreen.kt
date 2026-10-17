@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -86,7 +89,7 @@ fun LoginScreen(
             )
             Spacer(Modifier.height(10.dp))
             Text(
-                text = "— 尊荣邀制 · 至尊之旅 —",
+                text = LocalStrings.current.s0221,
                 fontSize = 15.sp,
                 color = LocalAppColors.current.muted,
                 letterSpacing = 2.sp,
@@ -110,7 +113,7 @@ fun LoginScreen(
                     // 标题：登录（注册入口移到「其他登录方式」下面）
                     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                         Text(
-                            text = "登录",
+                            text = LocalStrings.current.s0169,
                             fontSize = 24.sp,
                             color = LocalAppColors.current.ink,
                             fontWeight = FontWeight.Bold,
@@ -124,7 +127,7 @@ fun LoginScreen(
                         value = accountText,
                         onValueChange = { accountText = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("请输入手机号 / 邮箱", color = LocalAppColors.current.muted) },
+                        placeholder = { Text(LocalStrings.current.s0676, color = LocalAppColors.current.muted) },
                         leadingIcon = {
                             Icon(Icons.Filled.Person, null, tint = LocalAppColors.current.muted)
                         },
@@ -145,7 +148,7 @@ fun LoginScreen(
                         value = passwordText,
                         onValueChange = { passwordText = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("请输入密码", color = LocalAppColors.current.muted) },
+                        placeholder = { Text(LocalStrings.current.s0674, color = LocalAppColors.current.muted) },
                         leadingIcon = {
                             Icon(Icons.Filled.Lock, null, tint = LocalAppColors.current.muted)
                         },
@@ -176,7 +179,7 @@ fun LoginScreen(
                         horizontalArrangement = Arrangement.End,
                     ) {
                         Text(
-                            text = "忘记密码？",
+                            text = LocalStrings.current.s0134,
                             color = Color(0xFF3B82F6),
                             fontSize = 13.sp,
                             modifier = Modifier.clickable { onForgetPassword() },
@@ -215,7 +218,7 @@ fun LoginScreen(
                         enabled = agreedPolicy && !submitting,
                     ) {
                         Text(
-                            "登录",
+                            LocalStrings.current.s0169,
                             fontSize = 20.sp,
                             color = Color(0xFFFFFFFF),
                             fontWeight = FontWeight.Bold,
@@ -233,7 +236,7 @@ fun LoginScreen(
                                 .background(LocalAppColors.current.card),
                         )
                         Text(
-                            "其他登录方式",
+                            LocalStrings.current.s0306,
                             color = LocalAppColors.current.muted,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(horizontal = 12.dp),
@@ -263,9 +266,9 @@ fun LoginScreen(
 
                     // 没有帐号？注册
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("没有帐号？", color = LocalAppColors.current.muted, fontSize = 13.sp)
+                        Text(LocalStrings.current.s0557, color = LocalAppColors.current.muted, fontSize = 13.sp)
                         Text(
-                            "注册",
+                            LocalStrings.current.s0155,
                             color = Color(0xFF3B82F6),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -290,10 +293,10 @@ fun LoginScreen(
                             modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.Center,
                         ) {
-                            Text("我已阅读并同意", color = LocalAppColors.current.ink, fontSize = 12.sp)
-                            PolicyLink("《用户服务协议》") { onOpenPolicy(0) }
-                            Text("与", color = LocalAppColors.current.ink, fontSize = 12.sp)
-                            PolicyLink("《隐私政策》") { onOpenPolicy(1) }
+                            Text(LocalStrings.current.s0135, color = LocalAppColors.current.ink, fontSize = 12.sp)
+                            PolicyLink(LocalStrings.current.s0092) { onOpenPolicy(0) }
+                            Text(LocalStrings.current.s0095, color = LocalAppColors.current.ink, fontSize = 12.sp)
+                            PolicyLink(LocalStrings.current.s0093) { onOpenPolicy(1) }
                         }
                     }
                 }

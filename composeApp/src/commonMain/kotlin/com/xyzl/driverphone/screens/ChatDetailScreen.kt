@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -57,16 +60,16 @@ fun ChatDetailScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "聊天详情", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0174, onBack = onBack)
         Spacer(Modifier.height(14.dp))
 
         FormGroup {
-            FormValueRow(label = "查找聊天内容", value = "", onClick = onOpenSearch)
+            FormValueRow(label = LocalStrings.current.s0546, value = "", onClick = onOpenSearch)
         }
 
         Spacer(Modifier.height(14.dp))
         FormGroup {
-            FormSwitchRow(label = "消息免打扰", checked = quiet, onCheckedChange = { on ->
+            FormSwitchRow(label = LocalStrings.current.s0571, checked = quiet, onCheckedChange = { on ->
                 quiet = on
                 val id = thread?.id ?: return@FormSwitchRow
                 scope.launch { repo.setMuted(id, on) }
@@ -75,7 +78,7 @@ fun ChatDetailScreen(
 
         Spacer(Modifier.height(14.dp))
         FormGroup {
-            FormSwitchRow(label = "置顶聊天", checked = pinned, onCheckedChange = { on ->
+            FormSwitchRow(label = LocalStrings.current.s0634, checked = pinned, onCheckedChange = { on ->
                 pinned = on
                 val id = thread?.id ?: return@FormSwitchRow
                 scope.launch { repo.setPinned(id, on) }
@@ -85,13 +88,13 @@ fun ChatDetailScreen(
         Spacer(Modifier.height(14.dp))
         FormGroup {
             FormValueRow(
-                label = "清空当前聊天记录",
+                label = LocalStrings.current.s0578,
                 value = "",
                 onClick = { confirmClear = true },
             )
         }
         Spacer(Modifier.height(10.dp))
-        FormNote("清空只对你自己隐藏（user_cleared_at），服务器上的聊天记录不会被删。")
+        FormNote(LocalStrings.current.s0576)
         Spacer(Modifier.height(40.dp))
     }
 
@@ -99,15 +102,15 @@ fun ChatDetailScreen(
         AlertDialog(
             onDismissRequest = { confirmClear = false },
             containerColor = FormCard,
-            title = { Text("清空聊天记录", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
-            text = { Text("确定清空与「" + peerName + "」的聊天记录吗？", fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
+            title = { Text(LocalStrings.current.s0162, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = FormInk) },
+            text = { Text(LocalStrings.current.s0609 + peerName + LocalStrings.current.s0226, fontSize = 14.sp, color = FormMuted, lineHeight = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     confirmClear = false
                     val id = thread?.id
                     if (id != null) scope.launch { repo.clearForUser(id) }
                     onCleared()
-                }) { Text("确定", color = FormRed, fontWeight = FontWeight.SemiBold) }
+                }) { Text(LocalStrings.current.confirm, color = FormRed, fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = {
                 TextButton(onClick = { confirmClear = false }) { Text("取消", color = FormMuted) }

@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,7 +59,7 @@ fun MyReviewsScreen(onBack: () -> Unit = {}) {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        FormPageHeader(title = "我的评价", onBack = onBack)
+        FormPageHeader(title = LocalStrings.current.s0058, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
         Card(
@@ -72,18 +75,18 @@ fun MyReviewsScreen(onBack: () -> Unit = {}) {
                 Column(Modifier.weight(1f)) {
                     Text("4.9", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = FormGreen)
                     Spacer(Modifier.height(2.dp))
-                    Text("平均评分", fontSize = 12.sp, color = FormMuted)
+                    Text(LocalStrings.current.s0130, fontSize = 12.sp, color = FormMuted)
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("共 128 条评价", fontSize = 15.sp, color = FormInk, fontWeight = FontWeight.SemiBold)
+                    Text(LocalStrings.current.s0303, fontSize = 15.sp, color = FormInk, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(4.dp))
-                    Text("好评率 96%", fontSize = 12.sp, color = FormMuted)
+                    Text(LocalStrings.current.s0356, fontSize = 12.sp, color = FormMuted)
                 }
             }
         }
 
         Spacer(Modifier.height(16.dp))
-        FormSectionTitle("评价记录")
+        FormSectionTitle(LocalStrings.current.s0660)
 
         reviews.forEach { review ->
             ReviewCard(review)

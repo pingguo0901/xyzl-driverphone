@@ -1,5 +1,8 @@
 package com.xyzl.driverphone.screens
 
+import com.xyzl.driverphone.LocalStrings
+import com.xyzl.driverphone.fill
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,7 +60,7 @@ fun FontSizeScreen(onBack: () -> Unit = {}) {
         FontPreview(fontSize = previewSize, modifier = Modifier.weight(1f))
 
         Spacer(Modifier.height(14.dp))
-        FormNote("拖动下面的滑块，可设置字体大小。设置后，会改变聊天和应用全部的字体大小。如果在使用过程中存在问题或意见，可反馈给官方团队。")
+        FormNote(LocalStrings.current.s0464)
 
         Spacer(Modifier.height(14.dp))
         Slider(
@@ -79,7 +82,7 @@ fun FontSizeScreen(onBack: () -> Unit = {}) {
         )
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("A", fontSize = 12.sp, color = FormMuted)
-            Text(level.toString() + " / 7 档", fontSize = 12.sp, color = FormMuted, fontWeight = FontWeight.SemiBold)
+            Text(level.toString() + LocalStrings.current.s0083, fontSize = 12.sp, color = FormMuted, fontWeight = FontWeight.SemiBold)
             Text("A", fontSize = 20.sp, color = FormInk)
         }
 
@@ -105,7 +108,7 @@ private fun FontPreview(fontSize: TextUnit, modifier: Modifier = Modifier) {
                     .background(FormGreen)
                     .padding(10.dp),
             ) {
-                Text("预览字体大小", color = Color.White, fontSize = fontSize, lineHeight = fontSize * 1.4f)
+                Text(LocalStrings.current.s0756, color = Color.White, fontSize = fontSize, lineHeight = fontSize * 1.4f)
             }
             Spacer(Modifier.width(8.dp))
             Avatar("我", FormGreen)
@@ -120,7 +123,7 @@ private fun FontPreview(fontSize: TextUnit, modifier: Modifier = Modifier) {
                     .background(FormChip)
                     .padding(10.dp),
             ) {
-                Text("拖动下面的滑块，可设置字体大小", color = FormInk, fontSize = fontSize, lineHeight = fontSize * 1.4f)
+                Text(LocalStrings.current.s0463, color = FormInk, fontSize = fontSize, lineHeight = fontSize * 1.4f)
             }
         }
         Row(Modifier.fillMaxWidth()) {
@@ -134,7 +137,7 @@ private fun FontPreview(fontSize: TextUnit, modifier: Modifier = Modifier) {
                     .padding(10.dp),
             ) {
                 Text(
-                    "设置后，会改变聊天和应用全部的字体大小。如果在使用过程中存在问题或意见，可反馈给官方团队",
+                    LocalStrings.current.s0656,
                     color = FormInk,
                     fontSize = fontSize,
                     lineHeight = fontSize * 1.4f,
