@@ -315,7 +315,7 @@ fun DisclaimerScreen(onBack: () -> Unit = {}) {
 fun FinalComplianceScreen(onBack: () -> Unit = {}) {
     val en = AppLanguageStore.language == AppLanguage.EN
     PolicyScreen(
-        title = if (en) "Final Compliance Statement" else "合规最终说明",
+        title = if (en) "Compliance Final Statement" else "合规最终说明",
         blocks = if (en) finalCompliancePolicyEn else finalCompliancePolicy,
         onBack = onBack
     )
@@ -750,10 +750,17 @@ fun RateScheduleScreen(onBack: () -> Unit = {}) {
     )
 }
 
-/** English version of the final compliance statement (extra page, not part of the 9-doc bundle). */
+/** Official English version of the compliance final statement. */
 private val finalCompliancePolicyEn = listOf(
-    "P|1. This document applies to all three ends: Passenger APP, Driver APP, Merchant Backend and Web Portal.",
-    "P|2. Fully compliant with Malaysian laws and regulations (PDPA 2024, LHDN, SSM, cross-border travel compliance).",
-    "P|3. Ready for: app store submission, official website publication, user registration consent, legal filing, financing compliance and annual corporate review.",
-    "P|4. Fully aligned with your existing Supabase database audit rules, data retention rules, KYC table structure and Storage compliance retention cycle.",
+    "H|IMPORTANT LEGAL DISCLAIMER",
+    "P|This set of documents (including User Service Agreement, Driver Service Agreement, Privacy Policy, KYC Verification Terms, Refund Policy, Platform Disclaimer, End User License Agreement (EULA), Data Retention & Information Security Statement, and Driver Rate & Commission Schedule) is a preliminary template prepared for Stellar Elite / Xingyu Zhenlü cross-border private charter platform operating between Malaysia and Singapore.",
+    "P|This template is for internal drafting and reference purposes only. It is NOT legal advice and has NOT been reviewed or endorsed by a licensed Malaysian advocate and solicitor.",
+    "P|The terms in these documents shall be reviewed and revised to comply with applicable Malaysian laws, including but not limited to Personal Data Protection Act 2010 (PDPA), Companies Act 2016, relevant land transport regulations, immigration rules, LHDN tax requirements, as well as the terms of payment gateway, cloud service and KYC verification vendors.",
+    "P|Prior to publication, embedding inside mobile applications or commercial use, you must obtain formal legal review and written confirmation from a qualified Malaysian lawyer. You are fully responsible for verifying all entity information including SSM registration particulars, registered business address, tax information, commission rates, settlement rules and refund timelines to match your actual business operation.",
+    "P|You acknowledge the following upon using these templates:",
+    "P|1. These are draft templates only and do not constitute enforceable legal contracts until finalised and approved by Malaysian legal counsel.",
+    "P|2. Consistency among English, Chinese and Bahasa Malaysia versions must be cross-checked.",
+    "P|3. Compliance with local and cross-border regulatory requirements remains the sole responsibility of Stellar Elite / Xingyu Zhenlü.",
+    "P|4. All operational clauses related to order processing, account suspension, KYC workflow, refund and compensation shall be validated against your live system before launch.",
+    "P|Governing Law: Laws of Malaysia",
 )
